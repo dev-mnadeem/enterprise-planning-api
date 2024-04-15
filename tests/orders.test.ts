@@ -119,3 +119,73 @@ describe('customers created from an order', () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe('moving an order between branches', () => {
+  let shipment: any;
+
+  beforeAll(async () => {
+    shipment = (await api('POST', '/orders', admin, newOrderBody(demo))).body;
+  });
+
+  it('reports that a freshly booked order can go out but not in', async () => {
+    const asIn = await api('GET', `/orders/${shipment.order_number}/in/is-valid`, admin);
+    const asOut = await api('GET', `/orders/${shipment.order_number}/out/is-valid`, admin);
+    expect(asIn.body.is_valid).toBe(false);
+    expect(asOut.body).toEqual({ is_valid: true });
+  });
+
+  it('refuses to check in an order that is already in', async () => {
+    const res = await api('POST', '/orders/in', admin, {
+      order_numbers: [shipment.order_number],
+      location_id: demo.kumasiBranch.id,
+    });
+    expect(res.body).toEqual({ success: [], failed: [shipment.order_number] });
+  });
+
+  it('sends it out on a vehicle, once', async () => {
+    const out = {
+      order_numbers: [shipment.order_number, 'no-such-order'],
+      from_location_id: demo.accraBranch.id,
+      to_location_id: demo.kumasiBranch.id,
+      vehicle_id: demo.vehicle.id,
+    };
+    const first = await api('POST', '/orders/out', admin, out);
+    expect(first.status).toBe(200);
+    expect(first.body).toEqual({ success: [shipment.order_number], failed: ['no-such-order'] });
+
+    const second = await api('POST', '/orders/out', admin, out);
+    expect(second.body.success).toEqual([]);
+  });
+
+  it('checks it in at the destination, after which it lists there', async () => {
+    const res = await api('POST', '/orders/in', admin, {
+      order_numbers: [shipment.order_number],
+      location_id: demo.kumasiBranch.id,
+    });
+    expect(res.body.success).toEqual([shipment.order_number]);
+
+    const atKumasi = await api('GET', `/orders?locationId=${demo.kumasiBranch.id}&pageSize=100`, admin);
+    expect(atKumasi.body.results.map((o: any) => o.id)).toContain(shipment.id);
+
+    const detail = await api('GET', `/orders/${shipment.id}`, admin);
+    expect(detail.body.history.map((h: any) => h.status)).toEqual(['in', 'out', 'in']);
+  });
+
+  it('records no destination when none is given, instead of an arbitrary one', async () => {
+    await api('POST', '/orders/out', admin, {
+      order_numbers: [shipment.order_number],
+      from_location_id: demo.kumasiBranch.id,
+      vehicle_id: demo.vehicle.id,
+    });
+    const detail = await api('GET', `/orders/${shipment.id}`, admin);
+    expect(detail.body.history[0]).toMatchObject({ status: 'out', to_location: null });
+  });
+
+  it('404s on an unknown location before touching any order', async () => {
+    const res = await api('POST', '/orders/in', admin, {
+      order_numbers: [shipment.order_number],
+      location_id: 'missing',
+    });
+    expect(res.status).toBe(404);
+  });
+});

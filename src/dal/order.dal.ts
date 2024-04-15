@@ -17,6 +17,7 @@ import { addSearchToQuery } from '../utils/searchUtils';
 import { buildPagination } from '../utils/paginationUtils';
 import { resolveLocationScope, whereLatestHistoryIn } from '../utils/locationScope';
 import { PageInfoResponse } from '../types/pagination.interface';
+import { findLocationSnapshot, historyFields } from '../utils/movement';
 
 const orderRepository = AppDataSource.getRepository(Order);
 const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
@@ -83,25 +84,8 @@ const resolvePricing = async (manager: EntityManager, pricing: TCreatePricing): 
   );
 };
 
-const findLocationSnapshot = async (manager: EntityManager, locationId: string): Promise<Location> => {
-  const location = await manager.findOne(Location, {
-    where: { id: locationId },
-    select: { id: true, name: true, description: true, address: true, geo_location: true },
-    relations: { city: { state: { country: true } } },
-  });
-
-  if (!location) {
-    throw new CustomError('Location Not Found!', 404);
-  }
-  return location;
-};
-
 const checkInHistory = (orderId: string, location: Location): Partial<OrderHistory> => ({
-  name: location.name,
-  city: location.city.name,
-  description: location.description,
-  address: location.address,
-  geo_location: location.geo_location,
+  ...historyFields(location),
   status: 'in',
   from_location: location,
   order_id: orderId,
