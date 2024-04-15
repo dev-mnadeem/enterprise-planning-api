@@ -62,6 +62,12 @@ export const authenticateJWT = async (req: Request, res: Response, next: NextFun
       return res.status(404).json({ message: 'User Not Found!' });
     }
 
+    // Access tokens live for 15 minutes; without this a disabled account kept
+    // working until its token expired.
+    if (!user.status) {
+      return res.status(403).json({ message: 'This account has been disabled.' });
+    }
+
     (req as RequestWithCurrentUser).currentUser = user;
     return next();
   } catch (error) {

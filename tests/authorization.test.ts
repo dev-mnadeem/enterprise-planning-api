@@ -77,6 +77,48 @@ describe('tokens', () => {
   });
 });
 
+describe('login', () => {
+  const attempt = (body: object) =>
+    fetch(`${BASE}/auth/login`, { method: 'POST', headers: json(), body: JSON.stringify(body) });
+
+  it('gives the same answer for an unknown account and a wrong password', async () => {
+    const unknown = await attempt({ email: 'nobody-here@example.com', password: 'Whatever123' });
+    const wrong = await attempt({ email: ADMIN.email, password: 'Whatever123' });
+    expect(unknown.status).toBe(401);
+    expect(wrong.status).toBe(401);
+    expect(await unknown.json()).toEqual(await wrong.json());
+  });
+
+  it('accepts a phone number instead of an email', async () => {
+    const res = await attempt({ phone_number: CUSTOMER.phone_number, password: CUSTOMER.password });
+    expect(res.status).toBe(200);
+  });
+
+  it('rejects a body with neither email nor phone number', async () => {
+    const res = await attempt({ password: 'Whatever123' });
+    expect(res.status).toBe(422);
+  });
+
+  it('rotates the refresh cookie and issues a new access token', async () => {
+    const res = await attempt(ADMIN);
+    const cookie = (res.headers.get('set-cookie') ?? '').split(';')[0];
+    expect(cookie).toMatch(/^REFRESH-TOKEN=/);
+
+    const refreshed = await fetch(`${BASE}/auth/refresh`, { headers: { Cookie: cookie } });
+    expect(refreshed.status).toBe(200);
+    expect((await refreshed.json()).token).toEqual(expect.any(String));
+
+    // the old refresh token was replaced, so it cannot be replayed
+    const replay = await fetch(`${BASE}/auth/refresh`, { headers: { Cookie: cookie } });
+    expect(replay.status).toBe(401);
+  });
+
+  it('rejects a refresh without the cookie', async () => {
+    const res = await fetch(`${BASE}/auth/refresh`);
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('unauthenticated requests', () => {
   it.each(['users', 'user-roles', 'permissions', 'vehicles', 'orders'])(
     'are rejected on /%s',
@@ -209,6 +251,34 @@ describe('an administrator', () => {
 
     const reread = await (await fetch(`${BASE}/users/${user.id}`, { headers: json(adminToken) })).json();
     expect(reread.user_role.name).toBe('driver');
+  });
+
+  it('can disable an account, which locks out its existing token', async () => {
+    const phone = `+1666${Date.now().toString().slice(-7)}`;
+    const signup = await fetch(`${BASE}/auth/signup`, {
+      method: 'POST',
+      headers: json(),
+      body: JSON.stringify({ name: 'Soon Disabled', password: 'Helloworld1', phone_number: phone }),
+    });
+    const { token } = await signup.json();
+    const id = JSON.parse(decodeJwt(token).id).id;
+
+    const disable = await fetch(`${BASE}/users/${id}`, {
+      method: 'PATCH',
+      headers: json(adminToken),
+      body: JSON.stringify({ status: false }),
+    });
+    expect(disable.status).toBe(200);
+
+    const withOldToken = await fetch(`${BASE}/users/${id}`, { headers: json(token) });
+    expect(withOldToken.status).toBe(403);
+
+    const login = await fetch(`${BASE}/auth/login`, {
+      method: 'POST',
+      headers: json(),
+      body: JSON.stringify({ phone_number: phone, password: 'Helloworld1' }),
+    });
+    expect(login.status).toBe(403);
   });
 
   it('is not served password hashes or refresh tokens', async () => {

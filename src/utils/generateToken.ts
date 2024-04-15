@@ -1,4 +1,5 @@
 import { sign } from 'jsonwebtoken';
+import { ulid } from 'ulid';
 import appConfig from '../config/appConfig';
 import { User } from '../entities';
 
@@ -13,7 +14,10 @@ export const generateAccessToken = (user: Partial<User>) =>
     expiresIn: ACCESS_TOKEN_TTL,
   });
 
+// The jwtid makes every refresh token unique. Two logins within the same
+// second otherwise produced the identical token, so rotation did not retire it.
 export const generateRefreshToken = (user: Partial<User>) =>
   sign({ id: JSON.stringify(user) }, `${appConfig.refreshTokenSecretKey}`, {
     expiresIn: REFRESH_TOKEN_TTL,
+    jwtid: ulid(),
   });
