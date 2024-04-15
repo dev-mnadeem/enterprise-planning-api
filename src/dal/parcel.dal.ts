@@ -1,16 +1,15 @@
-import { Location, Parcel, ParcelHistory, ParcelItem, Package, Pricing, User, OrderItem } from '../entities';
-import { AppDataSource } from '../database/data-source';
-import { TCreateParcel, TUpdateParcel } from '../schemas/parcel.schema';
-import { CustomError } from '../utils/customError';
-import { getCityById } from './city.dal';
-import { getPackageById } from './package.dal';
 import { QueryRunner } from 'typeorm';
+
+import { Location, Parcel, ParcelHistory, ParcelItem, User, OrderItem } from '../entities';
+import { AppDataSource } from '../database/data-source';
+import { TCreateParcel } from '../schemas/parcel.schema';
+import { CustomError } from '../utils/customError';
 import { ParcelQueryParams } from '../types/parcel.interface';
 import { addSearchToQuery } from '../utils/searchUtils';
 import { buildPagination } from '../utils/paginationUtils';
 import { resolveLocationScope, whereLatestHistoryIn } from '../utils/locationScope';
 import { PageInfoResponse } from '../types/pagination.interface';
-import { generateParcelNumber } from '../utils/generateParcelNumber';
+import { generateShipmentNumber } from '../utils/shipmentNumber';
 import { splitQuantity } from '../utils/splitQuantity';
 import { findLocationSnapshot, historyFields } from '../utils/movement';
 
@@ -59,7 +58,7 @@ const createCompleteParcel = async (
   const manager = queryRunner.manager;
   const createdParcel = await manager.save(
     Parcel,
-    manager.create(Parcel, { order_id: orderItem.order_id, parcel_number: generateParcelNumber() }),
+    manager.create(Parcel, { order_id: orderItem.order_id, parcel_number: generateShipmentNumber() }),
   );
 
   const createdParcelItem = await manager.save(
@@ -242,185 +241,6 @@ export const getParcelByNumber = async (number: string): Promise<Parcel | null> 
 
   return parcel;
 };
-
-// export const updateParcel = async (
-//   user_id: string,
-//   id: string,
-//   newData: TUpdateParcel,
-// ): Promise<Parcel | undefined> => {
-//   const queryRunner = AppDataSource.createQueryRunner();
-
-//   await queryRunner.connect();
-//   await queryRunner.startTransaction();
-
-//   try {
-//     const parcelRepository = queryRunner.manager.getRepository(Parcel);
-//     const parcelItemRepository = queryRunner.manager.getRepository(ParcelItem);
-
-//     const parcelToUpdate = await parcelRepository.findOne({
-//       where: { id },
-//       relations: ['parcel_items', 'history'],
-//     });
-
-//     if (!parcelToUpdate) {
-//       throw new CustomError('Parcel Not Found!', 404);
-//     }
-
-//     const { parcelItems, pricing, location_id, package_id, ...parcelDetails } = newData;
-
-//     let parcelPackage: Partial<Package> | undefined = undefined;
-
-//     if (package_id) {
-//       const pkg = await queryRunner.manager.findOne(Package, {
-//         where: { id: package_id },
-//         select: {
-//           name: true,
-//           width: true,
-//           height: true,
-//           depth: true,
-//           weight_limit: true,
-//           weight_type: true,
-//           route: true,
-//         },
-//       });
-
-//       if (!pkg) {
-//         throw new CustomError('Package Not Found!', 404);
-//       }
-//       parcelPackage = pkg;
-//     }
-
-//     let newPricing = {};
-
-//     if (pricing) {
-//       const exitingPricing = await queryRunner.manager.findOne(Pricing, {
-//         where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id, package_id: pricing.package_id },
-//         select: {
-//           id: true,
-//           price: true,
-//         },
-//         relations: {
-//           from_city: true,
-//           to_city: true,
-//           package: true,
-//         },
-//       });
-
-//       if (exitingPricing) {
-//         newPricing = exitingPricing;
-//       } else {
-//         const from_city = await getCityById(pricing.from_city_id);
-//         const to_city = await getCityById(pricing.to_city_id);
-//         const pkg = pricing.package_id ? await getPackageById(pricing.package_id) : undefined;
-
-//         const createdPricing = queryRunner.manager.create(Pricing, {
-//           from_city,
-//           to_city,
-//           package: pkg,
-//           price: pricing.price,
-//         });
-//         newPricing = await queryRunner.manager.save(Pricing, createdPricing);
-//       }
-//     }
-
-//     // Update parcel details
-//     const updatedParcel = parcelRepository.merge(parcelToUpdate, {
-//       ...parcelDetails,
-//       user_id,
-//       package: parcelPackage,
-//       pricing: newPricing,
-//     });
-//     await queryRunner.manager.save(Parcel, updatedParcel);
-
-//     if (parcelItems) {
-//       // Update parcel items
-//       const existingParcelItemIds = parcelToUpdate.parcel_items.map((item) => item.id);
-//       const newParcelItemIds = parcelItems.map((item) => item.id).filter((id) => id !== undefined);
-
-//       // Find items to remove
-//       const itemsToRemove = existingParcelItemIds.filter((id) => !newParcelItemIds.includes(id));
-
-//       // Remove old items that are not in the new items
-//       await queryRunner.manager.delete(ParcelItem, itemsToRemove);
-
-//       // Update or add new items
-//       const newParcelItems = parcelItems.map((item) => {
-//         return parcelItemRepository.create({
-//           ...item,
-//           total_price: item.quantity * (item?.price ? item.price : 0),
-//           parcel_id: updatedParcel.id,
-//         });
-//       });
-
-//       await queryRunner.manager.save(ParcelItem, newParcelItems);
-
-//       // Update the parcel's parcelItems
-//       updatedParcel.parcel_items = newParcelItems;
-//     }
-
-//     if (location_id) {
-//       const location = await queryRunner.manager.findOne(Location, {
-//         where: { id: location_id },
-//         select: {
-//           name: true,
-//           description: true,
-//           address: true,
-//           geo_location: true,
-//         },
-//         relations: { city: { state: { country: true } } },
-//       });
-
-//       if (!location) {
-//         throw new CustomError('Location Not Found!', 404);
-//       }
-
-//       const {
-//         name,
-//         city: { name: city },
-//         description,
-//         address,
-//         geo_location,
-//       } = location;
-
-//       const parcelHistory = await queryRunner.manager.findOne(ParcelHistory, {
-//         where: { name, address, geo_location, parcel_id: updatedParcel.id },
-//       });
-
-//       if (!parcelHistory) {
-//         const parcelHistoryData = {
-//           name,
-//           city,
-//           description,
-//           address,
-//           geo_location,
-//           status: 'in',
-//           from_location: location,
-//           parcel_id: updatedParcel.id,
-//         };
-//         // Create parcel history
-//         const newParcelHistory = queryRunner.manager.create(ParcelHistory, parcelHistoryData);
-
-//         //Save parcel history
-//         await queryRunner.manager.save(ParcelHistory, newParcelHistory);
-
-//         // Assign saved parcel history to the parcel
-//         updatedParcel.history = [...updatedParcel.history, newParcelHistory];
-//       }
-//     }
-
-//     // Commit the transaction
-//     await queryRunner.commitTransaction();
-
-//     return await getParcelById(updatedParcel.id);
-//   } catch (err) {
-//     // Rollback the transaction on error
-//     await queryRunner.rollbackTransaction();
-//     throw err;
-//   } finally {
-//     // Release the query runner
-//     await queryRunner.release();
-//   }
-// };
 
 export const deleteParcel = async (id: string): Promise<boolean> => {
   const result = await parcelRepository.softDelete(id);

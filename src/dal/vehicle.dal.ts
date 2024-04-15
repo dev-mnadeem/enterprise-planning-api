@@ -3,7 +3,7 @@ import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreateVehicle, TUpdateVehicle } from '../schemas/vehicle.schema';
 import { In } from 'typeorm';
-import { generateTrackingNumber } from '../utils/generateTrackingNumber';
+import { generateShipmentNumber } from '../utils/shipmentNumber';
 
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
 const userRepository = AppDataSource.getRepository(User);
@@ -23,7 +23,7 @@ export const createVehicle = async (vehicleData: TCreateVehicle): Promise<Vehicl
     await assertIsDriver(vehicleData.driver_id);
   }
 
-  vehicleData.tracking_number = generateTrackingNumber();
+  vehicleData.tracking_number = generateShipmentNumber();
 
   const newVehicle = vehicleRepository.create(vehicleData);
   return await vehicleRepository.save(newVehicle);

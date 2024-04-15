@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as parcelService from '../dal/parcel.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
-import { TCreateParcel, TUpdateParcel } from '../schemas/parcel.schema';
+import { TCreateParcel } from '../schemas/parcel.schema';
 import { RequestWithCurrentUser } from '../types/user.interface';
 import { ParcelQueryParams, queryParamToParcelParam } from '../types/parcel.interface';
 
@@ -54,20 +54,6 @@ export const getParcelById = async (req: Request, res: Response) => {
     sendErrorResponse(error as Error, res);
   }
 };
-
-// export const updateParcel = async (req: Request, res: Response) => {
-//   try {
-//     const { id: userId } = (req as RequestWithCurrentUser).currentUser;
-//     const { id } = req.params;
-//     const parcelData: TUpdateParcel = req.body;
-
-//     const updatedParcel = await parcelService.updateParcel(userId, id, parcelData);
-
-//     res.json(updatedParcel);
-//   } catch (error) {
-//     sendErrorResponse(error as Error, res);
-//   }
-// };
 
 export const deleteParcel = async (req: Request, res: Response) => {
   try {

@@ -3,14 +3,14 @@ import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreateContainer, TUpdateContainer } from '../schemas/container.schema';
 import { In } from 'typeorm';
-import { generateTrackingNumber } from '../utils/generateTrackingNumber';
+import { generateShipmentNumber } from '../utils/shipmentNumber';
 import { getOrderByNumber } from './order.dal';
 
 const containerRepository = AppDataSource.getRepository(Container);
 const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 
 export const createContainer = async (containerData: TCreateContainer): Promise<Container> => {
-  containerData.tracking_number = generateTrackingNumber();
+  containerData.tracking_number = generateShipmentNumber();
 
   const newContainer = containerRepository.create(containerData);
   return await containerRepository.save(newContainer);

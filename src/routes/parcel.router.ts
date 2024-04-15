@@ -5,7 +5,6 @@ import {
   deleteParcel,
   getAllParcels,
   getParcelById,
-  // updateParcel,
   validateInParcelNumber,
   validateOutParcelNumber,
 } from '../controllers/parcel.controller';
@@ -20,7 +19,6 @@ const parcelRouter: Router = express.Router();
 parcelRouter.get('/', expressAsyncHandler(getAllParcels));
 parcelRouter.post('/', validateZodMiddleware(parcelSchema), expressAsyncHandler(createParcel));
 parcelRouter.get('/:id', expressAsyncHandler(getParcelById));
-// parcelRouter.patch('/:id', validateZodMiddleware(parcelSchema), expressAsyncHandler(updateParcel));
 parcelRouter.delete('/:id', expressAsyncHandler(deleteParcel));
 
 parcelRouter.get('/:number/in/is-valid', expressAsyncHandler(validateInParcelNumber));

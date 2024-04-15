@@ -45,14 +45,3 @@ export const updateContainerSchema = z
   );
 
 export type TUpdateContainer = z.infer<typeof updateContainerSchema>;
-
-export const addItemsToContainerSchema = z.object({
-  order_numbers: z
-    .array(z.string())
-    .min(1)
-    .refine((orderNumbers) => new Set(orderNumbers).size === orderNumbers.length, {
-      message: 'Order numbers must be unique',
-    }),
-});
-
-export type TAddItemsToContainer = z.infer<typeof addItemsToContainerSchema>;

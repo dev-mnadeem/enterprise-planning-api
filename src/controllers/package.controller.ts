@@ -7,10 +7,6 @@ import { PackageQueryParams, queryParamToPackageParam } from '../types/package.i
 export const createPackage = async (req: Request<unknown, unknown, TCreatePackage>, res: Response) => {
   try {
     const packageData = req.body;
-
-    console.log({ packageData });
-    
-
     const newPackage = await packageService.createPackage(packageData);
     res.status(201).json(newPackage);
   } catch (error) {

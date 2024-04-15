@@ -16,7 +16,6 @@ import { ParcelItem } from './parcelItem.entity';
 import { ParcelHistory } from './parcelHistory.entity';
 import { Order } from './order.entity';
 import { ulid } from 'ulid';
-ParcelHistory
 
 @Entity()
 export class Parcel {

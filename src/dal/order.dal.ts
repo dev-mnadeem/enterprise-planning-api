@@ -9,7 +9,7 @@ import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
 import { TCreatePricing } from '../schemas/pricing.schema';
 import { CustomError } from '../utils/customError';
 import { hashPassword } from '../utils/passwordUtils';
-import { generateOrderNumber } from '../utils/generateOrderNumber';
+import { generateShipmentNumber } from '../utils/shipmentNumber';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
 import { OrderQueryParams } from '../types/order.interface';
@@ -137,7 +137,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         ...orderDetails,
         location_id,
         user_id,
-        order_number: generateOrderNumber(),
+        order_number: generateShipmentNumber(),
         package: package_id ? await findPackageSnapshot(manager, package_id) : undefined,
         pricing: await resolvePricing(manager, pricing),
       }),

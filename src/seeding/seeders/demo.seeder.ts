@@ -15,7 +15,7 @@ import {
   VehicleType,
 } from '../../entities';
 import { hashPassword } from '../../utils/passwordUtils';
-import { generateTrackingNumber } from '../../utils/generateTrackingNumber';
+import { generateShipmentNumber } from '../../utils/shipmentNumber';
 
 const findOrCreate = async <T extends ObjectLiteral>(
   repository: Repository<T>,
@@ -105,7 +105,7 @@ export default class DemoSeeder implements Seeder {
         model: 'Toyota Hiace',
         vehicle_type_id: van.id,
         driver_id: driver.id,
-        tracking_number: generateTrackingNumber(),
+        tracking_number: generateShipmentNumber(),
       },
     );
 

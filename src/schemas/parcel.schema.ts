@@ -13,5 +13,3 @@ export const parcelSchema = z.object({
 });
 
 export type TCreateParcel = z.infer<typeof parcelSchema>;
-
-export type TUpdateParcel = z.infer<typeof parcelSchema>;
