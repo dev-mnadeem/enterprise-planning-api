@@ -1,6 +1,6 @@
 import { Brackets, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
-import { User } from '../entities';
+import type { User } from '../entities';
 
 export type LocationScope = { kind: 'everywhere' } | { kind: 'locations'; ids: string[] };
 

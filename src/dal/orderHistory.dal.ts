@@ -2,10 +2,8 @@ import { OrderHistory } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { getOrderByNumber } from './order.dal';
 import { TOrdersIn, TOrdersOut } from '../schemas/orderHistory.schema';
+import { MovementResult, MovementStatus, canMove } from '../utils/movementRules';
 import {
-  MovementResult,
-  MovementStatus,
-  canMove,
   findLocationSnapshot,
   findVehicleSnapshot,
   historyFields,

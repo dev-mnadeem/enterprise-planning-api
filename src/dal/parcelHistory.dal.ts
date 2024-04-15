@@ -2,10 +2,8 @@ import { Parcel, ParcelHistory } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { getParcelByNumber } from './parcel.dal';
 import { TParcelsIn, TParcelsOut } from '../schemas/parcelHistory.schema';
+import { MovementResult, MovementStatus, canMove } from '../utils/movementRules';
 import {
-  MovementResult,
-  MovementStatus,
-  canMove,
   findContainerSnapshot,
   findLocationSnapshot,
   findVehicleSnapshot,

@@ -17,7 +17,8 @@
     "seed:states": "ts-node src/seeding/states-seed.ts",
     "seed:cities": "ts-node src/seeding/cities-seed.ts",
     "seed:demo": "ts-node src/seeding/demo-seed.ts",
-    "test:api": "vitest run"
+    "test": "vitest run tests/unit",
+    "test:api": "vitest run tests/api"
   },
   "dependencies": {
     "@types/saml2-js": "^3.0.1",
