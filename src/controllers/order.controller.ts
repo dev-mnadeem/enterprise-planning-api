@@ -58,11 +58,10 @@ export const getOrderById = async (req: Request, res: Response) => {
 
 export const updateOrder = async (req: Request, res: Response) => {
   try {
-    const { id: userId } = (req as RequestWithCurrentUser).currentUser;
     const { id } = req.params;
     const orderData: TUpdateOrder = req.body;
 
-    const updatedOrder = await orderService.updateOrder(userId, id, orderData);
+    const updatedOrder = await orderService.updateOrder(id, orderData);
 
     res.json(updatedOrder);
   } catch (error) {

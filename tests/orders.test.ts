@@ -66,3 +66,56 @@ describe('listing orders', () => {
     expect(res.body.pageInfo).toMatchObject({ pageNumber: 1, pageSize: 100 });
   });
 });
+
+describe('updating an order', () => {
+  it('keeps the booked price and package when the PATCH does not resend them', async () => {
+    const res = await api('PATCH', `/orders/${order.id}`, admin, { receiver_address: '9 Harper Road' });
+    expect(res.status).toBe(200);
+    expect(res.body.receiver_address).toBe('9 Harper Road');
+    expect(Number(res.body.pricing.price)).toBe(45);
+    expect(res.body.package.name).toBe('Small box (up to 5 kg)');
+    expect(res.body.user_id).toBe(order.user_id);
+  });
+
+  it('accepts every status the schema allows, including return_in_progress', async () => {
+    const res = await api('PATCH', `/orders/${order.id}`, admin, { status: 'return_in_progress' });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('return_in_progress');
+  });
+
+  it('can resend the same items unchanged', async () => {
+    const items = order.order_items.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: Number(item.price),
+      weight: Number(item.weight),
+    }));
+    const res = await api('PATCH', `/orders/${order.id}`, admin, { orderItems: items });
+    expect(res.status).toBe(200);
+    expect(res.body.order_items).toHaveLength(1);
+  });
+
+  it('refuses items that belong to a different order', async () => {
+    const other = (await api('POST', '/orders', admin, newOrderBody(demo))).body;
+    const stranger = other.order_items[0];
+    const res = await api('PATCH', `/orders/${order.id}`, admin, {
+      orderItems: [{ id: stranger.id, quantity: 1, weight: 1 }],
+    });
+    expect(res.status).toBe(422);
+  });
+
+  it('rejects a fractional or zero item quantity', async () => {
+    const body = newOrderBody(demo, { orderItems: [{ name: 'Half a box', quantity: 0.5, weight: 1 }] });
+    expect((await api('POST', '/orders', admin, body)).status).toBe(422);
+  });
+});
+
+describe('customers created from an order', () => {
+  it('cannot be signed into with the old shared default password', async () => {
+    const body = newOrderBody(demo);
+    await api('POST', '/orders', admin, body);
+    const res = await api('POST', '/auth/login', undefined, { phone_number: body.sender_phone, password: 'Helloworld' });
+    expect(res.status).toBe(401);
+  });
+});

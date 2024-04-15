@@ -4,7 +4,7 @@ export const createOrderItemSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   price: z.number().positive().optional(),
-  quantity: z.number(),
+  quantity: z.number().int().positive(),
   weight: z.number().positive(),
 });
 

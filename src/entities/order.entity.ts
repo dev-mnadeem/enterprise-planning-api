@@ -106,7 +106,7 @@ export class Order {
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'in_process', 'in_route', 'delivered', 'cancelled', 'return_in_progrss'],
+    enum: ['pending', 'in_process', 'in_route', 'delivered', 'cancelled', 'return_in_progress'],
     default: 'pending',
   })
   status: string;
