@@ -9,8 +9,12 @@ import { UserQueryParams } from '../types/user.interface';
 import { buildPagination } from '../utils/paginationUtils';
 import { PageInfoResponse } from '../types/pagination.interface';
 import { addSearchToQuery } from '../utils/searchUtils';
+import { hashPassword } from '../utils/passwordUtils';
 
 const userRepository = AppDataSource.getRepository(User);
+
+/** save() echoes back every column it wrote, including the bcrypt hash. */
+const withoutSecrets = ({ password: _password, refresh_token: _refreshToken, ...user }: User) => user as User;
 
 export const createUser = async ({ location_ids, ...userData }: TCreateUser): Promise<User> => {
   let locations = [] as Location[];
@@ -21,7 +25,7 @@ export const createUser = async ({ location_ids, ...userData }: TCreateUser): Pr
 
   const newUser = userRepository.create({ ...userData, locations });
 
-  return await userRepository.save(newUser);
+  return withoutSecrets(await userRepository.save(newUser));
 };
 
 export const getAllUsersByRole = async (role: string) => {
@@ -91,25 +95,36 @@ export const getUserById = async (id: string): Promise<User | undefined> => {
   return user;
 };
 
-export const updateUser = async (id: string, { location_ids, ...newData }: TUpdateUser): Promise<User | null> => {
+export const updateUser = async (
+  id: string,
+  { location_ids, password, ...newData }: TUpdateUser & { refresh_token?: string },
+): Promise<User | null> => {
   const userToUpdate = await userRepository.findOne({
     where: { id },
-    relations: { user_role: true, locations: true },
+    relations: { locations: true },
   });
 
   if (!userToUpdate) {
     throw new CustomError('User Not Found!', 404);
   }
 
-  let locations = userToUpdate.locations;
+  // The edit form sends the complete list, so it replaces the old one.
+  // Appending made it impossible to take a location away from a user.
+  const locations = location_ids ? await getLocationByIds(location_ids) : userToUpdate.locations;
 
-  if (location_ids?.length) {
-    const newLocations = await getLocationByIds(location_ids);
-    locations.push(...newLocations)
+  const updatedUser = {
+    ...userToUpdate,
+    ...newData,
+    ...(password ? { password: await hashPassword(password) } : {}),
+    locations,
+  };
+  return withoutSecrets(await userRepository.save(updatedUser));
+};
+
+export const grantLocationToUsers = async (userIds: string[], locationId: string): Promise<void> => {
+  for (const userId of userIds) {
+    await userRepository.createQueryBuilder().relation(User, 'locations').of(userId).add(locationId);
   }
-
-  const updatedUser = { ...userToUpdate, ...newData, locations };
-  return await userRepository.save(updatedUser);
 };
 
 export const deleteUser = async (id: string): Promise<boolean> => {

@@ -34,13 +34,18 @@ export const updateUserSchema = z.object({
   geo_location: z.string().optional(),
   password: z.string().min(8).optional(),
   phone_number: z.string().optional(),
-  refresh_token: z.string().optional(),
   status: z.boolean().optional(),
   permissions: z.array(permissionSchema).optional(),
   location_ids: z.array(z.string()).optional(),
 });
 
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
+
+/** Fields a user may not change on their own record unless they are an admin. */
+export const PRIVILEGED_USER_FIELDS = ['role_id', 'permissions', 'status', 'location_ids'] as const;
+
+export const findPrivilegedFields = (data: TUpdateUser): string[] =>
+  PRIVILEGED_USER_FIELDS.filter((field) => data[field] !== undefined);
 
 export const loginSchema = z
   .object({

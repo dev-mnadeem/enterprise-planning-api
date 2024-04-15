@@ -135,12 +135,80 @@ describe('a self-registered customer', () => {
     const res = await fetch(`${BASE}/users/${customerId}`, { headers: json(customerToken) });
     expect(res.status).toBe(200);
   });
+
+  it.each([
+    ['role_id', 'any-role-id'],
+    ['permissions', [{ name: 'User', properties: { add: true, view: true, update: true, remove: true } }]],
+    ['status', false],
+    ['location_ids', []],
+  ])('cannot change its own %s', async (field, value) => {
+    const res = await fetch(`${BASE}/users/${customerId}`, {
+      method: 'PATCH',
+      headers: json(customerToken),
+      body: JSON.stringify({ [field]: value }),
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it('can change its own password, and the new one is hashed', async () => {
+    const res = await fetch(`${BASE}/users/${customerId}`, {
+      method: 'PATCH',
+      headers: json(customerToken),
+      body: JSON.stringify({ password: 'Changed-pass-2' }),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).not.toHaveProperty('password');
+
+    const relogin = await fetch(`${BASE}/auth/login`, {
+      method: 'POST',
+      headers: json(),
+      body: JSON.stringify({ email: CUSTOMER.email, password: 'Changed-pass-2' }),
+    });
+    expect(relogin.status).toBe(200);
+  });
+
+  it('cannot smuggle columns the schema does not declare', async () => {
+    const res = await fetch(`${BASE}/users/${customerId}`, {
+      method: 'PATCH',
+      headers: json(customerToken),
+      body: JSON.stringify({ name: 'Renamed Customer', refresh_token: 'forged', id: 'someone-else' }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.id).toBe(customerId);
+    expect(body.name).toBe('Renamed Customer');
+  });
 });
 
 describe('an administrator', () => {
   it.each(['users', 'user-roles', 'permissions'])('can reach /%s', async (path) => {
     const res = await fetch(`${BASE}/${path}`, { headers: json(adminToken) });
     expect(res.status).toBe(200);
+  });
+
+  it('can move a user to another role', async () => {
+    const roles = await (await fetch(`${BASE}/user-roles`, { headers: json(adminToken) })).json();
+    const driver = roles.find((role: { name: string }) => role.name === 'driver');
+    const phone = `+1888${Date.now().toString().slice(-7)}`;
+
+    const created = await fetch(`${BASE}/users`, {
+      method: 'POST',
+      headers: json(adminToken),
+      body: JSON.stringify({ name: 'Role Change', phone_number: phone, role_id: roles[0].id }),
+    });
+    expect(created.status).toBe(201);
+    const user = await created.json();
+    expect(user).not.toHaveProperty('password');
+
+    const patched = await fetch(`${BASE}/users/${user.id}`, {
+      method: 'PATCH',
+      headers: json(adminToken),
+      body: JSON.stringify({ role_id: driver.id }),
+    });
+    expect(patched.status).toBe(200);
+
+    const reread = await (await fetch(`${BASE}/users/${user.id}`, { headers: json(adminToken) })).json();
+    expect(reread.user_role.name).toBe('driver');
   });
 
   it('is not served password hashes or refresh tokens', async () => {

@@ -10,13 +10,12 @@ export const createLocation = async (req: Request<unknown, unknown, TCreateLocat
     const locationData = req.body;
     const newLocation = await locationService.createLocation(locationData);
 
+    // Admins see stock at every location, so each new one is granted to them.
     const adminUsers = await userService.getAllUsersByRole('admin');
-
-    if (adminUsers) {
-      for (let user of adminUsers) {
-        await userService.updateUser(user.id, { location_ids: [newLocation.id] });
-      }
-    }
+    await userService.grantLocationToUsers(
+      adminUsers.map((user) => user.id),
+      newLocation.id,
+    );
     res.status(201).json(newLocation);
   } catch (error) {
     sendErrorResponse(error as Error, res);

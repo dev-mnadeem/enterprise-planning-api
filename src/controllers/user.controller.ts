@@ -1,15 +1,21 @@
 import { Request, Response } from 'express';
 import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
-import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
+import { TCreateUser, TUpdateUser, findPrivilegedFields } from '../schemas/user.schema';
 import { hashPassword } from '../utils/passwordUtils';
-import { UserQueryParams, queryParamToUserParam } from '../types/user.interface';
+import { RequestWithCurrentUser, UserQueryParams, queryParamToUserParam } from '../types/user.interface';
+import { CustomError } from '../utils/customError';
+
+// Staff accounts created from the admin panel start with this password unless
+// one is supplied; the frontend's "New User" form does not send one.
+const DEFAULT_STAFF_PASSWORD = 'Helloworld';
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const { name, email, phone_number, address, geo_location, role_id, city_id, permissions, location_ids } = req.body;
+    const { name, email, phone_number, address, geo_location, role_id, city_id, permissions, location_ids, password } =
+      req.body;
 
-    const encryptedPassword = await hashPassword('Helloworld');
+    const encryptedPassword = await hashPassword(password ?? DEFAULT_STAFF_PASSWORD);
 
     const userData = {
       name,
@@ -57,6 +63,15 @@ export const updateUser = async (req: Request<{ id: string }, unknown, TUpdateUs
   try {
     const { id } = req.params;
     const userData = req.body;
+    const currentUser = (req as unknown as RequestWithCurrentUser).currentUser;
+
+    // authenticateRoleOrSelf lets anyone edit their own record. Without this a
+    // customer could hand themselves a staff role, permissions or locations.
+    const isOwnRecord = currentUser.id === id;
+    const privileged = findPrivilegedFields(userData);
+    if (isOwnRecord && currentUser.user_role?.name !== 'admin' && privileged.length) {
+      throw new CustomError(`You cannot change your own ${privileged.join(', ')}.`, 403);
+    }
 
     const updatedUser = await userService.updateUser(id, userData);
 
