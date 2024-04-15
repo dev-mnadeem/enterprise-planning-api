@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# local Python virtualenv, not part of the project
+project_venv/
+
+# testing
+/coverage
+coverage/
+
+# production
+/build
+build/
+dist/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# misc
+.DS_Store
+/.vscode
+.vscode
+/.idea
+.github/
+tmp/
+.cache/
+*.tsbuildinfo
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
