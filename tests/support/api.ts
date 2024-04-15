@@ -37,6 +37,8 @@ export const uniquePhone = (prefix: string) =>
   `${prefix}${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 10)}`;
 
 export interface DemoData {
+  ghana: { id: string };
+  nigeria: { id: string };
   accra: { id: string };
   kumasi: { id: string };
   accraBranch: { id: string };
@@ -64,6 +66,8 @@ export const loadDemoData = async (token: string): Promise<DemoData> => {
   const packages = (await api<any[]>('GET', '/packages', token)).body;
 
   return {
+    ghana,
+    nigeria: countries.find((country) => country.code === 'NG'),
     accra: await cityIn('AA', 'Accra'),
     kumasi: await cityIn('AH', 'Kumasi'),
     accraBranch: locationNamed('Accra Central Branch'),

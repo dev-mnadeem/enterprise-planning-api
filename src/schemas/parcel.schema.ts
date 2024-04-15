@@ -2,12 +2,14 @@ import { z } from 'zod';
 
 export const parcelSchema = z.object({
   location_id: z.string(),
-  parcel_data: z.array(
-    z.object({
-      item_id: z.string(),
-      number_of_barcodes: z.number(),
-    }),
-  ),
+  parcel_data: z
+    .array(
+      z.object({
+        item_id: z.string(),
+        number_of_barcodes: z.number().int().positive(),
+      }),
+    )
+    .min(1),
 });
 
 export type TCreateParcel = z.infer<typeof parcelSchema>;

@@ -11,76 +11,41 @@ import { buildPagination } from '../utils/paginationUtils';
 import { resolveLocationScope, whereLatestHistoryIn } from '../utils/locationScope';
 import { PageInfoResponse } from '../types/pagination.interface';
 import { generateParcelNumber } from '../utils/generateParcelNumber';
+import { splitQuantity } from '../utils/splitQuantity';
+import { findLocationSnapshot, historyFields } from '../utils/movement';
 
 const parcelRepository = AppDataSource.getRepository(Parcel);
 const parcelHistoryRepository = AppDataSource.getRepository(ParcelHistory);
 
-export const createParcel = async (parcelData: TCreateParcel): Promise<Parcel[]> => {
+export const createParcel = async ({ location_id, parcel_data }: TCreateParcel): Promise<Parcel[]> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
   await queryRunner.connect();
   await queryRunner.startTransaction();
 
   try {
-    const { location_id, parcel_data } = parcelData;
+    const location = await findLocationSnapshot(queryRunner.manager, location_id);
     const newParcels: Parcel[] = [];
 
-    const location = await queryRunner.manager.findOne(Location, {
-      where: { id: location_id },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        address: true,
-        geo_location: true,
-      },
-      relations: { city: { state: { country: true } } },
-    });
-
-    if (!location) {
-      throw new CustomError('Location Not Found!', 404);
-    }
-
     for (const item of parcel_data) {
-      const orderItem = await queryRunner.manager.findOne(OrderItem, {
-        where: { id: item.item_id },
-        relations: {
-          order: true,
-        },
-      });
+      const orderItem = await queryRunner.manager.findOne(OrderItem, { where: { id: item.item_id } });
 
       if (!orderItem) {
         throw new CustomError('Order Item Not Found!', 404);
       }
 
-      const numberOfParcel = Math.floor(orderItem.quantity / item.number_of_barcodes);
-      const createdParcels: Parcel[] = [];
-
-      for (let i = 1; i < item.number_of_barcodes; i++) {
-        const parcel = await createCompleteParcel(numberOfParcel, orderItem, location, queryRunner);
-        createdParcels.push(parcel);
+      for (const quantity of splitQuantity(orderItem.quantity, item.number_of_barcodes)) {
+        newParcels.push(await createCompleteParcel(quantity, orderItem, location, queryRunner));
       }
-
-      const itemsQuantity = createdParcels.reduce((quantity, parcel) => quantity + parcel.parcel_items[0].quantity, 0);
-
-      if (orderItem.quantity !== itemsQuantity) {
-        const quantity = orderItem.quantity - itemsQuantity;
-        const parcel = await createCompleteParcel(quantity, orderItem, location, queryRunner);
-        createdParcels.push(parcel);
-      }
-      newParcels.push(...createdParcels);
     }
 
-    // Commit transaction
     await queryRunner.commitTransaction();
 
     return newParcels;
   } catch (error) {
-    // Rollback transaction in case of error
     await queryRunner.rollbackTransaction();
     throw error;
   } finally {
-    // Release the query runner
     await queryRunner.release();
   }
 };
@@ -91,43 +56,27 @@ const createCompleteParcel = async (
   location: Location,
   queryRunner: QueryRunner,
 ) => {
-  const {
-    name,
-    city: { name: city },
-    description,
-    address,
-    geo_location,
-  } = location;
+  const manager = queryRunner.manager;
+  const createdParcel = await manager.save(
+    Parcel,
+    manager.create(Parcel, { order_id: orderItem.order_id, parcel_number: generateParcelNumber() }),
+  );
 
-  const parcel_number = generateParcelNumber();
-  const newParcelData = { order_id: orderItem.order_id, parcel_number };
-  const newParcel = queryRunner.manager.create(Parcel, newParcelData);
-  const createdParcel = await queryRunner.manager.save(Parcel, newParcel);
-
-  const parcelItemData = {
-    parcel_id: createdParcel.id,
-    quantity,
-    item_id: orderItem.id,
-  };
-
-  const newParcelItem = queryRunner.manager.create(ParcelItem, parcelItemData);
-  const createdParcelItem = await queryRunner.manager.save(ParcelItem, newParcelItem);
-
+  const createdParcelItem = await manager.save(
+    ParcelItem,
+    manager.create(ParcelItem, { parcel_id: createdParcel.id, quantity, item_id: orderItem.id }),
+  );
   createdParcel.parcel_items = [createdParcelItem];
 
-  const parcelHistoryData = {
-    name,
-    city,
-    description,
-    address,
-    geo_location,
-    status: 'in',
-    from_location: location,
-    parcel_id: createdParcel.id,
-  };
-
-  const newParcelHistory = queryRunner.manager.create(ParcelHistory, parcelHistoryData);
-  await queryRunner.manager.save(ParcelHistory, newParcelHistory);
+  await manager.save(
+    ParcelHistory,
+    manager.create(ParcelHistory, {
+      ...historyFields(location),
+      status: 'in',
+      from_location: location,
+      parcel_id: createdParcel.id,
+    }),
+  );
 
   return createdParcel;
 };
@@ -175,11 +124,9 @@ export const validateParcelNumber = async (
     };
   }
 
-  console.log({ lastParcelHistory: lastParcelHistory.parcel.parcel_items  });
-  
-
+  // decimal columns come back from pg as strings
   const parcel_weight = lastParcelHistory.parcel.parcel_items.reduce(
-    (wieght, item) => wieght + item.quantity * item.order_item.weight,
+    (weight, item) => weight + item.quantity * Number(item.order_item.weight),
     0,
   );
 

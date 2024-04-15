@@ -29,7 +29,7 @@ const findOrCreate = async <T extends ObjectLiteral>(
 
 /**
  * A small, idempotent dataset for trying the API end to end: three Ghanaian
- * cities, a branch and a warehouse in each region, one van with a driver, a
+ * cities (plus Nigeria as a container destination), a branch and a warehouse in each region, one van with a driver, a
  * parcel size and a price between Accra and Kumasi. The full country, state
  * and city seeders load tens of thousands of rows; this needs only the role,
  * location-type and vehicle-type seeders to have run first.
@@ -43,6 +43,8 @@ export default class DemoSeeder implements Seeder {
     const users = dataSource.getRepository(User);
 
     const ghana = await findOrCreate(countries, { code: 'GH' }, { name: 'Ghana', status: true });
+    // A second country so sea containers have somewhere to go.
+    await findOrCreate(countries, { code: 'NG' }, { name: 'Nigeria', status: true });
     const accraRegion = await findOrCreate(states, { code: 'AA', country_id: ghana.id }, { name: 'Greater Accra' });
     const ashanti = await findOrCreate(states, { code: 'AH', country_id: ghana.id }, { name: 'Ashanti' });
 
