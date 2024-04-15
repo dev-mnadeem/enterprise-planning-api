@@ -13,6 +13,9 @@ export default {
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
+    // SQL logging prints every parameter, bcrypt hashes and refresh tokens
+    // included, so it is opt-in rather than always on locally.
+    logging: process.env.DATABASE_LOGGING === 'true',
   },
   testDatabaseName: process.env.TEST_DATABASE_NAME,
   frontEndDomain: process.env.FRONT_END_DOMAIN,

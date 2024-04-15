@@ -23,9 +23,9 @@ const dataSourceOptions: DataSourceOptions = {
   username: appConfig.database.user,
   password: appConfig.database.password,
   database: appConfig.environment === Environment.test ? appConfig.testDatabaseName : appConfig.database.name,
-  logging: true,
+  logging: appConfig.database.logging,
   synchronize: true,
-  entities
+  entities,
 };
 
 const AppDataSource = new DataSource(
