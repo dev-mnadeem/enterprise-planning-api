@@ -152,6 +152,24 @@ describe('a self-registered customer', () => {
     },
   );
 
+  it.each([
+    ['GET', 'orders'],
+    ['GET', 'parcels'],
+    ['GET', 'pricings'],
+    ['GET', 'locations'],
+    ['POST', 'packages'],
+    ['POST', 'pricings'],
+    ['DELETE', 'vehicles/any-id'],
+    ['POST', 'orders/in'],
+  ])('is kept out of the back office: %s /%s', async (method, path) => {
+    const res = await fetch(`${BASE}/${path}`, {
+      method,
+      headers: json(customerToken),
+      body: method === 'GET' ? undefined : '{}',
+    });
+    expect(res.status).toBe(403);
+  });
+
   it('cannot read another user', async () => {
     const res = await fetch(`${BASE}/users/${adminId}`, { headers: json(customerToken) });
     expect(res.status).toBe(403);

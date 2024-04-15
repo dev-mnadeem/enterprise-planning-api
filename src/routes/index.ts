@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { authenticateRole } from '../middlewares/authenticateRoleMiddleware';
+import { authenticateRole, denyRoles } from '../middlewares/authenticateRoleMiddleware';
 import { userRouter } from './user.router';
 import userRoleRouter from './userRole.router';
 import { authRouter } from './auth.router';
@@ -20,24 +20,29 @@ import { authenticateJWT } from '../middlewares/authenticateJWTMiddleware';
 import { containerRouter } from './container.router';
 import { parcelRouter } from './parcel.router';
 
-const router = express();
+const router = express.Router();
+
+// Anyone can sign up as a customer, and the permission flags on each user are
+// only checked by the frontend. Without this gate a fresh signup could edit
+// prices, delete vehicles or move stock through the API directly.
+const staff = [authenticateJWT, denyRoles('customer')];
 
 router.use('/user-roles', authenticateJWT, authenticateRole('admin'), userRoleRouter);
 router.use('/users', authenticateJWT, userRouter);
 router.use('/auth', authRouter);
-router.use('/countries', authenticateJWT, countryRouter);
-router.use('/cities', authenticateJWT, cityRouter);
-router.use('/states', authenticateJWT, stateRouter);
-router.use('/areas', authenticateJWT, areaRouter);
-router.use('/locations', authenticateJWT, locationRouter);
-router.use('/location-types', authenticateJWT, locationTypeRouter);
+router.use('/countries', staff, countryRouter);
+router.use('/cities', staff, cityRouter);
+router.use('/states', staff, stateRouter);
+router.use('/areas', staff, areaRouter);
+router.use('/locations', staff, locationRouter);
+router.use('/location-types', staff, locationTypeRouter);
 router.use('/permissions', authenticateJWT, authenticateRole('admin'), permissionRouter);
-router.use('/orders', authenticateJWT, orderRouter);
-router.use('/packages', authenticateJWT, packageRouter);
-router.use('/pricings', authenticateJWT, pricingRouter);
-router.use('/vehicles', authenticateJWT, vehicleRouter);
-router.use('/vehicle-types', authenticateJWT, vehicleTypeRouter);
-router.use('/containers', authenticateJWT, containerRouter);
-router.use('/parcels', authenticateJWT, parcelRouter);
+router.use('/orders', staff, orderRouter);
+router.use('/packages', staff, packageRouter);
+router.use('/pricings', staff, pricingRouter);
+router.use('/vehicles', staff, vehicleRouter);
+router.use('/vehicle-types', staff, vehicleTypeRouter);
+router.use('/containers', staff, containerRouter);
+router.use('/parcels', staff, parcelRouter);
 
 export { router };

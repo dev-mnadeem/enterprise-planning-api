@@ -55,3 +55,20 @@ export const authenticateRoleOrSelf = (...roles: string[]) => {
     return next();
   };
 };
+
+/**
+ * Refuse the listed roles and let every other role through. Used to keep
+ * self-registered customers out of the staff back office while still admitting
+ * custom roles that admins create later.
+ */
+export const denyRoles = (...roles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const roleName = (req as RequestWithCurrentUser).currentUser?.user_role?.name;
+
+    if (!roleName || roles.includes(roleName)) {
+      return res.status(403).json({ message: WRONG_ROLE });
+    }
+
+    return next();
+  };
+};
