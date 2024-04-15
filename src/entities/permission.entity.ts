@@ -1,6 +1,5 @@
-import { BeforeInsert, BeforeRemove, Column, Entity, ManyToMany, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 import { ulid } from 'ulid';
-import { User } from './user.entity';
 
 @Entity()
 export class Permission {

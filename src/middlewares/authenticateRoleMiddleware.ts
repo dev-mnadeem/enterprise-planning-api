@@ -10,7 +10,7 @@ const WRONG_ROLE = 'Your role is not authorized to perform this action!';
  * which is what loads currentUser and its user_role relation.
  */
 export const authenticateRole = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const currentUser = (req as RequestWithCurrentUser).currentUser;
 
     if (!currentUser) {
@@ -35,7 +35,7 @@ export const authenticateRole = (...roles: string[]) => {
  * enumerate or delete anybody else.
  */
 export const authenticateRoleOrSelf = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const currentUser = (req as RequestWithCurrentUser).currentUser;
 
     if (!currentUser) {
@@ -62,7 +62,7 @@ export const authenticateRoleOrSelf = (...roles: string[]) => {
  * custom roles that admins create later.
  */
 export const denyRoles = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const roleName = (req as RequestWithCurrentUser).currentUser?.user_role?.name;
 
     if (!roleName || roles.includes(roleName)) {

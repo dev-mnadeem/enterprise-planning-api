@@ -1,13 +1,10 @@
-import { Container, OrderHistory, Pricing } from '../entities';
+import { Container } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreateContainer, TUpdateContainer } from '../schemas/container.schema';
-import { In } from 'typeorm';
 import { generateShipmentNumber } from '../utils/shipmentNumber';
-import { getOrderByNumber } from './order.dal';
 
 const containerRepository = AppDataSource.getRepository(Container);
-const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 
 export const createContainer = async (containerData: TCreateContainer): Promise<Container> => {
   containerData.tracking_number = generateShipmentNumber();

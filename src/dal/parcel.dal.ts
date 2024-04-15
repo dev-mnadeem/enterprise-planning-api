@@ -83,7 +83,7 @@ const createCompleteParcel = async (
 export const validateParcelNumber = async (
   parcel_number: string,
   status: string,
-): Promise<{ is_valid: Boolean; message?: string; parcel_data?: object }> => {
+): Promise<{ is_valid: boolean; message?: string; parcel_data?: object }> => {
   const parcel = await parcelRepository.findOne({
     where: { parcel_number },
   });

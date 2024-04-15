@@ -1,7 +1,7 @@
 import { Country } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
-import { TCreateCountry, TUpdateCountry } from '../schemas/country.schema';
+import { TUpdateCountry } from '../schemas/country.schema';
 
 const countryRepository = AppDataSource.getRepository(Country);
 

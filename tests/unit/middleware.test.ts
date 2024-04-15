@@ -34,54 +34,54 @@ describe('validateZodMiddleware', () => {
 });
 
 describe('authenticateRole', () => {
-  it('lets a listed role through', async () => {
+  it('lets a listed role through', () => {
     const next = fakeNext();
-    await authenticateRole('admin', 'manager')(asUser('manager'), fakeResponse(), next);
+    authenticateRole('admin', 'manager')(asUser('manager'), fakeResponse(), next);
     expect(next).toHaveBeenCalledOnce();
   });
 
-  it.each([['customer'], [undefined]])('refuses role %s', async (role) => {
+  it.each([['customer'], [undefined]])('refuses role %s', (role) => {
     const res = fakeResponse();
     const next = fakeNext();
-    await authenticateRole('admin')(asUser(role), res, next);
+    authenticateRole('admin')(asUser(role), res, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(403);
   });
 
-  it('refuses a request with no current user', async () => {
+  it('refuses a request with no current user', () => {
     const res = fakeResponse();
-    await authenticateRole('admin')(fakeRequest(), res, fakeNext());
+    authenticateRole('admin')(fakeRequest(), res, fakeNext());
     expect(res.statusCode).toBe(403);
   });
 });
 
 describe('authenticateRoleOrSelf', () => {
-  it('lets a user act on their own record', async () => {
+  it('lets a user act on their own record', () => {
     const next = fakeNext();
-    await authenticateRoleOrSelf('admin')(asUser('customer', 'me', { id: 'me' }), fakeResponse(), next);
+    authenticateRoleOrSelf('admin')(asUser('customer', 'me', { id: 'me' }), fakeResponse(), next);
     expect(next).toHaveBeenCalledOnce();
   });
 
-  it('refuses another user’s record without the role', async () => {
+  it('refuses another user’s record without the role', () => {
     const res = fakeResponse();
-    await authenticateRoleOrSelf('admin')(asUser('customer', 'me', { id: 'someone' }), res, fakeNext());
+    authenticateRoleOrSelf('admin')(asUser('customer', 'me', { id: 'someone' }), res, fakeNext());
     expect(res.statusCode).toBe(403);
   });
 });
 
 describe('denyRoles', () => {
-  it('admits staff and custom roles', async () => {
+  it('admits staff and custom roles', () => {
     for (const role of ['admin', 'driver', 'night-shift']) {
       const next = fakeNext();
-      await denyRoles('customer')(asUser(role), fakeResponse(), next);
+      denyRoles('customer')(asUser(role), fakeResponse(), next);
       expect(next).toHaveBeenCalledOnce();
     }
   });
 
-  it('refuses the denied role and users without a role', async () => {
+  it('refuses the denied role and users without a role', () => {
     for (const role of ['customer', undefined]) {
       const res = fakeResponse();
-      await denyRoles('customer')(asUser(role), res, fakeNext());
+      denyRoles('customer')(asUser(role), res, fakeNext());
       expect(res.statusCode).toBe(403);
     }
   });

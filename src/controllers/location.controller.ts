@@ -3,7 +3,6 @@ import * as locationService from '../dal/location.dal';
 import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateLocation, TUpdateLocation } from '../schemas/location.schema';
-import { UserQueryParams } from '../types/user.interface';
 
 export const createLocation = async (req: Request<unknown, unknown, TCreateLocation>, res: Response) => {
   try {

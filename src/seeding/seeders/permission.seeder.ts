@@ -7,7 +7,7 @@ export default class PermissionsSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
     const permissionRepository = dataSource.getRepository(Permission);
     
-    for (let permission of PERMISSIONS) {
+    for (const permission of PERMISSIONS) {
       const existedPermission = await permissionRepository.findOneBy({ name: permission });
 
       if (!existedPermission) {

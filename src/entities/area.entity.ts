@@ -7,12 +7,9 @@ import {
   ManyToOne,
   JoinColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { Country } from './country.entity';
 import { City } from './city.entity';
-import { User } from './user.entity';
 
 @Entity()
 export class Area {

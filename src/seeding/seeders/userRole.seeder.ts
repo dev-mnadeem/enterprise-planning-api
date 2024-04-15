@@ -8,7 +8,7 @@ export default class UserRolesSeeder implements Seeder {
     const userRoleRepository = dataSource.getRepository(UserRole);
     const permissionRepository = dataSource.getRepository(Permission);
     
-    for (let userRole of USER_ROLES) {
+    for (const userRole of USER_ROLES) {
       const existedUserRole = await userRoleRepository.findOneBy({ name: userRole });
 
       if (!existedUserRole) {

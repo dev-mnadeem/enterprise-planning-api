@@ -1,9 +1,8 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { Permission, User } from '../../entities';
+import { User } from '../../entities';
 import { hashPassword } from '../../utils/passwordUtils';
 import * as userRoleService from '../../dal/userRole.dal';
-import * as userService from '../../dal/user.dal';
 
 export default class AdminSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {

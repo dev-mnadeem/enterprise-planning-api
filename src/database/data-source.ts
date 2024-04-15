@@ -54,15 +54,4 @@ const connectToDatabase = async () => {
   }
 };
 
-const disconnectFromDatabase = async () => {
-  try {
-    if (appConfig.environment === Environment.test) {
-      await AppDataSource.dropDatabase();
-    }
-    await AppDataSource.destroy();
-  } catch (err) {
-    console.log('Couldnt disconnect from database');
-  }
-};
-
-export { AppDataSource, connectToDatabase, disconnectFromDatabase };
+export { AppDataSource, connectToDatabase };

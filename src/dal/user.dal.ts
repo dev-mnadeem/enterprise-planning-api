@@ -2,8 +2,6 @@ import { Location, User } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
 import { CustomError } from '../utils/customError';
-import { getUserRoleByName } from './userRole.dal';
-import { Not } from 'typeorm';
 import { getLocationByIds } from './location.dal';
 import { UserQueryParams } from '../types/user.interface';
 import { buildPagination } from '../utils/paginationUtils';

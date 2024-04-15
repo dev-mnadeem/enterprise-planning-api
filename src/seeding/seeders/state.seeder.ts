@@ -10,10 +10,10 @@ export default class StatesSeeder implements Seeder {
 
     const countries = await countryRepository.find();
 
-    for (let country of countries) {
+    for (const country of countries) {
       const stateSeedData = XState.getStatesOfCountry(country.code) || [];
 
-      for (let state of stateSeedData) {
+      for (const state of stateSeedData) {
         const existedState = await stateRepository.findOneBy({ code: state.isoCode, country_id: country.id });
 
         if (!existedState) {

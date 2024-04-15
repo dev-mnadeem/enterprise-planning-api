@@ -22,7 +22,7 @@ const findOrCreate = async <T extends ObjectLiteral>(
   where: Partial<T>,
   values: Partial<T> = {},
 ): Promise<T> => {
-  const existing = await repository.findOneBy(where as never);
+  const existing = await repository.findOneBy(where);
   if (existing) return existing;
   return repository.save(repository.create({ ...where, ...values } as T));
 };

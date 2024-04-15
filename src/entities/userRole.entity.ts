@@ -22,7 +22,7 @@ export class UserRole {
   }
 
   @BeforeRemove()
-  async checkUsersBeforeRemove() {
+  checkUsersBeforeRemove() {
     if (this.users && this.users.length > 0) {
       throw new Error('Cannot delete role because it is assigned to one or more users.');
     }

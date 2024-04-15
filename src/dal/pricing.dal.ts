@@ -2,7 +2,6 @@ import { Pricing } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreatePricing, TUpdatePricing } from '../schemas/pricing.schema';
-import { In } from 'typeorm';
 import { PricingQueryParams } from '../types/pricing.interface';
 
 const pricingRepository = AppDataSource.getRepository(Pricing);

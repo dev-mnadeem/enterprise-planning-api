@@ -166,7 +166,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 export const validateOrderNumber = async (
   order_number: string,
   status: string,
-): Promise<{ is_valid: Boolean; message?: string }> => {
+): Promise<{ is_valid: boolean; message?: string }> => {
   const order = await orderRepository.findOne({
     where: { order_number },
   });

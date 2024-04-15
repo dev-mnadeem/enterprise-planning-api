@@ -8,7 +8,7 @@ export default class LocationTypesSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
     const locationTypeRepository = dataSource.getRepository(LocationType);
 
-    for (let locationType of locationTypes) {
+    for (const locationType of locationTypes) {
       const existedLocationType = await locationTypeRepository.findOneBy({ name: locationType });
 
       if (!existedLocationType) {
