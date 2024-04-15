@@ -1,4 +1,4 @@
-import { Entity, Column, CreateDateColumn, BeforeInsert, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, CreateDateColumn, DeleteDateColumn, BeforeInsert, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ulid } from 'ulid';
 import { Country } from './country.entity';
 
@@ -36,6 +36,11 @@ export class Container {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
+
+  // The DAL soft-deletes these; without the column TypeORM threw
+  // MissingDeleteDateColumnError and every DELETE answered 500.
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
+  deleted_at: Date;
 
   @ManyToOne(() => Country, (country) => country.from_containers)
   @JoinColumn({ name: 'from_country_id' })

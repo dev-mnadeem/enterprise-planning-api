@@ -2,6 +2,7 @@ import {
   Entity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   BeforeInsert,
   PrimaryColumn,
   ManyToOne,
@@ -39,6 +40,11 @@ export class Vehicle {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
+
+  // The DAL soft-deletes these; without the column TypeORM threw
+  // MissingDeleteDateColumnError and every DELETE answered 500.
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
+  deleted_at: Date;
 
   @ManyToOne(() => User, user => user.vehicles)
   @JoinColumn({ name: 'driver_id' })

@@ -8,18 +8,19 @@ import { generateTrackingNumber } from '../utils/generateTrackingNumber';
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
 const userRepository = AppDataSource.getRepository(User);
 
-export const createVehicle = async (vehicleData: TCreateVehicle): Promise<Vehicle> => {
-  const driver = await userRepository.findOne({
-    where: {
-      id: vehicleData.driver_id,
-      user_role: {
-        name: "driver"
-      }
-    }
-  });
+const assertIsDriver = async (driverId: string) => {
+  const driver = await userRepository.findOne({ where: { id: driverId, user_role: { name: 'driver' } } });
 
   if (!driver) {
     throw new CustomError('Driver Not Found!', 404);
+  }
+};
+
+export const createVehicle = async (vehicleData: TCreateVehicle): Promise<Vehicle> => {
+  // driver_id is optional in the schema. Looking it up unconditionally meant
+  // `where id = undefined`, which matched any driver, or 404'd with none.
+  if (vehicleData.driver_id) {
+    await assertIsDriver(vehicleData.driver_id);
   }
 
   vehicleData.tracking_number = generateTrackingNumber();
@@ -67,6 +68,10 @@ export const updateVehicle = async (id: string, newData: TUpdateVehicle): Promis
 
   if (!vehicleToUpdate) {
     throw new CustomError('Vehicle Not Found!', 404);
+  }
+
+  if (newData.driver_id) {
+    await assertIsDriver(newData.driver_id);
   }
 
   const updatedVehicle = { ...vehicleToUpdate, ...newData };
