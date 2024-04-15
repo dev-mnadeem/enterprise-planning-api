@@ -115,7 +115,10 @@ describe('customers created from an order', () => {
   it('cannot be signed into with the old shared default password', async () => {
     const body = newOrderBody(demo);
     await api('POST', '/orders', admin, body);
-    const res = await api('POST', '/auth/login', undefined, { phone_number: body.sender_phone, password: 'Helloworld' });
+    const res = await api('POST', '/auth/login', undefined, {
+      phone_number: body.sender_phone,
+      password: 'Helloworld',
+    });
     expect(res.status).toBe(401);
   });
 });

@@ -23,13 +23,13 @@ import { Vehicle } from './vehicle.entity';
 export class User {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
-  
+
   @Column({ type: 'varchar', length: 26 })
   role_id: string;
 
   @Column({ type: 'varchar', length: 26, nullable: true })
   city_id: string;
-  
+
   @Column()
   name: string;
 
@@ -49,10 +49,10 @@ export class User {
   address: string;
 
   @Column({ nullable: true })
-  geo_location: string
-  
+  geo_location: string;
+
   @Column({ default: true })
-  status: boolean
+  status: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
   permissions: object[];
@@ -87,10 +87,10 @@ export class User {
   @OneToMany(() => Order, (order) => order.receiver)
   receiver_orders: Order[];
 
-  @OneToMany(() => Vehicle, vehicle => vehicle.driver)
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.driver)
   vehicles: Vehicle[];
 
-  @OneToMany(() => Location, location => location.deleted_by)
+  @OneToMany(() => Location, (location) => location.deleted_by)
   deleted_locations: Location[];
 
   @BeforeInsert()

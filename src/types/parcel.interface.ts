@@ -1,5 +1,5 @@
 import { normaliseSortOrder } from '../utils/paginationUtils';
-import { Request } from "express";
+import { Request } from 'express';
 
 export interface ParcelQueryParams {
   pageNumber: string | undefined;

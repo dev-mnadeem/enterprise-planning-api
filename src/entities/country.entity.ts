@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  BeforeInsert,
-  PrimaryColumn,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, BeforeInsert, PrimaryColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ulid } from 'ulid';
 import { State } from './state.entity';
 import { Container } from './container.entity';
@@ -31,7 +23,7 @@ export class Country {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @OneToMany(() => State, state => state.country)
+  @OneToMany(() => State, (state) => state.country)
   states: State[];
 
   @OneToMany(() => Container, (container) => container.from_country)

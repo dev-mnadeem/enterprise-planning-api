@@ -30,13 +30,13 @@ export const getAllUsersByRole = async (role: string) => {
   const admins = await userRepository.find({
     where: {
       user_role: {
-        name: role
-      }
-    }
+        name: role,
+      },
+    },
   });
 
   return admins;
-}
+};
 
 export const getAllUsers = async (
   params: UserQueryParams,

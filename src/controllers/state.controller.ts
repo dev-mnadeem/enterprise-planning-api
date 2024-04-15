@@ -3,7 +3,6 @@ import * as stateService from '../dal/state.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TUpdateState } from '../schemas/state.schema';
 
-
 export const getAllStates = async (req: Request, res: Response) => {
   try {
     const states = await stateService.getAllStates();

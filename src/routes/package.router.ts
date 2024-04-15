@@ -1,6 +1,12 @@
 import express, { Router } from 'express';
 import expressAsyncHandler from 'express-async-handler';
-import { createPackage, deletePackage, getAllPackages, getPackageById, updatePackage } from '../controllers/package.controller';
+import {
+  createPackage,
+  deletePackage,
+  getAllPackages,
+  getPackageById,
+  updatePackage,
+} from '../controllers/package.controller';
 import { validateZodMiddleware } from '../middlewares/validateMiddleware';
 import { createPackageSchema, updatePackageSchema } from '../schemas/package.schema';
 

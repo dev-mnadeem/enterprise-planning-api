@@ -27,7 +27,7 @@ export const createUser = async (req: Request<unknown, unknown, TCreateUser>, re
       role_id,
       city_id,
       permissions,
-      location_ids
+      location_ids,
     };
 
     const newUser = await userService.createUser(userData);

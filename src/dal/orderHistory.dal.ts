@@ -3,11 +3,7 @@ import { AppDataSource } from '../database/data-source';
 import { getOrderByNumber } from './order.dal';
 import { TOrdersIn, TOrdersOut } from '../schemas/orderHistory.schema';
 import { MovementResult, MovementStatus, canMove } from '../utils/movementRules';
-import {
-  findLocationSnapshot,
-  findVehicleSnapshot,
-  historyFields,
-} from '../utils/movement';
+import { findLocationSnapshot, findVehicleSnapshot, historyFields } from '../utils/movement';
 
 const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 

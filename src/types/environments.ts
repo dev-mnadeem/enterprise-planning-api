@@ -4,4 +4,4 @@ export enum Environment {
   qa = 'qa',
   production = 'production',
   test = 'test',
-};
+}

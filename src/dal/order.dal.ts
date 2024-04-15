@@ -66,7 +66,12 @@ const findPackageSnapshot = async (manager: EntityManager, packageId: string): P
 const resolvePricing = async (manager: EntityManager, pricing: TCreatePricing): Promise<Partial<Pricing>> => {
   const route = pricing.route ?? 'road';
   const existing = await manager.findOne(Pricing, {
-    where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id, package_id: pricing.package_id, route },
+    where: {
+      from_city_id: pricing.from_city_id,
+      to_city_id: pricing.to_city_id,
+      package_id: pricing.package_id,
+      route,
+    },
     select: { id: true, route: true, price: true },
     relations: { from_city: true, to_city: true, package: true },
   });
@@ -235,12 +240,7 @@ export const getAllOrders = async (
     ])
     .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name', 'sender_country.code'])
     .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name', 'receiver_country.code'])
-    .addSelect([
-      'history.name',
-      'history.city',
-      'history.status',
-      'history.created_at',
-    ])
+    .addSelect(['history.name', 'history.city', 'history.status', 'history.created_at'])
     .where('order.deleted_at IS NULL')
     .orderBy(`order.created_at`, 'DESC');
 

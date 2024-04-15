@@ -4,7 +4,7 @@ export const createPermissionSchema = z.object({
   name: z.string(),
 });
 
-export type TCreatePermission = z.infer<typeof createPermissionSchema>
+export type TCreatePermission = z.infer<typeof createPermissionSchema>;
 
 export const permissionSchema = z.object({
   name: z.string(),
@@ -13,8 +13,7 @@ export const permissionSchema = z.object({
     view: z.boolean(),
     update: z.boolean(),
     remove: z.boolean(),
-  }
-  )
+  }),
 });
 
-export type TPermission = z.infer<typeof permissionSchema>
+export type TPermission = z.infer<typeof permissionSchema>;

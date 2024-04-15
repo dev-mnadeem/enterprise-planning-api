@@ -1,6 +1,6 @@
 export interface PageInfoResponse {
-    pageNumber: number,
-    pageSize: number,
-    totalPages: number,
-    totalResults: number
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  totalResults: number;
 }

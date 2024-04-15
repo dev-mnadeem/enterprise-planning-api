@@ -26,7 +26,6 @@ export const getStatesByCountryId = async (country_id: string): Promise<State[] 
   return states;
 };
 
-
 export const updateState = async (id: string, newData: TUpdateState): Promise<State | null> => {
   const stateToUpdate = await stateRepository.findOne({
     where: { id },

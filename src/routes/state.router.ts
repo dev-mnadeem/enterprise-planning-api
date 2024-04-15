@@ -1,10 +1,6 @@
 import express, { Router } from 'express';
 import expressAsyncHandler from 'express-async-handler';
-import {
-  getAllStates,
-  getStateById,
-  updateState,
-} from '../controllers/state.controller';
+import { getAllStates, getStateById, updateState } from '../controllers/state.controller';
 import { validateZodMiddleware } from '../middlewares/validateMiddleware';
 import { updateStateSchema } from '../schemas/state.schema';
 import { getCitiesByStateId } from '../controllers/city.controller';

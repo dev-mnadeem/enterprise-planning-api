@@ -46,5 +46,5 @@ export const deleteArea = async (id: string): Promise<boolean> => {
     throw new CustomError('Area Not Found!', 404);
   }
 
-  return isDeleted
+  return isDeleted;
 };

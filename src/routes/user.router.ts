@@ -2,10 +2,7 @@ import express, { Router } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from '../controllers/user.controller';
 import { validateZodMiddleware } from '../middlewares/validateMiddleware';
-import {
-  authenticateRole,
-  authenticateRoleOrSelf,
-} from '../middlewares/authenticateRoleMiddleware';
+import { authenticateRole, authenticateRoleOrSelf } from '../middlewares/authenticateRoleMiddleware';
 import { createUserSchema, updateUserSchema } from '../schemas/user.schema';
 
 const userRouter: Router = express.Router();

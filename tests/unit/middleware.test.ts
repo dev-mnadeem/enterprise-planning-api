@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import {
-  authenticateRole,
-  authenticateRoleOrSelf,
-  denyRoles,
-} from '../../src/middlewares/authenticateRoleMiddleware';
+import { authenticateRole, authenticateRoleOrSelf, denyRoles } from '../../src/middlewares/authenticateRoleMiddleware';
 import { validateZodMiddleware } from '../../src/middlewares/validateMiddleware';
 import { fakeNext, fakeRequest, fakeResponse } from './http';
 

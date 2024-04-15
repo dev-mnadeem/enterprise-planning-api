@@ -1,9 +1,9 @@
 import { normaliseSortOrder } from '../utils/paginationUtils';
-import { User } from "../entities";
-import { Request } from "express";
+import { User } from '../entities';
+import { Request } from 'express';
 
 export interface RequestWithCurrentUser extends Request {
-  currentUser: User
+  currentUser: User;
 }
 export interface UserQueryParams {
   pageNumber: string | undefined;

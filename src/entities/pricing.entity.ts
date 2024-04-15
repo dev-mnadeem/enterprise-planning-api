@@ -14,7 +14,7 @@ import { City } from './city.entity';
 import { Package } from './package.entity';
 
 @Entity()
-@Index(["from_city_id", "to_city_id", "package_id", "route"], { unique: true })
+@Index(['from_city_id', 'to_city_id', 'package_id', 'route'], { unique: true })
 export class Pricing {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
@@ -31,7 +31,7 @@ export class Pricing {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @Column({ default: true})
+  @Column({ default: true })
   is_fixed: boolean;
 
   @Column({

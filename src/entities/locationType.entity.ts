@@ -16,7 +16,7 @@ export class LocationType {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @OneToMany(() => Location, location => location.location_type)
+  @OneToMany(() => Location, (location) => location.location_type)
   locations: Location[];
 
   @BeforeInsert()

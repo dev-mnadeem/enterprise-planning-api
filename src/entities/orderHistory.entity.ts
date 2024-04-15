@@ -24,7 +24,7 @@ export class OrderHistory {
 
   @Column({ nullable: true })
   city: string;
-  
+
   @Column({ nullable: true })
   description: string;
 

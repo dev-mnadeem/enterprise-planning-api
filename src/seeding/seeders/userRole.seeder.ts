@@ -7,7 +7,7 @@ export default class UserRolesSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
     const userRoleRepository = dataSource.getRepository(UserRole);
     const permissionRepository = dataSource.getRepository(Permission);
-    
+
     for (const userRole of USER_ROLES) {
       const existedUserRole = await userRoleRepository.findOneBy({ name: userRole });
 
@@ -16,7 +16,7 @@ export default class UserRolesSeeder implements Seeder {
         if (userRole === 'admin') {
           permissions = await permissionRepository.find({ select: ['name', 'properties'] });
         }
-        const newUserRole = userRoleRepository.create({ name: userRole, permissions })
+        const newUserRole = userRoleRepository.create({ name: userRole, permissions });
         await userRoleRepository.save(newUserRole);
       }
     }

@@ -10,7 +10,7 @@ export class VehicleType {
   @Column()
   name: string;
 
-  @OneToMany(() => Vehicle, vehicle => vehicle.vehicle_type)
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.vehicle_type)
   vehicles: Vehicle[];
 
   @BeforeInsert()

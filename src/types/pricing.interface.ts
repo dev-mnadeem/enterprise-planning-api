@@ -1,8 +1,8 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 export interface PricingQueryParams {
-  fromCityId:  string | undefined;
-  toCityId:  string | undefined;
+  fromCityId: string | undefined;
+  toCityId: string | undefined;
   packageId: string | undefined;
   route: 'road' | 'air' | 'sea' | undefined;
 }

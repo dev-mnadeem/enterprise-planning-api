@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  BeforeInsert,
-  PrimaryColumn,
-  CreateDateColumn
-} from 'typeorm';
+import { Entity, Column, BeforeInsert, PrimaryColumn, CreateDateColumn } from 'typeorm';
 import { ulid } from 'ulid';
 
 @Entity()

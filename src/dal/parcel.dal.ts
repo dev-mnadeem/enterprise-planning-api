@@ -164,12 +164,7 @@ export const getAllParcels = async (
     .addSelect(['order.sender_name', 'order.sender_phone', 'order.receiver_name', 'order.receiver_phone'])
     .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name'])
     .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name'])
-    .addSelect([
-      'history.name',
-      'history.city',
-      'history.status',
-      'history.created_at',
-    ])
+    .addSelect(['history.name', 'history.city', 'history.status', 'history.created_at'])
     .where('parcel.deleted_at IS NULL')
     .orderBy(`parcel.created_at`, 'DESC');
 

@@ -15,10 +15,10 @@ import { City } from './city.entity';
 export class Area {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
-  
+
   @Column({ type: 'varchar', length: 26 })
   city_id: string;
-  
+
   @Column()
   name: string;
 
@@ -34,7 +34,7 @@ export class Area {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => City, city => city.id)
+  @ManyToOne(() => City, (city) => city.id)
   @JoinColumn({ name: 'city_id' })
   city: City;
 

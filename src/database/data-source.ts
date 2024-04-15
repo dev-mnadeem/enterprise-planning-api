@@ -28,9 +28,7 @@ const dataSourceOptions: DataSourceOptions = {
   entities,
 };
 
-const AppDataSource = new DataSource(
-  appConfig.isLocalOrTest ? dataSourceOptions : prodDataSourceOptions,
-);
+const AppDataSource = new DataSource(appConfig.isLocalOrTest ? dataSourceOptions : prodDataSourceOptions);
 
 const connectToDatabase = async () => {
   try {

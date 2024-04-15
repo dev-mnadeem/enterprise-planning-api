@@ -34,7 +34,7 @@ export class City {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => State, state => state.cities)
+  @ManyToOne(() => State, (state) => state.cities)
   @JoinColumn({ name: 'state_id' })
   state: State;
 
@@ -44,10 +44,10 @@ export class City {
   @OneToMany(() => Pricing, (pricing) => pricing.to_city)
   to_pricing: Pricing[];
 
-  @OneToMany(() => Area, area => area.city)
+  @OneToMany(() => Area, (area) => area.city)
   area: Area;
 
-  @OneToMany(() => Location, location => location.city)
+  @OneToMany(() => Location, (location) => location.city)
   locations: Location[];
 
   @OneToMany(() => User, (user) => user.city)

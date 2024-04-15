@@ -45,9 +45,9 @@ describe('createPackageSchema', () => {
 
   it('needs a weight limit for kg or lbs packages on road and air', () => {
     expect(createPackageSchema.safeParse({ name: 'Box', route: 'air', weight_type: 'kg' }).success).toBe(false);
-    expect(createPackageSchema.safeParse({ name: 'Box', route: 'air', weight_type: 'kg', weight_limit: 3 }).success).toBe(
-      true,
-    );
+    expect(
+      createPackageSchema.safeParse({ name: 'Box', route: 'air', weight_type: 'kg', weight_limit: 3 }).success,
+    ).toBe(true);
   });
 });
 

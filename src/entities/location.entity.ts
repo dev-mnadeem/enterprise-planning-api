@@ -25,7 +25,7 @@ export class Location {
 
   @Column('varchar', { length: 26 })
   city_id: string;
-  
+
   @Column('varchar', { length: 26, nullable: true })
   deleted_by_id: string;
 

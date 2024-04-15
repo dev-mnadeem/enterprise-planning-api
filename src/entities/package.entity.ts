@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  BeforeInsert,
-  PrimaryColumn,
-  CreateDateColumn,
-  OneToMany
-} from 'typeorm';
+import { Entity, Column, BeforeInsert, PrimaryColumn, CreateDateColumn, OneToMany } from 'typeorm';
 import { ulid } from 'ulid';
 import { Pricing } from './pricing.entity';
 

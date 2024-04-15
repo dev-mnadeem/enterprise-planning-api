@@ -22,7 +22,7 @@ export default class AdminSeeder implements Seeder {
         password: encryptedPassword,
         role_id: adminUserRole?.id,
         phone_number: '+123456789',
-        permissions
+        permissions,
       });
 
       await userRepository.save(adminUser);

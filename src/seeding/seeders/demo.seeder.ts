@@ -52,8 +52,7 @@ export default class DemoSeeder implements Seeder {
     const tema = await findOrCreate(cities, { name: 'Tema', state_id: accraRegion.id });
     const kumasi = await findOrCreate(cities, { name: 'Kumasi', state_id: ashanti.id });
 
-    const locationType = async (name: string) =>
-      dataSource.getRepository(LocationType).findOneByOrFail({ name });
+    const locationType = async (name: string) => dataSource.getRepository(LocationType).findOneByOrFail({ name });
     const branch = await locationType('branch');
     const warehouse = await locationType('warehouse');
 

@@ -46,11 +46,11 @@ export class Vehicle {
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
   deleted_at: Date;
 
-  @ManyToOne(() => User, user => user.vehicles)
+  @ManyToOne(() => User, (user) => user.vehicles)
   @JoinColumn({ name: 'driver_id' })
   driver: User;
 
-  @ManyToOne(() => VehicleType, type => type.vehicles)
+  @ManyToOne(() => VehicleType, (type) => type.vehicles)
   @JoinColumn({ name: 'vehicle_type_id' })
   vehicle_type: VehicleType;
 

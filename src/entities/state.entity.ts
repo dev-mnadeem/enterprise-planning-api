@@ -33,11 +33,11 @@ export class State {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => Country, country => country.states)
+  @ManyToOne(() => Country, (country) => country.states)
   @JoinColumn({ name: 'country_id' })
   country: Country;
 
-  @OneToMany(() => City, city => city.state)
+  @OneToMany(() => City, (city) => city.state)
   cities: City[];
 
   @BeforeInsert()

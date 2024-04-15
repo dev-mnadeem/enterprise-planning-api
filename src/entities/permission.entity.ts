@@ -9,7 +9,7 @@ export class Permission {
   @Column()
   name: string;
 
-  @Column({ type: 'json', nullable: false, default: { add: true, view: true, update: true, remove: true }})
+  @Column({ type: 'json', nullable: false, default: { add: true, view: true, update: true, remove: true } })
   properties: JSON;
 
   @BeforeInsert()

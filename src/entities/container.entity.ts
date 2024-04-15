@@ -1,4 +1,13 @@
-import { Entity, Column, CreateDateColumn, DeleteDateColumn, BeforeInsert, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  BeforeInsert,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { ulid } from 'ulid';
 import { Country } from './country.entity';
 

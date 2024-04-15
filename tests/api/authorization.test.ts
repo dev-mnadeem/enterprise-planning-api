@@ -120,13 +120,10 @@ describe('login', () => {
 });
 
 describe('unauthenticated requests', () => {
-  it.each(['users', 'user-roles', 'permissions', 'vehicles', 'orders'])(
-    'are rejected on /%s',
-    async (path) => {
-      const res = await fetch(`${BASE}/${path}`);
-      expect(res.status).toBe(401);
-    },
-  );
+  it.each(['users', 'user-roles', 'permissions', 'vehicles', 'orders'])('are rejected on /%s', async (path) => {
+    const res = await fetch(`${BASE}/${path}`);
+    expect(res.status).toBe(401);
+  });
 
   it('are rejected when the token is malformed', async () => {
     const res = await fetch(`${BASE}/users`, { headers: json('not-a-jwt') });
@@ -144,13 +141,10 @@ describe('unauthenticated requests', () => {
 });
 
 describe('a self-registered customer', () => {
-  it.each(['users', 'user-roles', 'permissions'])(
-    'cannot reach the admin surface /%s',
-    async (path) => {
-      const res = await fetch(`${BASE}/${path}`, { headers: json(customerToken) });
-      expect(res.status).toBe(403);
-    },
-  );
+  it.each(['users', 'user-roles', 'permissions'])('cannot reach the admin surface /%s', async (path) => {
+    const res = await fetch(`${BASE}/${path}`, { headers: json(customerToken) });
+    expect(res.status).toBe(403);
+  });
 
   it.each([
     ['GET', 'orders'],

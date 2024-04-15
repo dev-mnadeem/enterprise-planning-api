@@ -7,10 +7,9 @@ import { PackageQueryParams } from '../types/package.interface';
 const packageRepository = AppDataSource.getRepository(Package);
 
 export const createPackage = async (packageData: TCreatePackage): Promise<Package> => {
-
-  if (packageData.route == "sea") {
-    packageData.weight_limit = (packageData?.depth || 1) * (packageData?.height || 1) *( packageData?.width || 1);
-  } 
+  if (packageData.route == 'sea') {
+    packageData.weight_limit = (packageData?.depth || 1) * (packageData?.height || 1) * (packageData?.width || 1);
+  }
 
   const newPackage = packageRepository.create(packageData);
   return await packageRepository.save(newPackage);
@@ -19,9 +18,7 @@ export const createPackage = async (packageData: TCreatePackage): Promise<Packag
 export const getAllPackages = async (params: PackageQueryParams): Promise<Package[] | null> => {
   const { route } = params;
 
-  const query = packageRepository
-  .createQueryBuilder('package')
-  .select();
+  const query = packageRepository.createQueryBuilder('package').select();
 
   if (route) {
     query.andWhere('package.route = :route', { route });
@@ -62,5 +59,5 @@ export const deletePackage = async (id: string): Promise<boolean> => {
     throw new CustomError('Package Not Found!', 404);
   }
 
-  return isDeleted
+  return isDeleted;
 };

@@ -24,7 +24,7 @@ export class ParcelHistory {
 
   @Column({ nullable: true })
   city: string;
-  
+
   @Column({ nullable: true })
   description: string;
 
@@ -53,13 +53,13 @@ export class ParcelHistory {
   @ManyToOne(() => Parcel, (parcel) => parcel.history)
   @JoinColumn({ name: 'parcel_id' })
   parcel: Parcel;
-  
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
-  
+
   @BeforeInsert()
   generateUlid() {
     this.id = ulid();

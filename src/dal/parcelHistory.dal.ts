@@ -3,12 +3,7 @@ import { AppDataSource } from '../database/data-source';
 import { getParcelByNumber } from './parcel.dal';
 import { TParcelsIn, TParcelsOut } from '../schemas/parcelHistory.schema';
 import { MovementResult, MovementStatus, canMove } from '../utils/movementRules';
-import {
-  findContainerSnapshot,
-  findLocationSnapshot,
-  findVehicleSnapshot,
-  historyFields,
-} from '../utils/movement';
+import { findContainerSnapshot, findLocationSnapshot, findVehicleSnapshot, historyFields } from '../utils/movement';
 
 const parcelHistoryRepository = AppDataSource.getRepository(ParcelHistory);
 
