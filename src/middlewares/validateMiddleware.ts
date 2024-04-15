@@ -1,17 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodError, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 
+/**
+ * Replaces req.body with the parsed value, so keys the schema does not declare
+ * never reach a controller. The DAL spreads request bodies straight into
+ * entities, which made every undeclared column writable.
+ */
 export const validateZodMiddleware = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      schema.parse(req.body);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(422).json({ errors: error.issues });
-      }
-      return res.status(500).json({message: 'Internal server error!'});
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(422).json({ errors: result.error.issues });
     }
 
-    next();
+    req.body = result.data;
+    return next();
   };
 };

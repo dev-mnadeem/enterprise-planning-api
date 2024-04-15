@@ -42,18 +42,15 @@ export const updateUserSchema = z.object({
 
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
 
-export const loginSchema = z.object({
-  email: z.string().email().optional(),
-  phone_number: z.string().optional(),
-  password: z.string().min(8),
-}).refine(data => {
-  if (!data.email && !data.phone_number) {
-    throw new Error('At least one of email or phone_number must be provided');
-  }
-  return true;
-}, {
-  message: 'At least one of email or phone_number must be provided',
-  path: ['email', 'phone_number']
-});
+export const loginSchema = z
+  .object({
+    email: z.string().email().optional(),
+    phone_number: z.string().optional(),
+    password: z.string().min(8),
+  })
+  .refine((data) => Boolean(data.email || data.phone_number), {
+    message: 'At least one of email or phone_number must be provided',
+    path: ['email'],
+  });
 
 export type TLogin = z.infer<typeof loginSchema>;

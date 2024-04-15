@@ -1,12 +1,13 @@
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { Server } from 'http';
 
 import appConfig from './config/appConfig';
 import { connectToDatabase } from './database/data-source';
 import { router } from './routes';
+import { sendErrorResponse } from './utils/sendErrorResponse';
 
 const app = express();
 
@@ -36,21 +37,27 @@ app.use(
 
 app.use('/api', router);
 
-let server: Server;
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ message: `No route for ${req.method} ${req.path}` });
+});
 
-const startServer = async () => {
-  const port = appConfig.serverPort || 3000;
-  // Start the server only after the database connection is established
-  try {
-    await connectToDatabase();
-    server = app.listen(port, () => {
-      console.log(`Server running http://localhost:${port}`);
-    });
-  } catch (error) {
-    console.log('Couldnt connect to database,');
+// Express's default handler answers with an HTML page, which the frontend
+// cannot parse. Errors that escape a controller (and body-parser failures)
+// end up here instead.
+app.use((error: Error & { type?: string }, req: Request, res: Response, _next: NextFunction) => {
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({ message: 'The request body is not valid JSON.' });
   }
+  return sendErrorResponse(error, res);
+});
 
-  return server;
+const startServer = async (): Promise<Server> => {
+  const port = appConfig.serverPort || 3000;
+  // Listen only once the database is reachable; connectToDatabase rethrows.
+  await connectToDatabase();
+  return app.listen(port, () => {
+    console.log(`Server running http://localhost:${port}`);
+  });
 };
 
-export { startServer };
+export { app, startServer };
