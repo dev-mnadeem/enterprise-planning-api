@@ -16,6 +16,7 @@
     "seed:countries": "ts-node src/seeding/countries-seed.ts",
     "seed:states": "ts-node src/seeding/states-seed.ts",
     "seed:cities": "ts-node src/seeding/cities-seed.ts",
+    "seed:demo": "ts-node src/seeding/demo-seed.ts",
     "test:api": "vitest run"
   },
   "dependencies": {

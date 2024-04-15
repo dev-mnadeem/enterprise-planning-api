@@ -51,4 +51,5 @@ services:
              npm run seed:user-roles &&
              npm run seed:location-types &&
              npm run seed:vehicle-types &&
-             npm run seed:admin"
+             npm run seed:admin &&
+             npm run seed:demo"
