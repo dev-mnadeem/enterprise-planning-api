@@ -1,3 +1,4 @@
+import { normaliseSortOrder } from '../utils/paginationUtils';
 import { Request } from "express";
 
 export interface ParcelQueryParams {
@@ -16,7 +17,7 @@ export const queryParamToParcelParam = (req: Request): ParcelQueryParams => {
     pageSize: pageSize as string | undefined,
     search: q as string | undefined,
     sortBy: sortBy as string | undefined,
-    orderBy: orderBy as 'ASC' | 'DESC' | undefined,
+    orderBy: normaliseSortOrder(orderBy),
     locationId: locationId as string | undefined,
   };
 };

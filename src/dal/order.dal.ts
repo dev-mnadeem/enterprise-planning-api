@@ -8,10 +8,10 @@ import { hashPassword } from '../utils/passwordUtils';
 import { generateOrderNumber } from '../utils/generateOrderNumber';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
-import { Brackets } from 'typeorm';
 import { OrderQueryParams } from '../types/order.interface';
 import { addSearchToQuery } from '../utils/searchUtils';
 import { buildPagination } from '../utils/paginationUtils';
+import { resolveLocationScope, whereLatestHistoryIn } from '../utils/locationScope';
 import { PageInfoResponse } from '../types/pagination.interface';
 
 const orderRepository = AppDataSource.getRepository(Order);
@@ -285,9 +285,16 @@ export const getAllOrders = async (
   params: OrderQueryParams,
 ): Promise<{ pageInfo: PageInfoResponse; results: Order[] | null }> => {
   const { search, pageNumber, pageSize, sortBy, orderBy, locationId } = params;
-  const { locations } = currentUser;
-  const locationIds = locations.map((location) => location.id);
-  const query = await orderRepository
+  const scope = resolveLocationScope(currentUser, locationId);
+  const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
+
+  // A user with no assigned locations has nothing to list. Querying anyway
+  // produced `IN ()`, a Postgres syntax error.
+  if (scope.kind === 'locations' && !scope.ids.length) {
+    return { pageInfo: { pageNumber: pageNo, pageSize: take, totalPages: 0, totalResults: 0 }, results: [] };
+  }
+
+  const query = orderRepository
     .createQueryBuilder('order')
     .leftJoin('order.user', 'user')
     .leftJoin('order.history', 'history')
@@ -313,55 +320,12 @@ export const getAllOrders = async (
       'history.name',
       'history.city',
       'history.status',
-      // 'history.from_location',
-      // 'history.to_location',
       'history.created_at',
     ])
     .where('order.deleted_at IS NULL')
     .orderBy(`order.created_at`, 'DESC');
 
-  // Subquery to get the latest history entry for each order
-  const subQuery = `SELECT "history"."order_id", MAX("history"."created_at") AS "max_created_at"
-                    FROM "order_history" "history"
-                    GROUP BY "history"."order_id"`;
-
-  if (locationId) {
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where(
-          `history.created_at IN (
-            SELECT "max_created_at"
-            FROM (${subQuery}) AS "latest"
-            WHERE "latest"."order_id" = "order"."id"
-          )`,
-        ).andWhere(
-          new Brackets((innerQb) => {
-            innerQb
-              .where("history.from_location->>'id' = :locationId", { locationId })
-              .orWhere("history.to_location->>'id' = :locationId", { locationId });
-          }),
-        );
-      }),
-    );
-  } else {
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where(
-          `history.created_at IN (
-            SELECT "max_created_at"
-            FROM (${subQuery}) AS "latest"
-            WHERE "latest"."order_id" = "order"."id"
-          )`,
-        ).andWhere(
-          new Brackets((innerQb) => {
-            innerQb
-              .where("history.from_location->>'id' IN (:...locationIds)", { locationIds })
-              .orWhere("history.to_location->>'id' IN (:...locationIds)", { locationIds });
-          }),
-        );
-      }),
-    );
-  }
+  whereLatestHistoryIn(query, { alias: 'order', historyTable: 'order_history', foreignKey: 'order_id' }, scope);
 
   if (sortBy && Object.keys(orderRepository.metadata.propertiesMap).includes(sortBy)) {
     query.orderBy(`order.${sortBy}`, orderBy || 'DESC');
@@ -371,7 +335,6 @@ export const getAllOrders = async (
     addSearchToQuery(query, `order.order_number`, search);
   }
 
-  const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
   const orderList = await query.take(take).skip(skip).getMany();
 
   const total = await query.getCount();

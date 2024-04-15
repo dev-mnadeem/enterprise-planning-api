@@ -4,10 +4,11 @@ import { TCreateParcel, TUpdateParcel } from '../schemas/parcel.schema';
 import { CustomError } from '../utils/customError';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
-import { Brackets, QueryRunner } from 'typeorm';
+import { QueryRunner } from 'typeorm';
 import { ParcelQueryParams } from '../types/parcel.interface';
 import { addSearchToQuery } from '../utils/searchUtils';
 import { buildPagination } from '../utils/paginationUtils';
+import { resolveLocationScope, whereLatestHistoryIn } from '../utils/locationScope';
 import { PageInfoResponse } from '../types/pagination.interface';
 import { generateParcelNumber } from '../utils/generateParcelNumber';
 
@@ -193,9 +194,16 @@ export const getAllParcels = async (
   params: ParcelQueryParams,
 ): Promise<{ pageInfo: PageInfoResponse; results: Parcel[] | null }> => {
   const { search, pageNumber, pageSize, sortBy, orderBy, locationId } = params;
-  const { locations } = currentUser;
-  const locationIds = locations.map((location) => location.id);
-  const query = await parcelRepository
+  const scope = resolveLocationScope(currentUser, locationId);
+  const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
+
+  // A user with no assigned locations has nothing to list. Querying anyway
+  // produced `IN ()`, a Postgres syntax error.
+  if (scope.kind === 'locations' && !scope.ids.length) {
+    return { pageInfo: { pageNumber: pageNo, pageSize: take, totalPages: 0, totalResults: 0 }, results: [] };
+  }
+
+  const query = parcelRepository
     .createQueryBuilder('parcel')
     .leftJoin('parcel.history', 'history')
     .leftJoin('parcel.parcel_items', 'parcel_items')
@@ -214,55 +222,12 @@ export const getAllParcels = async (
       'history.name',
       'history.city',
       'history.status',
-      // 'history.from_location',
-      // 'history.to_location',
       'history.created_at',
     ])
     .where('parcel.deleted_at IS NULL')
     .orderBy(`parcel.created_at`, 'DESC');
 
-  // Subquery to get the latest history entry for each parcel
-  const subQuery = `SELECT "history"."parcel_id", MAX("history"."created_at") AS "max_created_at"
-                    FROM "parcel_history" "history"
-                    GROUP BY "history"."parcel_id"`;
-
-  if (locationId) {
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where(
-          `history.created_at IN (
-            SELECT "max_created_at"
-            FROM (${subQuery}) AS "latest"
-            WHERE "latest"."parcel_id" = "parcel"."id"
-          )`,
-        ).andWhere(
-          new Brackets((innerQb) => {
-            innerQb
-              .where("history.from_location->>'id' = :locationId", { locationId })
-              .orWhere("history.to_location->>'id' = :locationId", { locationId });
-          }),
-        );
-      }),
-    );
-  } else {
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where(
-          `history.created_at IN (
-            SELECT "max_created_at"
-            FROM (${subQuery}) AS "latest"
-            WHERE "latest"."parcel_id" = "parcel"."id"
-          )`,
-        ).andWhere(
-          new Brackets((innerQb) => {
-            innerQb
-              .where("history.from_location->>'id' IN (:...locationIds)", { locationIds })
-              .orWhere("history.to_location->>'id' IN (:...locationIds)", { locationIds });
-          }),
-        );
-      }),
-    );
-  }
+  whereLatestHistoryIn(query, { alias: 'parcel', historyTable: 'parcel_history', foreignKey: 'parcel_id' }, scope);
 
   if (sortBy && Object.keys(parcelRepository.metadata.propertiesMap).includes(sortBy)) {
     query.orderBy(`parcel.${sortBy}`, orderBy || 'DESC');
@@ -272,9 +237,7 @@ export const getAllParcels = async (
     addSearchToQuery(query, `parcel.parcel_number`, search);
   }
 
-  const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
-  // const parcelList = await query.take(take).skip(skip).getMany();
-  const parcelList = await query.getMany();
+  const parcelList = await query.take(take).skip(skip).getMany();
 
   const total = await query.getCount();
   const totalPages = Math.ceil(total / take);

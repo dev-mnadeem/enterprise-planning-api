@@ -1,3 +1,4 @@
+import { normaliseSortOrder } from '../utils/paginationUtils';
 import { User } from "../entities";
 import { Request } from "express";
 
@@ -22,7 +23,7 @@ export const queryParamToUserParam = (req: Request): UserQueryParams => {
     search: q as string | undefined,
     role: role as string | undefined,
     sortBy: sortBy as string | undefined,
-    orderBy: orderBy as 'ASC' | 'DESC' | undefined,
+    orderBy: normaliseSortOrder(orderBy),
     phoneNumber: phoneNumber as string | undefined,
   };
 };
