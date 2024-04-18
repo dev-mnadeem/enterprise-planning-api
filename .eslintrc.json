@@ -1,0 +1,70 @@
+{
+  "env": {
+    "node": true,
+    "es6": true,
+    "commonjs": false,
+    "es2022": true,
+    "jest": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "globals": {
+    "test": "readonly",
+    "expect": "readonly"
+  },
+  "plugins": ["@typescript-eslint", "jest", "prettier", "simple-import-sort"],
+  "extends": [
+    "plugin:jest/recommended",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "linebreak-style": ["error", "unix"],
+    "semi": ["error", "always"],
+    "@typescript-eslint/ban-ts-comment": 0,
+    "@typescript-eslint/no-floating-promises": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-unsafe-return": 0,
+    "@typescript-eslint/no-unsafe-assignment": 0,
+    "@typescript-eslint/no-unsafe-argument": 0,
+    "@typescript-eslint/no-unsafe-call": 0,
+    "@typescript-eslint/no-unsafe-member-access": 0,
+    "@typescript-eslint/no-redundant-type-constituents": 0,
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/**/**/*.entity.ts"],
+      "rules": {
+        "indent": [
+          "error",
+          2,
+          {
+            "ignoredNodes": [
+              "FunctionExpression > .params[decorators.length > 0]",
+              "FunctionExpression > .params > :matches(Decorator, :not(:first-child))",
+              "ClassBody.body > PropertyDefinition[decorators.length > 0] > .key"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
