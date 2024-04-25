@@ -2,43 +2,35 @@ import {
   Entity,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   BeforeInsert,
   PrimaryColumn,
   ManyToOne,
   JoinColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { UserRole } from './userRole.entity';
+import { Country } from './country.entity';
+import { City } from './city.entity';
 
 @Entity()
-export class User {
+export class Area {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
+
+  @Column({ type: 'varchar', length: 26 })
+  country_id: number;
   
   @Column({ type: 'varchar', length: 26 })
-  role_id: string;
-  
-  @Column({ type: 'varchar', length: 26 })
-  area_id: string;
+  city_id: number;
   
   @Column()
-  username: string;
+  area_name: string;
 
   @Column()
-  email: string;
+  postal_code: string;
 
   @Column()
-  password: string;
-
-  @Column()
-  branch: string;
-
-  @Column()
-  phone_number: string;
-
-  @Column()
-  mobile_number: string;
+  status: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
@@ -46,13 +38,13 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
-  @JoinColumn({ name: 'user_id' })
-  user_role: UserRole;
+  @ManyToOne(() => Country, country => country.id)
+  @JoinColumn({ name: 'country_id' })
+  country: Country;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
-  @JoinColumn({ name: 'area_id' })
-  area: UserRole;
+  @ManyToOne(() => City, city => city.id)
+  @JoinColumn({ name: 'city_id' })
+  city: City;
 
   @BeforeInsert()
   generateUlid() {
