@@ -18,13 +18,13 @@ export class Area {
   id: string;
 
   @Column({ type: 'varchar', length: 26 })
-  country_id: number;
+  country_id: string;
   
   @Column({ type: 'varchar', length: 26 })
-  city_id: number;
+  city_id: string;
   
   @Column()
-  area_name: string;
+  name: string;
 
   @Column()
   postal_code: string;

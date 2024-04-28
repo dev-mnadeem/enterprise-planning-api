@@ -1,6 +1,5 @@
 import { User } from '../entities';
 import { AppDataSource } from '../database/data-source';
-import { addSearchToQuery } from '../utils/searchUtils';
 import { TUpdateUser } from '../schemas/user.schema';
 import { CustomError } from '../utils/customError';
 
