@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { ulid } from 'ulid';
+import { User } from './user.entity';
 
 @Entity()
 export class UserRole {
@@ -8,6 +9,9 @@ export class UserRole {
 
   @Column()
   name: string;
+
+  @OneToMany(() => User, (user) => user.user_role)
+  users: User[];
 
   @BeforeInsert()
   generateUlid() {

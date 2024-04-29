@@ -7,10 +7,12 @@ import {
   ManyToOne,
   JoinColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { Country } from './country.entity';
 import { City } from './city.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Area {
@@ -45,6 +47,9 @@ export class Area {
   @ManyToOne(() => City, city => city.id)
   @JoinColumn({ name: 'city_id' })
   city: City;
+
+  @OneToMany(() => User, (user) => user.area)
+  users: User[];
 
   @BeforeInsert()
   generateUlid() {
