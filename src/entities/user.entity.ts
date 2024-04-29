@@ -31,13 +31,13 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   branch: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone_number: string;
 
-  @Column()
+  @Column({ nullable: true })
   mobile_number: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -50,7 +50,7 @@ export class User {
   updated_at: Date;
 
   @ManyToOne(() => UserRole, (userRole) => userRole.id)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'role_id' })
   user_role: UserRole;
 
   @ManyToOne(() => UserRole, (userRole) => userRole.id)

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
-import { TCreateUser } from '../schemas/user.schema';
+import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
@@ -15,9 +15,9 @@ export const createUser = async (req: Request<unknown, unknown, TCreateUser>, re
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const user = await userService.getAllUsers();
+    const users = await userService.getAllUsers();
 
-    res.json(user);
+    res.json(users);
   } catch (error) {
     sendErrorResponse(error as Error, res);
   }
@@ -34,14 +34,14 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: Request<{ id: string }, unknown, TUpdateUser>, res: Response) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const userData = req.body;
 
-    const updatedUserRole = await userService.updateUser(id, name);
+    const updatedUser = await userService.updateUser(id, userData);
 
-    res.json(updatedUserRole);
+    res.json(updatedUser);
   } catch (error) {
     sendErrorResponse(error as Error, res);
   }
