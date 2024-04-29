@@ -25,8 +25,8 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
       throw new CustomError('Invalid password!', 401);
     }
 
-    const accessToken = generateAccessToken(user.email);
-    const refreshToken = generateRefreshToken(user.email);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     await userService.updateUser(user.id, { refresh_token: refreshToken });
 
@@ -45,7 +45,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
 
 export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const { username, email, password, branch, phone_number, mobile_number, role_id } = req.body;
+    const { username, email, password, branch, phone_number, mobile_number, role_id, area_id } = req.body;
 
     const encryptedPassword = await hashPassword(password);
 
@@ -57,14 +57,15 @@ export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: R
       phone_number,
       mobile_number,
       role_id,
+      area_id
     });
 
     if (!createdUser) {
       throw new CustomError('Unable to signup', 401);
     }
 
-    const accessToken = generateAccessToken(createdUser.email);
-    const refreshToken = generateRefreshToken(createdUser.email);
+    const accessToken = generateAccessToken(createdUser);
+    const refreshToken = generateRefreshToken(createdUser);
 
     await userService.updateUser(createdUser.id, { refresh_token: refreshToken });
 
@@ -103,8 +104,8 @@ export const handleRefreshToken = async (req: Request<unknown, unknown>, res: Re
           return res.sendStatus(403);
         }
 
-        const accessToken = generateAccessToken(user.email);
-        const refreshToken = generateRefreshToken(user.email);
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
 
         await userService.updateUser(user.id, { refresh_token: refreshToken });
 
