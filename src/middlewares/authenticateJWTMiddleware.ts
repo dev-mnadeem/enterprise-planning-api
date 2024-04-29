@@ -21,7 +21,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
           const userRepository = AppDataSource.getRepository(User);
 
           const options: FindOneOptions<User> = {
-            where: { email: decoded.id },
+            where: { email: JSON.parse(decoded.id).email },
           };
 
           const user = await userRepository.findOne(options);
