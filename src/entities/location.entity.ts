@@ -17,10 +17,10 @@ export class Location {
   id: string;
 
   @Column()
-  country_id: number;
+  country_id: string;
 
   @Column()
-  city_id: number;
+  city_id: string;
 
   @Column()
   name: string;
@@ -35,7 +35,7 @@ export class Location {
   geo_location: string;
 
   @Column()
-  location_type: number;
+  location_type: string;
 
   @Column()
   status: boolean;
