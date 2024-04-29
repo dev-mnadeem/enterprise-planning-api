@@ -2,10 +2,24 @@ import { Request, Response } from 'express';
 import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
+import { hashPassword } from '../utils/passwordUtils';
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const userData = req.body;
+    const { username, email, password, branch, phone_number, mobile_number, role_id } = req.body;
+
+    const encryptedPassword = await hashPassword(password);
+
+    const userData = {
+      username,
+      email,
+      password: encryptedPassword,
+      branch,
+      phone_number,
+      mobile_number,
+      role_id,
+    };
+
     const newUser = await userService.createUser(userData);
     res.status(201).json(newUser);
   } catch (error) {
