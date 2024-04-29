@@ -19,6 +19,9 @@ export class Country {
   @Column()
   name: string;
 
+  @Column({ unique: true })
+  code: string;
+
   @Column()
   status: boolean;
 
