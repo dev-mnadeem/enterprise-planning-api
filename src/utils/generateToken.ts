@@ -1,7 +1,8 @@
 import { sign } from 'jsonwebtoken';
 import appConfig from '../config/appConfig';
+import { User } from '../entities';
 
-export const generateAccessToken = (email: string) =>
-  sign({ id: email }, `${appConfig.jwtSecretKey}`, { expiresIn: '2h' });
-export const generateRefreshToken = (email: string) =>
-  sign({ id: email }, `${appConfig.refreshTokenSecretKey}`, { expiresIn: '1d' });
+export const generateAccessToken = (user: User) =>
+  sign({ id: JSON.stringify(user) }, `${appConfig.jwtSecretKey}`, { expiresIn: '2h' });
+export const generateRefreshToken = (user: User) =>
+  sign({ id: JSON.stringify(user) }, `${appConfig.refreshTokenSecretKey}`, { expiresIn: '1d' });

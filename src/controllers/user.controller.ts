@@ -6,7 +6,7 @@ import { hashPassword } from '../utils/passwordUtils';
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const { username, email, password, branch, phone_number, mobile_number, role_id } = req.body;
+    const { username, email, password, branch, phone_number, mobile_number, role_id, area_id } = req.body;
 
     const encryptedPassword = await hashPassword(password);
 
@@ -18,6 +18,7 @@ export const createUser = async (req: Request<unknown, unknown, TCreateUser>, re
       phone_number,
       mobile_number,
       role_id,
+      area_id
     };
 
     const newUser = await userService.createUser(userData);
