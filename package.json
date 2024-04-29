@@ -6,14 +6,19 @@
     "start": "node build/src/server.js",
     "typeorm": "typeorm-ts-node-esm",
     "lint": "npx eslint",
-    "lint:fix": "npx eslint --fix"
+    "lint:fix": "npx eslint --fix",
+    "seed:countries": "ts-node src/seeding/countries-seed.ts",
+    "seed:cities": "ts-node src/seeding/cities-seed.ts"
   },
   "dependencies": {
     "@types/saml2-js": "^3.0.1",
+    "axios": "^1.4.0",
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "country-state-city": "^3.2.1",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
     "express-list-routes": "^1.1.5",
@@ -27,11 +32,11 @@
     "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.17",
     "typeorm-extension": "^3.0.1",
-    "zod": "^3.22.4",
-    "axios": "^1.4.0",
-    "ulid": "^2.3.0"
+    "ulid": "^2.3.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.14",

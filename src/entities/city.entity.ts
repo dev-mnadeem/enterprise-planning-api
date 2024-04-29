@@ -7,9 +7,11 @@ import {
   ManyToOne,
   JoinColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { Country } from './country.entity';
+import { Area } from './area.entity';
 
 @Entity()
 export class City {
@@ -17,14 +19,23 @@ export class City {
   id: string;
 
   @Column({ type: 'varchar', length: 26 })
-  country_id: number;
+  country_id: string;
 
   @Column()
-  city_name: string;
+  name: string;
 
-  @ManyToOne(() => Country, country => country.id)
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  created_at: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
+
+  @ManyToOne(() => Country, country => country.cities)
   @JoinColumn({ name: 'country_id' })
   country: Country;
+
+  @OneToMany(() => Area, area => area.city)
+  area: Area;
 
   @BeforeInsert()
   generateUlid() {
