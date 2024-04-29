@@ -100,7 +100,7 @@ export const handleRefreshToken = async (req: Request<unknown, unknown>, res: Re
       cookies[REFRESH_TOKEN_COOKIE_NAME],
       `${appConfig.refreshTokenSecretKey}`,
       async (err: VerifyErrors | null, decoded: any) => {
-        if (err || user.email !== decoded.id) {
+        if (err || user.email !== JSON.parse(decoded.id).email) {
           return res.sendStatus(403);
         }
 
