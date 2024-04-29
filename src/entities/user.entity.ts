@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
+import { Area } from './area.entity';
 
 @Entity()
 export class User {
@@ -49,13 +50,13 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
+  @ManyToOne(() => UserRole, (userRole) => userRole.users)
   @JoinColumn({ name: 'role_id' })
   user_role: UserRole;
 
-  @ManyToOne(() => UserRole, (userRole) => userRole.id)
+  @ManyToOne(() => Area, (area) => area.users)
   @JoinColumn({ name: 'area_id' })
-  area: UserRole;
+  area: Area;
 
   @BeforeInsert()
   generateUlid() {
