@@ -2,6 +2,7 @@ export * from './address.entity';
 export * from './area.entity';
 export * from './city.entity';
 export * from './country.entity';
+export * from './state.entity';
 export * from './currency.entity';
 export * from './deliveryTiming.entity';
 export * from './location.entity';

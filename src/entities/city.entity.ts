@@ -10,8 +10,9 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { Country } from './country.entity';
+import { State } from './state.entity';
 import { Area } from './area.entity';
+import { Location } from './location.entity';
 
 @Entity()
 export class City {
@@ -19,7 +20,7 @@ export class City {
   id: string;
 
   @Column({ type: 'varchar', length: 26 })
-  country_id: string;
+  state_id: string;
 
   @Column()
   name: string;
@@ -30,12 +31,15 @@ export class City {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => Country, country => country.cities)
-  @JoinColumn({ name: 'country_id' })
-  country: Country;
+  @ManyToOne(() => State, state => state.cities)
+  @JoinColumn({ name: 'state_id' })
+  state: State;
 
   @OneToMany(() => Area, area => area.city)
   area: Area;
+
+  @OneToMany(() => Location, location => location.city)
+  locations: Location[];
 
   @BeforeInsert()
   generateUlid() {

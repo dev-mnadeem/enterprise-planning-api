@@ -8,6 +8,8 @@ import { authRouter } from './auth.router';
 import { countryRouter } from './country.router';
 import { cityRouter } from './city.router';
 import { areaRouter } from './area.router';
+import { locationRouter } from './location.router';
+import { locationTypeRouter } from './locationType.router';
 
 const router = express();
 
@@ -17,5 +19,7 @@ router.use('/auth', authRouter);
 router.use('/countries', countryRouter);
 router.use('/cities', cityRouter);
 router.use('/areas', areaRouter);
+router.use('/locations', locationRouter);
+router.use('/location-types', locationTypeRouter);
 
 export { router };

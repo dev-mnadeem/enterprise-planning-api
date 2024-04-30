@@ -11,7 +11,7 @@ export const createCountry = async (countryData: TCreateCountry): Promise<Countr
 };
 
 export const getAllCountries = async (): Promise<Country[] | null> => {
-  const countries = await countryRepository.find({ relations: { cities: true } });
+  const countries = await countryRepository.find();
   return countries;
 };
 
