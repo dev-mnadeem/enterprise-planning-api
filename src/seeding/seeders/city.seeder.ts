@@ -11,11 +11,15 @@ export default class CitiesSeeder implements Seeder {
     const states = await stateRepository.find({ relations: { country: true } });
 
     for (let state of states) {
-      const citySeedData = XCity.getCitiesOfState(state.country.code ,state.code) || [];
+      const citySeedData = XCity.getCitiesOfState(state.country.code, state.code) || [];
 
       for (let city of citySeedData) {
-        const newCity = cityRepository.create({ name: city.name, state_id: state.id });
-        await cityRepository.save(newCity);
+        const existedCity = cityRepository.findOneBy({ name: city.name, state_id: state.id });
+
+        if (!existedCity) {
+          const newCity = cityRepository.create({ name: city.name, state_id: state.id });
+          await cityRepository.save(newCity);
+        }
       }
     }
   }

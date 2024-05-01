@@ -45,7 +45,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
 
 export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const { username, email, password, branch, phone_number, mobile_number, role_id, area_id } = req.body;
+    const { username, email, password, phone_number, mobile_number, role_id } = req.body;
 
     const encryptedPassword = await hashPassword(password);
 
@@ -53,11 +53,9 @@ export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: R
       username,
       email,
       password: encryptedPassword,
-      branch,
       phone_number,
       mobile_number,
-      role_id,
-      area_id
+      role_id
     });
 
     if (!createdUser) {
