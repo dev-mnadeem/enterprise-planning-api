@@ -5,8 +5,6 @@ export const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   role_id: z.string(),
-  area_id: z.string(),
-  branch: z.string().optional(),
   phone_number: z.string().optional(),
   mobile_number: z.string().optional(),
 });
@@ -18,8 +16,6 @@ export const updateUserSchema = z.object({
   email: z.string().optional(),
   password: z.string().min(8).optional(),
   role_id: z.string().optional(),
-  area_id: z.string().optional(),
-  branch: z.string().optional(),
   phone_number: z.string().optional(),
   mobile_number: z.string().optional(),
   refresh_token: z.string().optional(),
