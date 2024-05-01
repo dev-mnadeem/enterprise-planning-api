@@ -16,7 +16,7 @@ export const getAllAreas = async (): Promise<Area[] | null> => {
 };
 
 export const getAreaById = async (id: string): Promise<Area | undefined> => {
-  const area = await areaRepository.findOneOrFail({ where: { id } });
+  const area = await areaRepository.findOneOrFail({ where: { id }, relations: { city: { state: { country: true } } } });
 
   if (!area) {
     throw new CustomError('Area Not Found', 404);

@@ -5,11 +5,10 @@ import {
   PrimaryColumn,
   OneToMany,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { City } from './city.entity';
-import { Area } from './area.entity';
+import { State } from './state.entity';
 
 @Entity()
 export class Country {
@@ -31,11 +30,8 @@ export class Country {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @OneToMany(() => City, city => city.country)
-  cities: Country;
-
-  @OneToMany(() => Area, area => area.country)
-  area: Area;
+  @OneToMany(() => State, state => state.country)
+  states: State[];
 
   @BeforeInsert()
   generateUlid() {

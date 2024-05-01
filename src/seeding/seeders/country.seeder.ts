@@ -1,7 +1,7 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { Country } from '../../entities';
 import { Country as XCountry } from 'country-state-city';
+import { Country } from '../../entities';
 
 export default class CountriesSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {

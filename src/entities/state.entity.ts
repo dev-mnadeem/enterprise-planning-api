@@ -1,29 +1,31 @@
 import {
   Entity,
   Column,
-  CreateDateColumn,
   BeforeInsert,
   PrimaryColumn,
-  ManyToOne,
-  JoinColumn,
-  UpdateDateColumn,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { State } from './state.entity';
-import { Area } from './area.entity';
-import { Location } from './location.entity';
+import { Country } from './country.entity';
+import { City } from './city.entity';
 
 @Entity()
-export class City {
+export class State {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
 
   @Column({ type: 'varchar', length: 26 })
-  state_id: string;
+  country_id: string;
 
   @Column()
   name: string;
+
+  @Column()
+  code: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
@@ -31,15 +33,12 @@ export class City {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => State, state => state.cities)
-  @JoinColumn({ name: 'state_id' })
-  state: State;
+  @ManyToOne(() => Country, country => country.states)
+  @JoinColumn({ name: 'country_id' })
+  country: Country;
 
-  @OneToMany(() => Area, area => area.city)
-  area: Area;
-
-  @OneToMany(() => Location, location => location.city)
-  locations: Location[];
+  @OneToMany(() => City, city => city.state)
+  cities: City[];
 
   @BeforeInsert()
   generateUlid() {
