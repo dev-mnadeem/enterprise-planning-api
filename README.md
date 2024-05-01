@@ -43,7 +43,11 @@ npm i
 ```bash
 npm run seed:countries
 
+npm run seed:states
+
 npm run seed:cities
+
+npm run seed:location-types
 ```
 
 ### Run Server

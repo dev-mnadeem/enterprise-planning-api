@@ -7,10 +7,12 @@ import {
   PrimaryColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
 import { Area } from './area.entity';
+import { Location } from './location.entity';
 
 @Entity()
 export class User {
@@ -57,6 +59,9 @@ export class User {
   @ManyToOne(() => Area, (area) => area.users)
   @JoinColumn({ name: 'area_id' })
   area: Area;
+
+  @OneToMany(() => Location, location => location.deleted_by)
+  deleted_locations: Location[];
 
   @BeforeInsert()
   generateUlid() {

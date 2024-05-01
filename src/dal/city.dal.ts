@@ -16,7 +16,7 @@ export const getAllCities = async (): Promise<City[] | null> => {
 };
 
 export const getCityById = async (id: string): Promise<City | undefined> => {
-  const city = await cityRepository.findOneOrFail({ where: { id } });
+  const city = await cityRepository.findOneOrFail({ where: { id }, relations: { state: { country: true } } });
 
   if (!city) {
     throw new CustomError('City Not Found', 404);
