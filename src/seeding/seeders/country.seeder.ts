@@ -8,10 +8,14 @@ export default class CountriesSeeder implements Seeder {
     const countryRepository = dataSource.getRepository(Country);
 
     const countrySeedData = XCountry.getAllCountries();
-    
+
     for (let country of countrySeedData) {
-      const newCountry = countryRepository.create({ name: country.name, code: country.isoCode, status: false })
-      await countryRepository.save(newCountry);
+      const existedCountry = countryRepository.findOneBy({ code: country.isoCode });
+
+      if (!existedCountry) {
+        const newCountry = countryRepository.create({ name: country.name, code: country.isoCode, status: false });
+        await countryRepository.save(newCountry);
+      }
     }
   }
 }

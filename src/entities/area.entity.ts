@@ -41,9 +41,6 @@ export class Area {
   @JoinColumn({ name: 'city_id' })
   city: City;
 
-  @OneToMany(() => User, (user) => user.area)
-  users: User[];
-
   @BeforeInsert()
   generateUlid() {
     this.id = ulid();

@@ -13,6 +13,7 @@ import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
 import { Area } from './area.entity';
 import { Location } from './location.entity';
+import { Address } from './address.entity';
 
 @Entity()
 export class User {
@@ -21,9 +22,6 @@ export class User {
   
   @Column({ type: 'varchar', length: 26 })
   role_id: string;
-  
-  @Column({ type: 'varchar', length: 26 })
-  area_id: string;
   
   @Column()
   username: string;
@@ -56,12 +54,11 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   user_role: UserRole;
 
-  @ManyToOne(() => Area, (area) => area.users)
-  @JoinColumn({ name: 'area_id' })
-  area: Area;
-
   @OneToMany(() => Location, location => location.deleted_by)
   deleted_locations: Location[];
+
+  @OneToMany(() => Address, address => address.user)
+  addresses: Address[];
 
   @BeforeInsert()
   generateUlid() {
