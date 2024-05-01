@@ -14,8 +14,12 @@ export default class StatesSeeder implements Seeder {
       const stateSeedData = XState.getStatesOfCountry(country.code) || [];
 
       for (let state of stateSeedData) {
-        const newState = stateRepository.create({ name: state.name, code: state.isoCode, country_id: country.id });
-        await stateRepository.save(newState);
+        const existedState = stateRepository.findOneBy({ code: state.isoCode, country_id: country.id });
+
+        if (!existedState) {
+          const newState = stateRepository.create({ name: state.name, code: state.isoCode, country_id: country.id });
+          await stateRepository.save(newState);
+        }
       }
     }
   }

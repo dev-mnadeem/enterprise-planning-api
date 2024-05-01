@@ -48,6 +48,8 @@ npm run seed:states
 npm run seed:cities
 
 npm run seed:location-types
+
+npm run seed:user-roles
 ```
 
 ### Run Server
