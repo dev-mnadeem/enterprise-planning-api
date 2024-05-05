@@ -19,6 +19,16 @@ export const getUserRoleById = async (id: string): Promise<UserRole | undefined>
   return userRole;
 };
 
+export const getUserRoleByName = async (name: string): Promise<UserRole | undefined> => {
+  const userRole = await userRoleRepository.findOneOrFail({ where : { name } });
+
+  if (!userRole) {
+    throw new CustomError('User Role Not Found!', 404);
+  }
+
+  return userRole;
+};
+
 export const getAllUserRoles = async (): Promise<UserRole[]> => {
   return await userRoleRepository.find();
 };
