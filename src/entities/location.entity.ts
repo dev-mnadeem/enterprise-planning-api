@@ -8,6 +8,7 @@ import {
   JoinColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { City } from './city.entity';
@@ -59,6 +60,9 @@ export class Location {
   @ManyToOne(() => City, (city) => city.locations)
   @JoinColumn({ name: 'city_id' })
   city: City;
+
+  @ManyToMany(() => User, (user) => user.locations)
+  users: User[];
 
   @ManyToOne(() => User, (user) => user.deleted_locations)
   @JoinColumn({ name: 'deleted_by_id' })
