@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
@@ -48,6 +49,9 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @ManyToMany(() => Location, (location) => location.users)
+  locations: Location[];
 
   @ManyToOne(() => UserRole, (userRole) => userRole.users)
   @JoinColumn({ name: 'role_id' })
