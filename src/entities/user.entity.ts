@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
-import { Area } from './area.entity';
 import { Location } from './location.entity';
 import { Address } from './address.entity';
 
