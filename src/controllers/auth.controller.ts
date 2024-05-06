@@ -2,11 +2,12 @@ import { Request, Response } from 'express';
 import jwt, { VerifyErrors } from 'jsonwebtoken';
 
 import * as userService from '../dal/user.dal';
+import * as userRoleService from '../dal/userRole.dal';
 import appConfig from '../config/appConfig';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { CustomError } from '../utils/customError';
 import { generateAccessToken, generateRefreshToken } from '../utils/generateToken';
-import { TCreateUser, TLogin } from '../schemas/user.schema';
+import { TLogin, TSignUpUser } from '../schemas/user.schema';
 import { REFRESH_TOKEN_COOKIE_NAME } from '../constants';
 import { hashPassword, verifyPassword } from '../utils/passwordUtils';
 
@@ -43,11 +44,12 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
   }
 };
 
-export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
+export const signup = async (req: Request<unknown, unknown, TSignUpUser>, res: Response) => {
   try {
-    const { username, email, password, phone_number, mobile_number, role_id } = req.body;
+    const { username, email, password, phone_number, mobile_number } = req.body;
 
     const encryptedPassword = await hashPassword(password);
+    const adminUserRole = await userRoleService.getUserRoleByName('admin')
 
     const createdUser = await userService.createUser({
       username,
@@ -55,7 +57,7 @@ export const signup = async (req: Request<unknown, unknown, TCreateUser>, res: R
       password: encryptedPassword,
       phone_number,
       mobile_number,
-      role_id
+      role_id: adminUserRole?.id,
     });
 
     if (!createdUser) {
