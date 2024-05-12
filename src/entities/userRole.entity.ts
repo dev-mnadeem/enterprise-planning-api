@@ -10,9 +10,6 @@ export class UserRole {
   @Column()
   name: string;
 
-  @Column({ type: 'array', default: [] })
-  permissions: string;
-
   @OneToMany(() => User, (user) => user.user_role)
   users: User[];
 
