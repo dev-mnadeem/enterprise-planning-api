@@ -19,7 +19,7 @@ export const getCountryById = async (id: string): Promise<Country | undefined> =
   const country = await countryRepository.findOneOrFail({ where: { id } });
 
   if (!country) {
-    throw new CustomError('Country Not Found', 404);
+    throw new CustomError('Country Not Found!', 404);
   }
 
   return country;
@@ -31,7 +31,7 @@ export const updateCountry = async (id: string, newData: TUpdateCountry): Promis
   });
 
   if (!countryToUpdate) {
-    throw new CustomError('Country Not Found', 404);
+    throw new CustomError('Country Not Found!', 404);
   }
 
   const updatedCountry = { ...countryToUpdate, ...newData };
@@ -40,5 +40,11 @@ export const updateCountry = async (id: string, newData: TUpdateCountry): Promis
 
 export const deleteCountry = async (id: string): Promise<boolean> => {
   const result = await countryRepository.delete(id);
-  return result.affected !== 0;
+  const isDeleted = result.affected !== 0;
+
+  if (!isDeleted) {
+    throw new CustomError('Country Not Found!', 404);
+  }
+
+  return isDeleted
 };

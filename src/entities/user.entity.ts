@@ -14,6 +14,8 @@ import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
 import { Location } from './location.entity';
 import { Address } from './address.entity';
+import { Permission } from './permission.entity';
+import { City } from './city.entity';
 
 @Entity()
 export class User {
@@ -22,11 +24,14 @@ export class User {
   
   @Column({ type: 'varchar', length: 26 })
   role_id: string;
+
+  @Column({ type: 'varchar', length: 26, nullable: true })
+  city_id: string;
   
   @Column()
-  username: string;
+  name: string;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
   @Column()
@@ -39,7 +44,13 @@ export class User {
   phone_number: string;
 
   @Column({ nullable: true })
-  mobile_number: string;
+  address: string;
+
+  @Column({ nullable: true })
+  geo_location: string
+
+  @Column({ type: 'jsonb', nullable: true })
+  permissions: object[];
 
   @Column({ type: 'varchar', nullable: true })
   refresh_token: string;
@@ -57,11 +68,12 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   user_role: UserRole;
 
+  @ManyToOne(() => City, (city) => city.users)
+  @JoinColumn({ name: 'city_id' })
+  city: City;
+
   @OneToMany(() => Location, location => location.deleted_by)
   deleted_locations: Location[];
-
-  @OneToMany(() => Address, address => address.user)
-  addresses: Address[];
 
   @BeforeInsert()
   generateUlid() {

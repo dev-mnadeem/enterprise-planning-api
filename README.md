@@ -49,7 +49,12 @@ npm run seed:cities
 
 npm run seed:location-types
 
+npm run seed:permissions
+
 npm run seed:user-roles
+
+npm run seed:admin
+
 ```
 
 ### Run Server
