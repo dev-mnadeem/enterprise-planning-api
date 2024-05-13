@@ -32,11 +32,11 @@ export class Location {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column({ nullable: true })
-  type: string;
+  address: string;
 
   @Column({ nullable: true })
   geo_location: string;
