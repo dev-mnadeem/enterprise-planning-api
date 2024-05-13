@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import * as userRoleService from '../dal/userRole.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
+import { TCreateUserRole } from '../schemas/userRole.schema';
 
-export const createUserRole = async (req: Request, res: Response) => {
+export const createUserRole = async (req: Request<never, never, TCreateUserRole>, res: Response) => {
   try {
-    const { name } = req.body;
+    const { name, permissions } = req.body;
 
-    const newUserRole = await userRoleService.createUserRole(name);
+    const newUserRole = await userRoleService.createUserRole(name, permissions);
 
     res.status(201).json(newUserRole);
   } catch (error) {

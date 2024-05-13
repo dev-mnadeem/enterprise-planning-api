@@ -19,7 +19,7 @@ export const getAreaById = async (id: string): Promise<Area | undefined> => {
   const area = await areaRepository.findOneOrFail({ where: { id }, relations: { city: { state: { country: true } } } });
 
   if (!area) {
-    throw new CustomError('Area Not Found', 404);
+    throw new CustomError('Area Not Found!', 404);
   }
 
   return area;
@@ -31,7 +31,7 @@ export const updateArea = async (id: string, newData: TUpdateArea): Promise<Area
   });
 
   if (!areaToUpdate) {
-    throw new CustomError('Area Not Found', 404);
+    throw new CustomError('Area Not Found!', 404);
   }
 
   const updatedArea = { ...areaToUpdate, ...newData };
@@ -40,5 +40,11 @@ export const updateArea = async (id: string, newData: TUpdateArea): Promise<Area
 
 export const deleteArea = async (id: string): Promise<boolean> => {
   const result = await areaRepository.delete(id);
-  return result.affected !== 0;
+  const isDeleted = result.affected !== 0;
+
+  if (!isDeleted) {
+    throw new CustomError('Area Not Found!', 404);
+  }
+
+  return isDeleted
 };
