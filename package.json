@@ -2,6 +2,7 @@
   "name": "node-project",
   "version": "0.0.1",
   "scripts": {
+    "build": "tsc -p tsconfig.prod.json",
     "dev": "nodemon src/server.ts",
     "start": "node build/src/server.js",
     "typeorm": "typeorm-ts-node-esm",
