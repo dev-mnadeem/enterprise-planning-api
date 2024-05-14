@@ -3,22 +3,22 @@ import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
 import { hashPassword } from '../utils/passwordUtils';
-import { generateFromEmail } from "unique-username-generator";
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
-    const { email, phone_number, mobile_number, role_id } = req.body;
+    const { name, email, phone_number, address, geo_location, role_id, city_id } = req.body;
 
     const encryptedPassword = await hashPassword('Helloworld');
-    const username = generateFromEmail(email, 3);
 
     const userData = {
-      username,
+      name,
       email,
       password: encryptedPassword,
       phone_number,
-      mobile_number,
-      role_id
+      address,
+      geo_location,
+      role_id,
+      city_id
     };
 
     const newUser = await userService.createUser(userData);

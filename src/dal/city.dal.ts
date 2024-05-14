@@ -19,7 +19,7 @@ export const getCityById = async (id: string): Promise<City | undefined> => {
   const city = await cityRepository.findOneOrFail({ where: { id }, relations: { state: { country: true } } });
 
   if (!city) {
-    throw new CustomError('City Not Found', 404);
+    throw new CustomError('City Not Found!', 404);
   }
 
   return city;
@@ -31,7 +31,7 @@ export const updateCity = async (id: string, newData: TUpdateCity): Promise<City
   });
 
   if (!cityToUpdate) {
-    throw new CustomError('City Not Found', 404);
+    throw new CustomError('City Not Found!', 404);
   }
 
   const updatedCity = { ...cityToUpdate, ...newData };
@@ -40,5 +40,11 @@ export const updateCity = async (id: string, newData: TUpdateCity): Promise<City
 
 export const deleteCity = async (id: string): Promise<boolean> => {
   const result = await cityRepository.delete(id);
-  return result.affected !== 0;
+  const isDeleted = result.affected !== 0;
+
+  if (!isDeleted) {
+    throw new CustomError('City Not Found!', 404);
+  }
+
+  return isDeleted
 };

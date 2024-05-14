@@ -46,18 +46,18 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
 
 export const signup = async (req: Request<unknown, unknown, TSignUpUser>, res: Response) => {
   try {
-    const { username, email, password, phone_number, mobile_number } = req.body;
+    const { name, email, password, phone_number } = req.body;
 
     const encryptedPassword = await hashPassword(password);
-    const adminUserRole = await userRoleService.getUserRoleByName('admin')
+    const customerUserRole = await userRoleService.getUserRoleByName('customer');
 
     const createdUser = await userService.createUser({
-      username,
+      name,
       email,
       password: encryptedPassword,
       phone_number,
-      mobile_number,
-      role_id: adminUserRole?.id,
+      role_id: customerUserRole?.id,
+      permissions: customerUserRole?.permissions,
     });
 
     if (!createdUser) {

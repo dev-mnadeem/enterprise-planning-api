@@ -20,10 +20,7 @@ export class Address {
   user_id: string;
 
   @Column({ type: 'varchar', length: 26 })
-  country_id: string;
-
-  @Column({ type: 'varchar', length: 26 })
-  region_id: string;
+  city_id: string;
 
   @Column({ type: 'varchar', length: 26 })
   area_id: string;
@@ -39,10 +36,6 @@ export class Address {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
-
-  @ManyToOne(() => User, (user) => user.addresses)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
 
   @BeforeInsert()
   generateUlid() {
