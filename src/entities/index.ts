@@ -12,3 +12,4 @@ export * from './user.entity';
 export * from './userRole.entity';
 export * from './vehicleType.entity';
 export * from './vehicle.entity';
+export * from './permission.entity';

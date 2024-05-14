@@ -13,6 +13,7 @@ import { ulid } from 'ulid';
 import { State } from './state.entity';
 import { Area } from './area.entity';
 import { Location } from './location.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class City {
@@ -40,6 +41,9 @@ export class City {
 
   @OneToMany(() => Location, location => location.city)
   locations: Location[];
+
+  @OneToMany(() => User, (user) => user.city)
+  users: User[];
 
   @BeforeInsert()
   generateUlid() {

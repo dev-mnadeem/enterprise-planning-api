@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, BeforeRemove, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { ulid } from 'ulid';
 import { User } from './user.entity';
 
@@ -13,8 +13,18 @@ export class UserRole {
   @OneToMany(() => User, (user) => user.user_role)
   users: User[];
 
+  @Column({ type: 'jsonb', nullable: true })
+  permissions: object[];
+
   @BeforeInsert()
   generateUlid() {
     this.id = ulid();
+  }
+
+  @BeforeRemove()
+  async checkUsersBeforeRemove() {
+    if (this.users && this.users.length > 0) {
+      throw new Error('Cannot delete role because it is assigned to one or more users.');
+    }
   }
 }

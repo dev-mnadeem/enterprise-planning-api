@@ -19,7 +19,7 @@ export const getLocationById = async (id: string): Promise<Location | undefined>
   const location = await locationRepository.findOneOrFail({ where: { id } });
 
   if (!location) {
-    throw new CustomError('Location Not Found', 404);
+    throw new CustomError('Location Not Found!', 404);
   }
 
   return location;
@@ -31,7 +31,7 @@ export const updateLocation = async (id: string, newData: TUpdateLocation): Prom
   });
 
   if (!locationToUpdate) {
-    throw new CustomError('Location Not Found', 404);
+    throw new CustomError('Location Not Found!', 404);
   }
 
   const updatedLocation = { ...locationToUpdate, ...newData };
@@ -40,5 +40,11 @@ export const updateLocation = async (id: string, newData: TUpdateLocation): Prom
 
 export const deleteLocation = async (id: string): Promise<boolean> => {
   const result = await locationRepository.softDelete(id);
-  return result.affected !== 0;
+  const isDeleted = result.affected !== 0;
+
+  if (!isDeleted) {
+    throw new CustomError('Location Not Found!', 404);
+  }
+
+  return isDeleted
 };

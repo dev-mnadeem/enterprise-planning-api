@@ -9,7 +9,9 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "seed:location-types": "ts-node src/seeding/location-types-seed.ts",
+    "seed:permissions": "ts-node src/seeding/permissions-seed.ts",
     "seed:user-roles": "ts-node src/seeding/user-roles-seed.ts",
+    "seed:admin": "ts-node src/seeding/admin-seed.ts",
     "seed:countries": "ts-node src/seeding/countries-seed.ts",
     "seed:states": "ts-node src/seeding/states-seed.ts",
     "seed:cities": "ts-node src/seeding/cities-seed.ts"
