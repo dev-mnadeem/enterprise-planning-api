@@ -1,12 +1,12 @@
 import { USER_ROLES } from '../constants';
 import { AppDataSource } from '../database/data-source';
 import { UserRole } from '../entities';
-import { TCreatePermission } from '../schemas/permission.schema';
+import { TPermission } from '../schemas/permission.schema';
 import { CustomError } from '../utils/customError';
 
 const userRoleRepository = AppDataSource.getRepository(UserRole);
 
-export const createUserRole = async (name: string, permissions: TCreatePermission[] | undefined): Promise<UserRole> => {
+export const createUserRole = async (name: string, permissions: TPermission[] | undefined): Promise<UserRole> => {
   if (USER_ROLES.includes(name.toLowerCase())) {
     throw new CustomError("You Can't keep this name choose different one!", 400);
   }

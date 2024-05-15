@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createPermissionSchema } from './permission.schema';
+import { permissionSchema } from './permission.schema';
 
 export const signUpUserSchema = z.object({
   name: z.string(),
@@ -19,7 +19,7 @@ export const createUserSchema = z.object({
   geo_location: z.string().optional(),
   password: z.string().min(8).optional(),
   phone_number: z.string().optional(),
-  permissions: z.array(createPermissionSchema).optional(),
+  permissions: z.array(permissionSchema).optional(),
 });
 
 export type TCreateUser = z.infer<typeof createUserSchema>;
@@ -34,7 +34,7 @@ export const updateUserSchema = z.object({
   password: z.string().min(8).optional(),
   phone_number: z.string().optional(),
   refresh_token: z.string().optional(),
-  permissions: z.array(createPermissionSchema).optional(),
+  permissions: z.array(permissionSchema).optional(),
 });
 
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
