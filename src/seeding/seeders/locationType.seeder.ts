@@ -9,7 +9,7 @@ export default class LocationTypesSeeder implements Seeder {
     const locationTypeRepository = dataSource.getRepository(LocationType);
 
     for (let locationType of locationTypes) {
-      const existedLocationType = locationTypeRepository.findOneBy({ name: locationType });
+      const existedLocationType = await locationTypeRepository.findOneBy({ name: locationType });
 
       if (!existedLocationType) {
         const newUserRole = locationTypeRepository.create({ name: locationType });

@@ -14,7 +14,7 @@ export default class CitiesSeeder implements Seeder {
       const citySeedData = XCity.getCitiesOfState(state.country.code, state.code) || [];
 
       for (let city of citySeedData) {
-        const existedCity = cityRepository.findOneBy({ name: city.name, state_id: state.id });
+        const existedCity = await cityRepository.findOneBy({ name: city.name, state_id: state.id });
 
         if (!existedCity) {
           const newCity = cityRepository.create({ name: city.name, state_id: state.id });
