@@ -1,17 +1,7 @@
 import { Request, Response } from 'express';
 import * as cityService from '../dal/city.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
-import { TCreateCity } from '../schemas/city.schema';
-
-export const createCity = async (req: Request<unknown, unknown, TCreateCity>, res: Response) => {
-  try {
-    const cityData = req.body;
-    const newArea = await cityService.createCity(cityData);
-    res.status(201).json(newArea);
-  } catch (error) {
-    sendErrorResponse(error as Error, res);
-  }
-};
+import { TUpdateCity } from '../schemas/city.schema';
 
 export const getAllCities = async (req: Request, res: Response) => {
   try {
@@ -34,7 +24,18 @@ export const getCityById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateCity = async (req: Request, res: Response) => {
+export const getCitiesByStateId = async (req: Request, res: Response) => {
+  try {
+    const { state_id } = req.params;
+    const cities = await cityService.getCitiesByStateId(state_id);
+
+    res.json(cities);
+  } catch (error) {
+    sendErrorResponse(error as Error, res);
+  }
+};
+
+export const updateCity = async (req: Request<{ id: string }, unknown, TUpdateCity>, res: Response) => {
   try {
     const { id } = req.params;
     const cityData = req.body;
@@ -42,18 +43,6 @@ export const updateCity = async (req: Request, res: Response) => {
     const updatedCity = await cityService.updateCity(id, cityData);
 
     res.json(updatedCity);
-  } catch (error) {
-    sendErrorResponse(error as Error, res);
-  }
-};
-
-export const deleteCity = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    await cityService.deleteCity(id);
-
-    res.json({ message: 'City Deleted Successfully!' });
   } catch (error) {
     sendErrorResponse(error as Error, res);
   }

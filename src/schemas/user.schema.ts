@@ -34,6 +34,7 @@ export const updateUserSchema = z.object({
   password: z.string().min(8).optional(),
   phone_number: z.string().optional(),
   refresh_token: z.string().optional(),
+  status: z.boolean().optional(),
   permissions: z.array(permissionSchema).optional(),
 });
 

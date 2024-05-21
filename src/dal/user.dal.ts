@@ -16,7 +16,7 @@ export const getAllUsers = async (): Promise<User[] | null> => {
 };
 
 export const getUserById = async (id: string): Promise<User | undefined> => {
-  const user = await userRepository.findOneOrFail({ where: { id }, relations: { user_role: true } });
+  const user = await userRepository.findOne({ where: { id }, relations: { user_role: true } });
 
   if (!user) {
     throw new CustomError('User Not Found!', 404);
@@ -26,7 +26,7 @@ export const getUserById = async (id: string): Promise<User | undefined> => {
 };
 
 export const updateUser = async (id: string, newData: TUpdateUser): Promise<User | null> => {
-  const userToUpdate = await userRepository.findOneOrFail({
+  const userToUpdate = await userRepository.findOne({
     where: { id },
     relations: { user_role: true }
   });
