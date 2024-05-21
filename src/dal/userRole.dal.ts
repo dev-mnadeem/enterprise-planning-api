@@ -16,7 +16,7 @@ export const createUserRole = async (name: string, permissions: TPermission[] | 
 };
 
 export const getUserRoleById = async (id: string): Promise<UserRole | undefined> => {
-  const userRole = await userRoleRepository.findOneOrFail({ where: { id } });
+  const userRole = await userRoleRepository.findOne({ where: { id } });
 
   if (!userRole) {
     throw new CustomError('User Role Not Found!', 404);
@@ -26,7 +26,7 @@ export const getUserRoleById = async (id: string): Promise<UserRole | undefined>
 };
 
 export const getUserRoleByName = async (name: string): Promise<UserRole | undefined> => {
-  const userRole = await userRoleRepository.findOneOrFail({ where: { name } });
+  const userRole = await userRoleRepository.findOne({ where: { name } });
 
   if (!userRole) {
     throw new CustomError('User Role Not Found!', 404);
@@ -40,7 +40,7 @@ export const getAllUserRoles = async (): Promise<UserRole[]> => {
 };
 
 export const updateUserRole = async (id: string, name: string): Promise<UserRole | null> => {
-  const userRoleToUpdate = await userRoleRepository.findOneOrFail({ where: { id } });
+  const userRoleToUpdate = await userRoleRepository.findOne({ where: { id } });
 
   if (!userRoleToUpdate) {
     throw new CustomError('User Role Not Found!', 404);

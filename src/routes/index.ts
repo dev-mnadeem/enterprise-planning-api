@@ -11,6 +11,7 @@ import { areaRouter } from './area.router';
 import { locationRouter } from './location.router';
 import { locationTypeRouter } from './locationType.router';
 import { permissionRouter } from './permission.router';
+import { stateRouter } from './state.router';
 
 const router = express();
 
@@ -19,6 +20,7 @@ router.use('/users', userRouter);
 router.use('/auth', authRouter);
 router.use('/countries', countryRouter);
 router.use('/cities', cityRouter);
+router.use('/states', stateRouter);
 router.use('/areas', areaRouter);
 router.use('/locations', locationRouter);
 router.use('/location-types', locationTypeRouter);
