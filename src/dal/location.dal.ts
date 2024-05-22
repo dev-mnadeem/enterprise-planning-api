@@ -16,7 +16,7 @@ export const getAllLocations = async (): Promise<Location[] | null> => {
 };
 
 export const getLocationById = async (id: string): Promise<Location | undefined> => {
-  const location = await locationRepository.findOneOrFail({ where: { id } });
+  const location = await locationRepository.findOne({ where: { id } });
 
   if (!location) {
     throw new CustomError('Location Not Found!', 404);
@@ -26,7 +26,7 @@ export const getLocationById = async (id: string): Promise<Location | undefined>
 };
 
 export const updateLocation = async (id: string, newData: TUpdateLocation): Promise<Location | null> => {
-  const locationToUpdate = await locationRepository.findOneOrFail({
+  const locationToUpdate = await locationRepository.findOne({
     where: { id },
   });
 
