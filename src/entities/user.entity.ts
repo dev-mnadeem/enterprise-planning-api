@@ -38,9 +38,6 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
-  branch: string;
-
-  @Column({ nullable: true })
   phone_number: string;
 
   @Column({ nullable: true })
@@ -48,6 +45,9 @@ export class User {
 
   @Column({ nullable: true })
   geo_location: string
+  
+  @Column({ default: true })
+  status: boolean
 
   @Column({ type: 'jsonb', nullable: true })
   permissions: object[];

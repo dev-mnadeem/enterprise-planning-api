@@ -5,18 +5,13 @@ import { TCreateCountry, TUpdateCountry } from '../schemas/country.schema';
 
 const countryRepository = AppDataSource.getRepository(Country);
 
-export const createCountry = async (countryData: TCreateCountry): Promise<Country> => {
-  const newCountry = countryRepository.create(countryData);
-  return await countryRepository.save(newCountry);
-};
-
 export const getAllCountries = async (): Promise<Country[] | null> => {
-  const countries = await countryRepository.find({ where: { states: true }, relations: { states: { cities: true } } });
+  const countries = await countryRepository.find({ where: { status: true } });
   return countries;
 };
 
 export const getCountryById = async (id: string): Promise<Country | undefined> => {
-  const country = await countryRepository.findOneOrFail({ where: { id } });
+  const country = await countryRepository.findOne({ where: { id } });
 
   if (!country) {
     throw new CustomError('Country Not Found!', 404);
@@ -26,7 +21,7 @@ export const getCountryById = async (id: string): Promise<Country | undefined> =
 };
 
 export const updateCountry = async (id: string, newData: TUpdateCountry): Promise<Country | null> => {
-  const countryToUpdate = await countryRepository.findOneOrFail({
+  const countryToUpdate = await countryRepository.findOne({
     where: { id },
   });
 
@@ -36,15 +31,4 @@ export const updateCountry = async (id: string, newData: TUpdateCountry): Promis
 
   const updatedCountry = { ...countryToUpdate, ...newData };
   return await countryRepository.save(updatedCountry);
-};
-
-export const deleteCountry = async (id: string): Promise<boolean> => {
-  const result = await countryRepository.delete(id);
-  const isDeleted = result.affected !== 0;
-
-  if (!isDeleted) {
-    throw new CustomError('Country Not Found!', 404);
-  }
-
-  return isDeleted
 };
