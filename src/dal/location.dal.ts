@@ -2,6 +2,7 @@ import { Location } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreateLocation, TUpdateLocation } from '../schemas/location.schema';
+import { In } from 'typeorm';
 
 const locationRepository = AppDataSource.getRepository(Location);
 
@@ -23,6 +24,12 @@ export const getLocationById = async (id: string): Promise<Location | undefined>
   }
 
   return location;
+};
+
+export const getLocationByIds = async (ids: string[]): Promise<Location[]> => {
+  const locations = await locationRepository.find({ where: { id: In(ids) } });
+
+  return locations;
 };
 
 export const updateLocation = async (id: string, newData: TUpdateLocation): Promise<Location | null> => {

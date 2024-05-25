@@ -20,6 +20,7 @@ export const createUserSchema = z.object({
   password: z.string().min(8).optional(),
   phone_number: z.string().optional(),
   permissions: z.array(permissionSchema).optional(),
+  location_ids: z.array(z.string()).optional(),
 });
 
 export type TCreateUser = z.infer<typeof createUserSchema>;
@@ -36,6 +37,7 @@ export const updateUserSchema = z.object({
   refresh_token: z.string().optional(),
   status: z.boolean().optional(),
   permissions: z.array(permissionSchema).optional(),
+  location_ids: z.array(z.string()).optional(),
 });
 
 export type TUpdateUser = z.infer<typeof updateUserSchema>;
