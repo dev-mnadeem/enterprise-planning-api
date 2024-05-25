@@ -16,6 +16,7 @@ import { Location } from './location.entity';
 import { Address } from './address.entity';
 import { Permission } from './permission.entity';
 import { City } from './city.entity';
+import { Order } from './order.entity';
 
 @Entity()
 export class User {
@@ -71,6 +72,9 @@ export class User {
   @ManyToOne(() => City, (city) => city.users)
   @JoinColumn({ name: 'city_id' })
   city: City;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 
   @OneToMany(() => Location, location => location.deleted_by)
   deleted_locations: Location[];
