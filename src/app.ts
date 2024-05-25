@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import express from 'express';
 import { Server } from 'http';
 import logger from 'morgan';
@@ -21,7 +21,33 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is healthy!' });
 });
 
-app.use(cors());
+const whitelist: string[] = ['http://localhost:3000', '*.veksol.com'];
+
+const corsOptions: CorsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const isWhitelisted = whitelist.some((allowedOrigin) => {
+      if (allowedOrigin.startsWith('.')) {
+        // Handle subdomains
+        return origin.endsWith(allowedOrigin);
+      }
+      return origin === allowedOrigin;
+    });
+
+    if (isWhitelisted) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use('/api', router);
 
 let server: Server;
