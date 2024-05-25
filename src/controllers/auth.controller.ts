@@ -14,13 +14,15 @@ import { hashPassword, verifyPassword } from '../utils/passwordUtils';
 export const login = async (req: Request<unknown, unknown, TLogin>, res: Response) => {
   try {
     const { email, password } = req.body;
-    const user = await userService.getUserByEmail(email);
+    const currentUser = await userService.getUserByEmail(email);
 
-    if (!user) {
+    if (!currentUser) {
       throw new CustomError('Invalid email!', 401);
     }
 
-    const isPassordValid = verifyPassword(password, user.password);
+    const { password: userPassword, refresh_token , ...user } = currentUser;
+
+    const isPassordValid = verifyPassword(password, userPassword);
 
     if (!isPassordValid) {
       throw new CustomError('Invalid password!', 401);
@@ -64,10 +66,12 @@ export const signup = async (req: Request<unknown, unknown, TSignUpUser>, res: R
       throw new CustomError('Unable to signup', 401);
     }
 
-    const accessToken = generateAccessToken(createdUser);
-    const refreshToken = generateRefreshToken(createdUser);
+    const { password: userPassword, refresh_token , ...user } = createdUser;
 
-    await userService.updateUser(createdUser.id, { refresh_token: refreshToken });
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    await userService.updateUser(user.id, { refresh_token: refreshToken });
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
