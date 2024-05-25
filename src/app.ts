@@ -11,8 +11,6 @@ import { router } from './routes';
 
 const app = express();
 
-// view engine setup
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -22,11 +20,21 @@ app.get('/health', (req, res) => {
 });
 
 const corsOptions: CorsOptions = {
-  origin: true, // Allow all origins
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    callback(null, true); // Allow all origins
+  },
   credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
 };
 
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
 app.use('/api', router);
 
 let server: Server;
