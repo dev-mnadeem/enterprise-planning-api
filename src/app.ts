@@ -21,29 +21,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is healthy!' });
 });
 
-const whitelist: string[] = ['http://localhost:3000', '*.veksol.com'];
-
 const corsOptions: CorsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-
-    const isWhitelisted = whitelist.some((allowedOrigin) => {
-      if (allowedOrigin.startsWith('.')) {
-        // Handle subdomains
-        return origin.endsWith(allowedOrigin);
-      }
-      return origin === allowedOrigin;
-    });
-
-    if (isWhitelisted) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true,
 };
 
