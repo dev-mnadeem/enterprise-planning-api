@@ -22,9 +22,9 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
 
     const { password: userPassword, refresh_token , ...user } = currentUser;
 
-    const isPassordValid = await verifyPassword(password, userPassword);
+    const isPassordInValid = await verifyPassword(password, userPassword);
 
-    if (isPassordValid) {
+    if (!isPassordInValid) {
       throw new CustomError('Invalid password!', 401);
     }
 
