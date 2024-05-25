@@ -1,14 +1,22 @@
-import { User } from '../entities';
+import { Location, User } from '../entities';
 import { AppDataSource } from '../database/data-source';
-import { TUpdateUser } from '../schemas/user.schema';
+import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
 import { CustomError } from '../utils/customError';
 import { getUserRoleByName } from './userRole.dal';
 import { Not } from 'typeorm';
+import { getLocationByIds } from './location.dal';
 
 const userRepository = AppDataSource.getRepository(User);
 
-export const createUser = async (userData: Partial<User>): Promise<User> => {
-  const newUser = userRepository.create(userData);
+export const createUser = async ({ location_ids, ...userData }: TCreateUser): Promise<User> => {
+  let locations = [] as Location[];
+
+  if (location_ids?.length) {
+    locations = await getLocationByIds(location_ids); 
+  }
+
+  const newUser = userRepository.create({ ...userData, locations });
+
   return await userRepository.save(newUser);
 };
 
@@ -31,7 +39,7 @@ export const getUserById = async (id: string): Promise<User | undefined> => {
   return user;
 };
 
-export const updateUser = async (id: string, newData: TUpdateUser): Promise<User | null> => {
+export const updateUser = async (id: string, { location_ids, ...newData }: TUpdateUser): Promise<User | null> => {
   const userToUpdate = await userRepository.findOne({
     where: { id },
     relations: { user_role: true },
@@ -40,8 +48,14 @@ export const updateUser = async (id: string, newData: TUpdateUser): Promise<User
   if (!userToUpdate) {
     throw new CustomError('User Not Found!', 404);
   }
+  
+  let locations = userToUpdate.locations;
 
-  const updatedUser = { ...userToUpdate, ...newData };
+  if (location_ids?.length) {
+    locations = await getLocationByIds(location_ids); 
+  }
+  
+  const updatedUser = { ...userToUpdate, ...newData, locations };
   return await userRepository.save(updatedUser);
 };
 

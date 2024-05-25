@@ -4,12 +4,9 @@ import {
   CreateDateColumn,
   BeforeInsert,
   PrimaryColumn,
-  ManyToOne,
-  JoinColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ulid } from 'ulid';
-import { User } from './user.entity';
 
 @Entity()
 export class Address {
