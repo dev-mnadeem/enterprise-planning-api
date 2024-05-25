@@ -1,9 +1,8 @@
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
-import cors, { CorsOptions } from 'cors';
+import cors from 'cors';
 import express from 'express';
 import { Server } from 'http';
-import logger from 'morgan';
 
 import appConfig from './config/appConfig';
 import { connectToDatabase } from './database/data-source';
@@ -19,21 +18,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is healthy!' });
 });
 
-const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    callback(null, true); // Allow all origins
-  },
-  credentials: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+app.use(cors());
 
 app.use('/api', router);
 

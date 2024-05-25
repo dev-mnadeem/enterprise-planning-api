@@ -51,8 +51,8 @@ export const deleteUser = async (id: string): Promise<boolean> => {
 };
 
 export const getUserByEmail = (email: string): Promise<User | null> => {
-  return userRepository.findOne({ where: { email } });
-};
+  return userRepository.findOne({ where: { email }, select: { id: true, name: true, email: true, phone_number: true, address: true, geo_location: true, status: true, permissions: true }, relations: { user_role: true } });
+}
 
 export const getUserByRefreshToken = (refreshToken: string): Promise<User | null> => {
   return userRepository.findOne({ where: { refresh_token: refreshToken } });
