@@ -12,15 +12,15 @@ export default class AdminSeeder implements Seeder {
     const existedUser = await userRepository.findOneBy({ email: 'admin@example.com' });
 
     if (!existedUser) {
-      const encryptedPassword = await hashPassword('admin');
-      const customerUserRole = await userRoleService.getUserRoleByName('admin');
+      const encryptedPassword = await hashPassword('Helloworld');
+      const adminUserRole = await userRoleService.getUserRoleByName('admin');
 
       await userService.createUser({
         name: 'admin',
         email: 'admin@example.com',
         password: encryptedPassword,
-        role_id: customerUserRole?.id,
-        permissions: customerUserRole?.permissions,
+        role_id: adminUserRole?.id,
+        permissions: adminUserRole?.permissions,
       });
     }
   }
