@@ -26,7 +26,7 @@ export const getUserRoleById = async (id: string): Promise<UserRole | undefined>
   return userRole;
 };
 
-export const getUserRoleByName = async (name: string): Promise<UserRole | undefined> => {
+export const getUserRoleByName = async (name: string): Promise<UserRole> => {
   const userRole = await userRoleRepository.findOne({ where: { name } });
 
   if (!userRole) {
