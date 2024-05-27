@@ -1,3 +1,4 @@
+import { Not } from 'typeorm';
 import { USER_ROLES } from '../constants';
 import { AppDataSource } from '../database/data-source';
 import { UserRole } from '../entities';
@@ -36,7 +37,7 @@ export const getUserRoleByName = async (name: string): Promise<UserRole | undefi
 };
 
 export const getAllUserRoles = async (): Promise<UserRole[]> => {
-  return await userRoleRepository.find();
+  return await userRoleRepository.find({ where: { name: Not('admin') } });
 };
 
 export const updateUserRole = async (id: string, name: string): Promise<UserRole | null> => {

@@ -2,6 +2,8 @@ import { User } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { TUpdateUser } from '../schemas/user.schema';
 import { CustomError } from '../utils/customError';
+import { getUserRoleByName } from './userRole.dal';
+import { Not } from 'typeorm';
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -11,7 +13,11 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
 };
 
 export const getAllUsers = async (): Promise<User[] | null> => {
-  const users = await userRepository.find({ relations: { user_role: true } });
+  const adminUserRole = await getUserRoleByName('admin');
+  const users = await userRepository.find({
+    where: { role_id: Not(adminUserRole?.id || '') },
+    relations: { user_role: true },
+  });
   return users;
 };
 
@@ -28,7 +34,7 @@ export const getUserById = async (id: string): Promise<User | undefined> => {
 export const updateUser = async (id: string, newData: TUpdateUser): Promise<User | null> => {
   const userToUpdate = await userRepository.findOne({
     where: { id },
-    relations: { user_role: true }
+    relations: { user_role: true },
   });
 
   if (!userToUpdate) {
@@ -47,12 +53,12 @@ export const deleteUser = async (id: string): Promise<boolean> => {
     throw new CustomError('User Not Found!', 404);
   }
 
-  return isDeleted
+  return isDeleted;
 };
 
 export const getUserByEmail = (email: string): Promise<User | null> => {
   return userRepository.findOne({ where: { email }, relations: { user_role: true } });
-}
+};
 
 export const getUserByRefreshToken = (refreshToken: string): Promise<User | null> => {
   return userRepository.findOne({ where: { refresh_token: refreshToken } });
