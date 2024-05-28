@@ -10,6 +10,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/generateToke
 import { TLogin, TSignUpUser } from '../schemas/user.schema';
 import { REFRESH_TOKEN_COOKIE_NAME } from '../constants';
 import { hashPassword, verifyPassword } from '../utils/passwordUtils';
+import { TPermission } from '../schemas/permission.schema';
 
 export const login = async (req: Request<unknown, unknown, TLogin>, res: Response) => {
   try {
@@ -58,8 +59,8 @@ export const signup = async (req: Request<unknown, unknown, TSignUpUser>, res: R
       email,
       password: encryptedPassword,
       phone_number,
-      role_id: customerUserRole?.id,
-      permissions: customerUserRole?.permissions,
+      role_id: customerUserRole.id,
+      permissions: customerUserRole?.permissions as TPermission[],
     });
 
     if (!createdUser) {
