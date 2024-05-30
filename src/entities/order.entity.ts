@@ -86,7 +86,7 @@ export class Order {
   @Column({ type: 'jsonb', nullable: true })
   locations: object[];
 
-  @OneToMany(() => OrderItem, (item) => item.order)
+  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, onDelete: 'CASCADE' })
   orderItems: OrderItem[];
 
   @ManyToOne(() => User, (user) => user.orders)

@@ -20,7 +20,7 @@ export class OrderItem {
   @Column('varchar', { length: 26 })
   order_id: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column({ nullable: true })
@@ -50,7 +50,7 @@ export class OrderItem {
   @Column('decimal', { precision: 10, scale: 2 })
   total_price: number;
 
-  @ManyToOne(() => Order, (order) => order.orderItems)
+  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
