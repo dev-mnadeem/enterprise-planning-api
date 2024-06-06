@@ -1,6 +1,6 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { User } from '../../entities';
+import { Permission, User } from '../../entities';
 import { hashPassword } from '../../utils/passwordUtils';
 import * as userRoleService from '../../dal/userRole.dal';
 import * as userService from '../../dal/user.dal';
@@ -15,13 +15,18 @@ export default class AdminSeeder implements Seeder {
       const encryptedPassword = await hashPassword('Helloworld');
       const adminUserRole = await userRoleService.getUserRoleByName('admin');
 
-      await userService.createUser({
+      const permissions: object[] = adminUserRole?.permissions;
+
+      const adminUser = userRepository.create({
         name: 'admin',
         email: 'admin@example.com',
         password: encryptedPassword,
         role_id: adminUserRole?.id,
-        permissions: adminUserRole?.permissions,
+        phone_number: '+123456789',
+        permissions: adminUserRole?.permissions
       });
+
+      await userRepository.save(adminUser);
     }
   }
 }

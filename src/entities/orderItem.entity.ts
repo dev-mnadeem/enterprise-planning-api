@@ -21,6 +21,9 @@ export class OrderItem {
   order_id: string;
 
   @Column({ nullable: true })
+  name: string;
+
+  @Column({ nullable: true })
   description: string;
 
   @Column({ nullable: true })
@@ -33,7 +36,7 @@ export class OrderItem {
   price: number;
 
   @Column()
-  weight: string;
+  weight: number;
 
   @Column()
   weight_type: string;
