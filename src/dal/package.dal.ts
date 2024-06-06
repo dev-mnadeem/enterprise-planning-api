@@ -39,7 +39,7 @@ export const updatePackage = async (id: string, newData: TUpdatePackage): Promis
 };
 
 export const deletePackage = async (id: string): Promise<boolean> => {
-  const result = await packageRepository.softDelete(id);
+  const result = await packageRepository.delete(id);
   const isDeleted = result.affected !== 0;
 
   if (!isDeleted) {

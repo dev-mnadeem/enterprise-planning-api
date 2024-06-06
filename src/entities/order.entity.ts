@@ -111,7 +111,7 @@ export class Order {
   sender: User;
 
   @ManyToOne(() => User, (user) => user.receiver_orders)
-  @JoinColumn({ name: 'sender_id' })
+  @JoinColumn({ name: 'receiver_id' })
   receiver: User;
 
   @ManyToOne(() => City, (city) => city.city_sender_orders)
