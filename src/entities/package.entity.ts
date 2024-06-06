@@ -13,13 +13,22 @@ export class Package {
   id: string;
 
   @Column()
-  package_name: string;
+  name: string;
 
-  @Column()
-  cost: string;
+  @Column('decimal', { precision: 10, scale: 2 })
+  width: number;
 
-  @Column()
-  status: boolean;
+  @Column('decimal', { precision: 10, scale: 2 })
+  height: number;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  depth: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  weight_limit: number;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  price: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
