@@ -74,6 +74,10 @@ export const getUserByEmail = (email: string): Promise<User | null> => {
   return userRepository.findOne({ where: { email }, relations: { user_role: true } });
 };
 
+export const getUserByPhone = (phone_number: string): Promise<User | null> => {
+  return userRepository.findOne({ where: { phone_number }, relations: { user_role: true } });
+};
+
 export const getUserByRefreshToken = (refreshToken: string): Promise<User | null> => {
   return userRepository.findOne({ where: { refresh_token: refreshToken } });
 };

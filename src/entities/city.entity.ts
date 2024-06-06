@@ -14,6 +14,7 @@ import { State } from './state.entity';
 import { Area } from './area.entity';
 import { Location } from './location.entity';
 import { User } from './user.entity';
+import { Order } from './order.entity';
 
 @Entity()
 export class City {
@@ -44,6 +45,12 @@ export class City {
 
   @OneToMany(() => User, (user) => user.city)
   users: User[];
+
+  @OneToMany(() => Order, (order) => order.sender_city)
+  city_sender_orders: Order[];
+
+  @OneToMany(() => Order, (order) => order.receiver_city)
+  city_receiver_orders: Order[];
 
   @BeforeInsert()
   generateUlid() {
