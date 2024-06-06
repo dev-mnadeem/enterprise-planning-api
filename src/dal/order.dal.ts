@@ -1,7 +1,10 @@
-import { Order, OrderItem } from '../entities';
+import { Order, OrderItem, User } from '../entities';
 import { AppDataSource } from '../database/data-source';
+import * as userService from './user.dal';
+import * as userRoleService from './userRole.dal';
 import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
 import { CustomError } from '../utils/customError';
+import { hashPassword } from '../utils/passwordUtils';
 
 const orderRepository = AppDataSource.getRepository(Order);
 
@@ -14,6 +17,72 @@ export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
   try {
     // Destructure orderData to separate orderItems from the main order details
     const { orderItems, ...orderDetails } = orderData;
+
+    if (orderDetails.sender_id) {
+      await userService.getUserById(orderDetails.sender_id);
+    } else {
+      const {
+        sender_name: name,
+        sender_address: address,
+        sender_city_id: city_id,
+        sender_phone: phone_number,
+        sender_email: email,
+      } = orderDetails;
+
+      let sender = await userService.getUserByPhone(phone_number);
+
+      if (!sender) {
+        const customerUserRole = await userRoleService.getUserRoleByName('customer');
+        const encryptedPassword = await hashPassword('Helloworld');
+
+        // Create the receiver entity
+        const newSender = queryRunner.manager.create(User, {
+          email,
+          city_id,
+          phone_number,
+          name,
+          address,
+          password: encryptedPassword,
+          role_id: customerUserRole.id,
+        });
+        sender = await queryRunner.manager.save(User, newSender);
+      }
+
+      orderDetails.sender_id = sender.id;
+    }
+
+    if (orderDetails.receiver_id) {
+      await userService.getUserById(orderDetails.receiver_id);
+    } else {
+      const {
+        receiver_name: name,
+        receiver_address: address,
+        receiver_city_id: city_id,
+        receiver_phone: phone_number,
+        receiver_email: email,
+      } = orderDetails;
+
+      let receiver = await userService.getUserByPhone(phone_number);
+
+      if (!receiver) {
+        const customerUserRole = await userRoleService.getUserRoleByName('customer');
+        const encryptedPassword = await hashPassword('Helloworld');
+
+        // Create the receiver entity
+        const newReceiver = queryRunner.manager.create(User, {
+          email,
+          city_id,
+          phone_number,
+          name,
+          address,
+          password: encryptedPassword,
+          role_id: customerUserRole.id,
+        });
+        receiver = await queryRunner.manager.save(User, newReceiver);
+      }
+
+      orderDetails.receiver_id = receiver.id;
+    }
 
     // Create the main order entity
     const newOrder = queryRunner.manager.create(Order, orderDetails);
@@ -48,12 +117,17 @@ export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
 };
 
 export const getAllOrders = async (): Promise<Order[] | null> => {
-  const orders = await orderRepository.find();
+  const orders = await orderRepository.find({
+    relations: { user: true, sender_city: true, receiver_city: { state: { country: true } } },
+  });
   return orders;
 };
 
 export const getOrderById = async (id: string): Promise<Order | undefined> => {
-  const order = await orderRepository.findOne({ where: { id } });
+  const order = await orderRepository.findOne({
+    where: { id },
+    relations: { user: true, sender_city: true, receiver_city: { state: { country: true } } },
+  });
 
   if (!order) {
     throw new CustomError('Order Not Found!', 404);

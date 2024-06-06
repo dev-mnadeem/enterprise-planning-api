@@ -14,8 +14,16 @@ import { TPermission } from '../schemas/permission.schema';
 
 export const login = async (req: Request<unknown, unknown, TLogin>, res: Response) => {
   try {
-    const { email, password } = req.body;
-    const currentUser = await userService.getUserByEmail(email);
+    const { email, phone_number, password } = req.body;
+    let currentUser = null;
+    
+    if (phone_number) {
+      currentUser = await userService.getUserByPhone(phone_number);
+    } 
+
+    if (email) {
+      currentUser = await userService.getUserByEmail(email);  
+    }
 
     if (!currentUser) {
       throw new CustomError('Invalid email!', 401);
