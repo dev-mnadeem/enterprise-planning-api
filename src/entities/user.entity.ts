@@ -13,8 +13,6 @@ import {
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
 import { Location } from './location.entity';
-import { Address } from './address.entity';
-import { Permission } from './permission.entity';
 import { City } from './city.entity';
 import { Order } from './order.entity';
 
@@ -32,13 +30,13 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   email: string;
 
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', unique: true })
   phone_number: string;
 
   @Column({ nullable: true })
@@ -75,6 +73,12 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Order, (order) => order.sender)
+  sender_orders: Order[];
+
+  @OneToMany(() => Order, (order) => order.receiver)
+  receiver_orders: Order[];
 
   @OneToMany(() => Location, location => location.deleted_by)
   deleted_locations: Location[];

@@ -13,6 +13,7 @@ import { locationTypeRouter } from './locationType.router';
 import { permissionRouter } from './permission.router';
 import { stateRouter } from './state.router';
 import { orderRouter } from './order.router';
+import { packageRouter } from './package.router';
 
 const router = express();
 
@@ -27,5 +28,6 @@ router.use('/locations', locationRouter);
 router.use('/location-types', locationTypeRouter);
 router.use('/permissions', permissionRouter);
 router.use('/orders', orderRouter);
+router.use('/packages', packageRouter);
 
 export { router };

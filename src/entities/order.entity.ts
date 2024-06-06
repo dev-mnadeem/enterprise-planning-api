@@ -13,6 +13,7 @@ import { ulid } from 'ulid';
 
 import { OrderItem } from './orderItem.entity';
 import { User } from './user.entity';
+import { City } from './city.entity';
 
 @Entity()
 export class Order {
@@ -24,6 +25,15 @@ export class Order {
 
   @Column()
   order_number: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  shipping_date: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  collection_time: Date;
+
+  @Column('varchar', { length: 26 })
+  sender_id: string;
 
   @Column()
   sender_name: string;
@@ -37,8 +47,11 @@ export class Order {
   @Column()
   sender_address: string;
 
-  @Column()
-  sender_city: string;
+  @Column('varchar', { length: 26 })
+  sender_city_id: string;
+
+  @Column('varchar', { length: 26 })
+  receiver_id: string;
 
   @Column()
   receiver_name: string;
@@ -52,8 +65,8 @@ export class Order {
   @Column()
   receiver_address: string;
 
-  @Column()
-  receiver_city: string;
+  @Column('varchar', { length: 26 })
+  receiver_city_id: string;
 
   @Column()
   total_quantity: number;
@@ -92,6 +105,22 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => User, (user) => user.sender_orders)
+  @JoinColumn({ name: 'sender_id' })
+  sender: User;
+
+  @ManyToOne(() => User, (user) => user.receiver_orders)
+  @JoinColumn({ name: 'sender_id' })
+  receiver: User;
+
+  @ManyToOne(() => City, (city) => city.city_sender_orders)
+  @JoinColumn({ name: 'sender_city_id' })
+  sender_city: City;
+
+  @ManyToOne(() => City, (city) => city.city_receiver_orders)
+  @JoinColumn({ name: 'receiver_city_id' })
+  receiver_city: City;
 
   @CreateDateColumn({ name: 'createdAt', type: 'timestamp', nullable: true })
   createdAt: Date;
