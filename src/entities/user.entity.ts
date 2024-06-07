@@ -9,6 +9,7 @@ import {
   JoinColumn,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
@@ -61,6 +62,7 @@ export class User {
   updated_at: Date;
 
   @ManyToMany(() => Location, (location) => location.users)
+  @JoinTable()
   locations: Location[];
 
   @ManyToOne(() => UserRole, (userRole) => userRole.users)

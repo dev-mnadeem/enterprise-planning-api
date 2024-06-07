@@ -31,6 +31,7 @@ export const getAllUsers = async (params: UserQueryParams): Promise<{ pageInfo: 
     .createQueryBuilder('user')
     .select()
     .leftJoinAndSelect('user.user_role', 'user_role')
+    .leftJoinAndSelect('user.locations', 'locations')
     .where('user_role.name != :roleName', { roleName: 'admin' });
 
   if (sortBy && Object.keys(userRepository.metadata.propertiesMap).includes(sortBy)) {
@@ -63,7 +64,7 @@ export const getAllUsers = async (params: UserQueryParams): Promise<{ pageInfo: 
 };
 
 export const getUserById = async (id: string): Promise<User | undefined> => {
-  const user = await userRepository.findOne({ where: { id }, relations: { user_role: true } });
+  const user = await userRepository.findOne({ where: { id }, relations: { user_role: true, locations: true } });
 
   if (!user) {
     throw new CustomError('User Not Found!', 404);
