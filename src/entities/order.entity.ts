@@ -99,6 +99,9 @@ export class Order {
   @Column({ type: 'jsonb', nullable: true })
   locations: object[];
 
+  @Column({ type: 'jsonb', nullable: true })
+  packages: object[];
+
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, onDelete: 'CASCADE' })
   orderItems: OrderItem[];
 

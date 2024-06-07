@@ -3,6 +3,7 @@ import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateUser, TUpdateUser } from '../schemas/user.schema';
 import { hashPassword } from '../utils/passwordUtils';
+import { UserQueryParams, queryParamToUserParam } from '../types/user.interface';
 
 export const createUser = async (req: Request<unknown, unknown, TCreateUser>, res: Response) => {
   try {
@@ -32,7 +33,8 @@ export const createUser = async (req: Request<unknown, unknown, TCreateUser>, re
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await userService.getAllUsers();
+    const params: UserQueryParams = queryParamToUserParam(req);
+    const users = await userService.getAllUsers(params);
 
     res.json(users);
   } catch (error) {
