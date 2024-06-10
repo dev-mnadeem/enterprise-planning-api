@@ -1,14 +1,16 @@
-import { Order, OrderItem, User } from '../entities';
+import { Location, Order, OrderHistory, OrderItem, Package, User } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import * as userService from './user.dal';
 import * as userRoleService from './userRole.dal';
 import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
 import { CustomError } from '../utils/customError';
 import { hashPassword } from '../utils/passwordUtils';
+import { generateOrderNumber } from '../utils/generateOrderNumber';
+import { getLocationById } from './location.dal';
 
 const orderRepository = AppDataSource.getRepository(Order);
 
-export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
+export const createOrder = async (user_id: string, orderData: TCreateOrder): Promise<Order> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
   await queryRunner.connect();
@@ -16,7 +18,7 @@ export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
 
   try {
     // Destructure orderData to separate orderItems from the main order details
-    const { orderItems, ...orderDetails } = orderData;
+    const { orderItems, location_id, package_ids, ...orderDetails } = orderData;
 
     if (orderDetails.sender_id) {
       await userService.getUserById(orderDetails.sender_id);
@@ -84,8 +86,38 @@ export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
       orderDetails.receiver_id = receiver.id;
     }
 
+    let orderPackages: Partial<Package>[] = [];
+
+    if (package_ids && package_ids.length > 0) {
+      for (let package_id of package_ids) {
+        const pkg = await queryRunner.manager.findOne(Package, {
+          where: { id: package_id },
+          select: {
+            name: true,
+            width: true,
+            height: true,
+            depth: true,
+            weight_limit: true,
+            price: true,
+          },
+        });
+
+        if (!pkg) {
+          throw new CustomError('Package Not Found!', 404);
+        } 
+
+        orderPackages.push(pkg);
+      }
+    }
+
+    const order_number = generateOrderNumber();
     // Create the main order entity
-    const newOrder = queryRunner.manager.create(Order, orderDetails);
+    const newOrder = queryRunner.manager.create(Order, {
+      ...orderDetails,
+      user_id,
+      order_number,
+      packages: orderPackages,
+    });
     const savedOrder = await queryRunner.manager.save(Order, newOrder);
 
     // Create order items
@@ -101,6 +133,43 @@ export const createOrder = async (orderData: TCreateOrder): Promise<Order> => {
 
     // Assign saved order items to the order
     savedOrder.orderItems = newOrderItems;
+
+    if (location_id) {
+      const location = await queryRunner.manager.findOne(Location, {
+        where: { id: location_id },
+        relations: { city: true },
+      });
+
+      if (!location) {
+        throw new CustomError('Location Not Found!', 404);
+      }
+
+      const {
+        name,
+        city: { name: city },
+        description,
+        address,
+        geo_location,
+      } = location;
+
+      const orderHistoryData = {
+        name,
+        city,
+        description,
+        address,
+        geo_location,
+        status: savedOrder.status,
+        order_id: savedOrder.id,
+      };
+      // Create order history
+      const newOrderHistory = queryRunner.manager.create(OrderHistory, orderHistoryData);
+
+      //Save order history
+      await queryRunner.manager.save(OrderHistory, newOrderHistory);
+
+      // Assign saved order history to the order
+      savedOrder.history = [newOrderHistory];
+    }
 
     // Commit the transaction
     await queryRunner.commitTransaction();
@@ -136,7 +205,7 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
   return order;
 };
 
-export const updateOrder = async (id: string, newData: TUpdateOrder): Promise<Order | null> => {
+export const updateOrder = async (user_id: string, id: string, newData: TUpdateOrder): Promise<Order | null> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
   await queryRunner.connect();
@@ -148,17 +217,41 @@ export const updateOrder = async (id: string, newData: TUpdateOrder): Promise<Or
 
     const orderToUpdate = await orderRepository.findOne({
       where: { id },
-      relations: ['orderItems'],
+      relations: ['orderItems', 'history'],
     });
 
     if (!orderToUpdate) {
       throw new CustomError('Order Not Found!', 404);
     }
 
-    const { orderItems, ...orderDetails } = newData;
+    const { orderItems, location_id, package_ids, ...orderDetails } = newData;
+
+    let orderPackages: Partial<Package>[] = [];
+
+    if (package_ids && package_ids.length > 0) {
+      for (let package_id of package_ids) {
+        const pkg = await queryRunner.manager.findOne(Package, {
+          where: { id: package_id },
+          select: {
+            name: true,
+            width: true,
+            height: true,
+            depth: true,
+            weight_limit: true,
+            price: true,
+          },
+        });
+
+        if (!pkg) {
+          throw new CustomError('Package Not Found!', 404);
+        } 
+
+        orderPackages.push(pkg);
+      }
+    }
 
     // Update order details
-    const updatedOrder = orderRepository.merge(orderToUpdate, orderDetails);
+    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, packages: orderPackages });
     await queryRunner.manager.save(Order, updatedOrder);
 
     if (orderItems) {
@@ -184,6 +277,43 @@ export const updateOrder = async (id: string, newData: TUpdateOrder): Promise<Or
 
       // Update the order's orderItems
       updatedOrder.orderItems = newOrderItems;
+    }
+
+    if (location_id) {
+      const location = await queryRunner.manager.findOne(Location, {
+        where: { id: location_id },
+        relations: { city: true },
+      });
+
+      if (!location) {
+        throw new CustomError('Location Not Found!', 404);
+      }
+
+      const {
+        name,
+        city: { name: city },
+        description,
+        address,
+        geo_location,
+      } = location;
+
+      const orderHistoryData = {
+        name,
+        city,
+        description,
+        address,
+        geo_location,
+        status: updatedOrder.status,
+        order_id: updatedOrder.id,
+      };
+      // Create order history
+      const newOrderHistory = queryRunner.manager.create(OrderHistory, orderHistoryData);
+
+      //Save order history
+      await queryRunner.manager.save(OrderHistory, newOrderHistory);
+
+      // Assign saved order history to the order
+      updatedOrder.history = [...updatedOrder.history, newOrderHistory];
     }
 
     // Commit the transaction

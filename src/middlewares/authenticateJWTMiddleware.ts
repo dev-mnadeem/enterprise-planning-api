@@ -21,10 +21,15 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
           const userRepository = AppDataSource.getRepository(User);
 
           const options: FindOneOptions<User> = {
-            where: { email: JSON.parse(decoded.id).email },
+            where: { phone_number: JSON.parse(decoded.id).phone_number },
           };
 
           const user = await userRepository.findOne(options);
+
+          if (!user) {
+            return res.status(404).json({ message: 'User Not Found!' });
+          }
+
           (req as RequestWithCurrentUser).currentUser = user;
         }
         next();

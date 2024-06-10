@@ -14,6 +14,7 @@ import { ulid } from 'ulid';
 import { OrderItem } from './orderItem.entity';
 import { User } from './user.entity';
 import { City } from './city.entity';
+import { OrderHistory } from './orderHistory.entity';
 
 @Entity()
 export class Order {
@@ -97,10 +98,10 @@ export class Order {
   status: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  locations: object[];
-
-  @Column({ type: 'jsonb', nullable: true })
   packages: object[];
+
+  @OneToMany(() => OrderHistory, (history) => history.order)
+  history: OrderHistory[];
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, onDelete: 'CASCADE' })
   orderItems: OrderItem[];
