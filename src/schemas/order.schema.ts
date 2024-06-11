@@ -13,8 +13,6 @@ const orderStatusEnum = z.enum([
 ]);
 
 export const createOrderSchema = z.object({
-  user_id: z.string(),
-  order_number: z.string(),
   shipping_date: z.string().datetime().optional(),
   collection_time: z.string().datetime().optional(),
   sender_id: z.string().optional(),
@@ -36,9 +34,9 @@ export const createOrderSchema = z.object({
   payment_type: z.string(),
   payment_status: z.string(),
   payment_date: z.string().datetime(),
+  location_id: z.string(),
+  package_ids: z.array(z.string()).optional(),
   status: orderStatusEnum.optional(),
-  locations: z.array(createLocationSchema).optional(),
-  packages: z.array(createPackageSchema).optional(),
   orderItems: z.array(createOrderItemSchema),
 });
 
@@ -46,7 +44,6 @@ export type TCreateOrder = z.infer<typeof createOrderSchema>;
 
 export const updateOrderSchema = z.object({
   id: z.string().optional(), // include this for update
-  user_id: z.string().optional(),
   order_number: z.string().optional(),
   shipping_date: z.string().datetime().optional(),
   collection_time: z.string().datetime().optional(),
@@ -70,8 +67,8 @@ export const updateOrderSchema = z.object({
   payment_status: z.string().optional(),
   payment_date: z.string().datetime().optional(),
   status: orderStatusEnum.optional(),
-  locations: z.array(createLocationSchema).optional(),
-  packages: z.array(createPackageSchema).optional(),
+  location_id: z.string().optional(),
+  package_ids: z.array(z.string()).optional(),
   orderItems: z.array(updateOrderItemSchema).optional(),
 });
 

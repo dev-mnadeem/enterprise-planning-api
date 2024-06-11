@@ -2,12 +2,14 @@ import { Request, Response } from 'express';
 import * as orderService from '../dal/order.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
+import { RequestWithCurrentUser } from '../types/user.interface';
 
 export const createOrder = async (req: Request<unknown, unknown, TCreateOrder>, res: Response) => {
   try {
+    const { id: userId } = (req as RequestWithCurrentUser).currentUser;
     const orderData = req.body;
 
-    const newOrder = await orderService.createOrder(orderData);
+    const newOrder = await orderService.createOrder(userId, orderData);
     res.status(201).json(newOrder);
   } catch (error) {
     sendErrorResponse(error as Error, res);
@@ -35,12 +37,13 @@ export const getOrderById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateOrder = async (req: Request<{ id: string }, unknown, TUpdateOrder>, res: Response) => {
+export const updateOrder = async (req: Request, res: Response) => {
   try {
+    const { id: userId } = (req as RequestWithCurrentUser).currentUser;
     const { id } = req.params;
-    const orderData = req.body;
+    const orderData: TUpdateOrder = req.body;
 
-    const updatedOrder = await orderService.updateOrder(id, orderData);
+    const updatedOrder = await orderService.updateOrder(userId, id, orderData);
 
     res.json(updatedOrder);
   } catch (error) {
