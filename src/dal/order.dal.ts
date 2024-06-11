@@ -18,7 +18,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
   try {
     // Destructure orderData to separate orderItems from the main order details
-    const { orderItems, location_id, package_ids, ...orderDetails } = orderData;
+    const { orderItems, location_id, package_id, ...orderDetails } = orderData;
 
     if (orderDetails.sender_id) {
       await userService.getUserById(orderDetails.sender_id);
@@ -86,11 +86,10 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
       orderDetails.receiver_id = receiver.id;
     }
 
-    let orderPackages: Partial<Package>[] = [];
+    let orderPackage: Partial<Package> | undefined = undefined;
 
-    if (package_ids && package_ids.length > 0) {
-      for (let package_id of package_ids) {
-        const pkg = await queryRunner.manager.findOne(Package, {
+    if (package_id) {
+      const pkg = await queryRunner.manager.findOne(Package, {
           where: { id: package_id },
           select: {
             name: true,
@@ -105,9 +104,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         if (!pkg) {
           throw new CustomError('Package Not Found!', 404);
         } 
-
-        orderPackages.push(pkg);
-      }
+        orderPackage = pkg;
     }
 
     const order_number = generateOrderNumber();
@@ -116,7 +113,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
       ...orderDetails,
       user_id,
       order_number,
-      packages: orderPackages,
+      package: orderPackage,
     });
     const savedOrder = await queryRunner.manager.save(Order, newOrder);
 
@@ -187,7 +184,8 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
 export const getAllOrders = async (): Promise<Order[] | null> => {
   const orders = await orderRepository.find({
-    relations: { user: true, sender_city: true, receiver_city: { state: { country: true } } },
+    where: { deleted_at: undefined },
+    relations: { user: true, history: true, sender_city: { state: { country: true } }, receiver_city: { state: { country: true } } },
   });
   return orders;
 };
@@ -195,7 +193,7 @@ export const getAllOrders = async (): Promise<Order[] | null> => {
 export const getOrderById = async (id: string): Promise<Order | undefined> => {
   const order = await orderRepository.findOne({
     where: { id },
-    relations: { user: true, sender_city: true, receiver_city: { state: { country: true } } },
+    relations: { user: true, history: true, sender_city: { state: { country: true } }, receiver_city: { state: { country: true } } },
   });
 
   if (!order) {
@@ -224,13 +222,12 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       throw new CustomError('Order Not Found!', 404);
     }
 
-    const { orderItems, location_id, package_ids, ...orderDetails } = newData;
+    const { orderItems, location_id, package_id, ...orderDetails } = newData;
 
-    let orderPackages: Partial<Package>[] = [];
+    let orderPackage: Partial<Package> | undefined = undefined;
 
-    if (package_ids && package_ids.length > 0) {
-      for (let package_id of package_ids) {
-        const pkg = await queryRunner.manager.findOne(Package, {
+    if (package_id) {
+      const pkg = await queryRunner.manager.findOne(Package, {
           where: { id: package_id },
           select: {
             name: true,
@@ -245,13 +242,11 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
         if (!pkg) {
           throw new CustomError('Package Not Found!', 404);
         } 
-
-        orderPackages.push(pkg);
-      }
+        orderPackage = pkg;
     }
 
     // Update order details
-    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, packages: orderPackages });
+    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, package: orderPackage });
     await queryRunner.manager.save(Order, updatedOrder);
 
     if (orderItems) {
@@ -297,23 +292,29 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
         geo_location,
       } = location;
 
-      const orderHistoryData = {
-        name,
-        city,
-        description,
-        address,
-        geo_location,
-        status: updatedOrder.status,
-        order_id: updatedOrder.id,
-      };
-      // Create order history
-      const newOrderHistory = queryRunner.manager.create(OrderHistory, orderHistoryData);
+      const orderHistory = await queryRunner.manager.findOne(OrderHistory, {
+        where: { name, address, geo_location, order_id: updatedOrder.id }
+      });
 
-      //Save order history
-      await queryRunner.manager.save(OrderHistory, newOrderHistory);
-
-      // Assign saved order history to the order
-      updatedOrder.history = [...updatedOrder.history, newOrderHistory];
+      if (!orderHistory) {
+        const orderHistoryData = {
+          name,
+          city,
+          description,
+          address,
+          geo_location,
+          status: updatedOrder.status,
+          order_id: updatedOrder.id,
+        };
+        // Create order history
+        const newOrderHistory = queryRunner.manager.create(OrderHistory, orderHistoryData);
+  
+        //Save order history
+        await queryRunner.manager.save(OrderHistory, newOrderHistory);
+  
+        // Assign saved order history to the order
+        updatedOrder.history = [...updatedOrder.history, newOrderHistory];
+      }
     }
 
     // Commit the transaction
@@ -331,7 +332,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
 };
 
 export const deleteOrder = async (id: string): Promise<boolean> => {
-  const result = await orderRepository.delete(id);
+  const result = await orderRepository.softDelete(id);
   const isDeleted = result.affected !== 0;
 
   if (!isDeleted) {

@@ -2,6 +2,7 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -97,8 +98,8 @@ export class Order {
   })
   status: string;
 
-  @Column({ type: 'jsonb', nullable: true })
-  packages: object[];
+  @Column({ type: 'json', nullable: true })
+  package: object;
 
   @OneToMany(() => OrderHistory, (history) => history.order)
   history: OrderHistory[];
@@ -125,6 +126,9 @@ export class Order {
   @ManyToOne(() => City, (city) => city.city_receiver_orders)
   @JoinColumn({ name: 'receiver_city_id' })
   receiver_city: City;
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })
+  deleted_at: Date;
 
   @CreateDateColumn({ name: 'createdAt', type: 'timestamp', nullable: true })
   createdAt: Date;

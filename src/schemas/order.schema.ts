@@ -35,7 +35,7 @@ export const createOrderSchema = z.object({
   payment_status: z.string(),
   payment_date: z.string().datetime(),
   location_id: z.string(),
-  package_ids: z.array(z.string()).optional(),
+  package_id: z.string().optional(),
   status: orderStatusEnum.optional(),
   orderItems: z.array(createOrderItemSchema),
 });
@@ -68,7 +68,7 @@ export const updateOrderSchema = z.object({
   payment_date: z.string().datetime().optional(),
   status: orderStatusEnum.optional(),
   location_id: z.string().optional(),
-  package_ids: z.array(z.string()).optional(),
+  package_id: z.string().optional(),
   orderItems: z.array(updateOrderItemSchema).optional(),
 });
 
