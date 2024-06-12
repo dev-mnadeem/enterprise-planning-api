@@ -32,7 +32,7 @@ export class OrderItem {
   @Column()
   quantity: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
   price: number;
 
   @Column()
@@ -41,19 +41,10 @@ export class OrderItem {
   @Column()
   weight_type: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  length: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  width: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  height: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
   total_price: number;
 
-  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.order_items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

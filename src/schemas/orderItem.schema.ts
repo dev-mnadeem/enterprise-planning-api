@@ -4,14 +4,11 @@ export const createOrderItemSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   courier_type: z.string().optional(),
+  price: z.number().positive().optional(),
+  total_price: z.number().positive().optional(),
   quantity: z.number(),
-  price: z.number().positive(),
   weight: z.number(),
   weight_type: z.string(),
-  length: z.number().positive(),
-  width: z.number().positive(),
-  height: z.number().positive(),
-  total_price: z.number().positive(),
 });
 
 export type TCreateOrderItem = z.infer<typeof createOrderItemSchema>;
