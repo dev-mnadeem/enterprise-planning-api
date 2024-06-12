@@ -10,7 +10,7 @@ import { getLocationById } from './location.dal';
 
 const orderRepository = AppDataSource.getRepository(Order);
 
-export const createOrder = async (user_id: string, orderData: TCreateOrder): Promise<Order> => {
+export const createOrder = async (user_id: string, orderData: TCreateOrder): Promise<Order | undefined> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
   await queryRunner.connect();
@@ -90,21 +90,21 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
     if (package_id) {
       const pkg = await queryRunner.manager.findOne(Package, {
-          where: { id: package_id },
-          select: {
-            name: true,
-            width: true,
-            height: true,
-            depth: true,
-            weight_limit: true,
-            price: true,
-          },
-        });
+        where: { id: package_id },
+        select: {
+          name: true,
+          width: true,
+          height: true,
+          depth: true,
+          weight_limit: true,
+          price: true,
+        },
+      });
 
-        if (!pkg) {
-          throw new CustomError('Package Not Found!', 404);
-        } 
-        orderPackage = pkg;
+      if (!pkg) {
+        throw new CustomError('Package Not Found!', 404);
+      }
+      orderPackage = pkg;
     }
 
     const order_number = generateOrderNumber();
@@ -129,7 +129,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
     await queryRunner.manager.save(OrderItem, newOrderItems);
 
     // Assign saved order items to the order
-    savedOrder.orderItems = newOrderItems;
+    savedOrder.order_items = newOrderItems;
 
     if (location_id) {
       const location = await queryRunner.manager.findOne(Location, {
@@ -171,7 +171,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
     // Commit the transaction
     await queryRunner.commitTransaction();
 
-    return savedOrder;
+    return await getOrderById(savedOrder.id);
   } catch (err) {
     // Rollback the transaction on error
     await queryRunner.rollbackTransaction();
@@ -185,7 +185,13 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 export const getAllOrders = async (): Promise<Order[] | null> => {
   const orders = await orderRepository.find({
     where: { deleted_at: undefined },
-    relations: { user: true, history: true, sender_city: { state: { country: true } }, receiver_city: { state: { country: true } } },
+    relations: {
+      user: true,
+      history: true,
+      order_items: true,
+      sender_city: { state: { country: true } },
+      receiver_city: { state: { country: true } },
+    },
   });
   return orders;
 };
@@ -193,7 +199,13 @@ export const getAllOrders = async (): Promise<Order[] | null> => {
 export const getOrderById = async (id: string): Promise<Order | undefined> => {
   const order = await orderRepository.findOne({
     where: { id },
-    relations: { user: true, history: true, sender_city: { state: { country: true } }, receiver_city: { state: { country: true } } },
+    relations: {
+      user: true,
+      history: true,
+      order_items: true,
+      sender_city: { state: { country: true } },
+      receiver_city: { state: { country: true } },
+    },
   });
 
   if (!order) {
@@ -203,7 +215,7 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
   return order;
 };
 
-export const updateOrder = async (user_id: string, id: string, newData: TUpdateOrder): Promise<Order | null> => {
+export const updateOrder = async (user_id: string, id: string, newData: TUpdateOrder): Promise<Order | undefined> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
   await queryRunner.connect();
@@ -228,21 +240,21 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
 
     if (package_id) {
       const pkg = await queryRunner.manager.findOne(Package, {
-          where: { id: package_id },
-          select: {
-            name: true,
-            width: true,
-            height: true,
-            depth: true,
-            weight_limit: true,
-            price: true,
-          },
-        });
+        where: { id: package_id },
+        select: {
+          name: true,
+          width: true,
+          height: true,
+          depth: true,
+          weight_limit: true,
+          price: true,
+        },
+      });
 
-        if (!pkg) {
-          throw new CustomError('Package Not Found!', 404);
-        } 
-        orderPackage = pkg;
+      if (!pkg) {
+        throw new CustomError('Package Not Found!', 404);
+      }
+      orderPackage = pkg;
     }
 
     // Update order details
@@ -251,7 +263,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
 
     if (orderItems) {
       // Update order items
-      const existingOrderItemIds = orderToUpdate.orderItems.map((item) => item.id);
+      const existingOrderItemIds = orderToUpdate.order_items.map((item) => item.id);
       const newOrderItemIds = orderItems.map((item) => item.id).filter((id) => id !== undefined);
 
       // Find items to remove
@@ -271,7 +283,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       await queryRunner.manager.save(OrderItem, newOrderItems);
 
       // Update the order's orderItems
-      updatedOrder.orderItems = newOrderItems;
+      updatedOrder.order_items = newOrderItems;
     }
 
     if (location_id) {
@@ -293,7 +305,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       } = location;
 
       const orderHistory = await queryRunner.manager.findOne(OrderHistory, {
-        where: { name, address, geo_location, order_id: updatedOrder.id }
+        where: { name, address, geo_location, order_id: updatedOrder.id },
       });
 
       if (!orderHistory) {
@@ -308,10 +320,10 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
         };
         // Create order history
         const newOrderHistory = queryRunner.manager.create(OrderHistory, orderHistoryData);
-  
+
         //Save order history
         await queryRunner.manager.save(OrderHistory, newOrderHistory);
-  
+
         // Assign saved order history to the order
         updatedOrder.history = [...updatedOrder.history, newOrderHistory];
       }
@@ -320,7 +332,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
     // Commit the transaction
     await queryRunner.commitTransaction();
 
-    return updatedOrder;
+    return await getOrderById(updatedOrder.id);
   } catch (err) {
     // Rollback the transaction on error
     await queryRunner.rollbackTransaction();

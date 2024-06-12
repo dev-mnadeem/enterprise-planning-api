@@ -105,7 +105,7 @@ export class Order {
   history: OrderHistory[];
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, onDelete: 'CASCADE' })
-  orderItems: OrderItem[];
+  order_items: OrderItem[];
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
