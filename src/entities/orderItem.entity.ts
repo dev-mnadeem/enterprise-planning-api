@@ -26,9 +26,6 @@ export class OrderItem {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ nullable: true })
-  courier_type: string;
-
   @Column()
   quantity: number;
 
@@ -37,9 +34,6 @@ export class OrderItem {
 
   @Column()
   weight: number;
-
-  @Column()
-  weight_type: string;
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   total_price: number;

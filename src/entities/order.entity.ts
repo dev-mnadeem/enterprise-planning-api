@@ -98,6 +98,12 @@ export class Order {
   })
   status: string;
 
+  @Column({ nullable: true })
+  courier_type: string;
+
+  @Column()
+  weight_type: string;
+
   @Column({ type: 'json', nullable: true })
   package: object;
 

@@ -3,9 +3,11 @@ import {
   Column,
   BeforeInsert,
   PrimaryColumn,
-  CreateDateColumn
+  CreateDateColumn,
+  OneToMany
 } from 'typeorm';
 import { ulid } from 'ulid';
+import { Pricing } from './pricing.entity';
 
 @Entity()
 export class Package {
@@ -27,8 +29,8 @@ export class Package {
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   weight_limit: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+  @OneToMany(() => Pricing, (pricing) => pricing.package)
+  pricing: Pricing[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;

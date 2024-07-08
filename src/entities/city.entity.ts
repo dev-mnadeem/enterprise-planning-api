@@ -15,6 +15,7 @@ import { Area } from './area.entity';
 import { Location } from './location.entity';
 import { User } from './user.entity';
 import { Order } from './order.entity';
+import { Pricing } from './pricing.entity';
 
 @Entity()
 export class City {
@@ -36,6 +37,12 @@ export class City {
   @ManyToOne(() => State, state => state.cities)
   @JoinColumn({ name: 'state_id' })
   state: State;
+
+  @OneToMany(() => Pricing, (pricing) => pricing.from_city)
+  from_pricing: Pricing[];
+
+  @OneToMany(() => Pricing, (pricing) => pricing.to_city)
+  to_pricing: Pricing[];
 
   @OneToMany(() => Area, area => area.city)
   area: Area;
