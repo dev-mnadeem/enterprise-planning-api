@@ -1,7 +1,5 @@
 import { z } from 'zod';
 import { createOrderItemSchema, updateOrderItemSchema } from './orderItem.schema'; // Adjust the import path as needed
-import { createLocationSchema } from './location.schema'; 
-import { createPackageSchema } from './package.schema';
 
 const orderStatusEnum = z.enum([
   'pending',
@@ -34,9 +32,10 @@ export const createOrderSchema = z.object({
   payment_type: z.string(),
   payment_status: z.string(),
   payment_date: z.string().datetime(),
+  courier_type: z.string().optional(),
+  weight_type: z.string(),
   location_id: z.string(),
   package_id: z.string().optional(),
-  status: orderStatusEnum.optional(),
   orderItems: z.array(createOrderItemSchema),
 });
 
@@ -66,6 +65,8 @@ export const updateOrderSchema = z.object({
   payment_type: z.string().optional(),
   payment_status: z.string().optional(),
   payment_date: z.string().datetime().optional(),
+  courier_type: z.string().optional(),
+  weight_type: z.string().optional(),
   status: orderStatusEnum.optional(),
   location_id: z.string().optional(),
   package_id: z.string().optional(),

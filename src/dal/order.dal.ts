@@ -97,7 +97,6 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
           height: true,
           depth: true,
           weight_limit: true,
-          price: true,
         },
       });
 
@@ -121,6 +120,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
     const newOrderItems = orderItems.map((item) => {
       return queryRunner.manager.create(OrderItem, {
         ...item,
+        total_price: item.quantity * (item?.price ? item.price : 0),
         order_id: savedOrder.id,
       });
     });
@@ -246,8 +246,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           width: true,
           height: true,
           depth: true,
-          weight_limit: true,
-          price: true,
+          weight_limit: true
         },
       });
 
@@ -276,6 +275,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       const newOrderItems = orderItems.map((item) => {
         return orderItemRepository.create({
           ...item,
+          total_price: item.quantity * (item?.price ? item.price : 0),
           order_id: updatedOrder.id,
         });
       });

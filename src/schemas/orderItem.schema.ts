@@ -3,12 +3,9 @@ import { z } from 'zod';
 export const createOrderItemSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
-  courier_type: z.string().optional(),
   price: z.number().positive().optional(),
-  total_price: z.number().positive().optional(),
   quantity: z.number(),
   weight: z.number(),
-  weight_type: z.string(),
 });
 
 export type TCreateOrderItem = z.infer<typeof createOrderItemSchema>;
