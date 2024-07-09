@@ -104,6 +104,9 @@ export class Order {
   @Column()
   weight_type: string;
 
+  @Column()
+  total_weight: number;
+
   @Column({ type: 'json', nullable: true })
   package: object;
 
