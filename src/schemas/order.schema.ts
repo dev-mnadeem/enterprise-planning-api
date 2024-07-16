@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createOrderItemSchema, updateOrderItemSchema } from './orderItem.schema'; // Adjust the import path as needed
+import { createPricingSchema } from './pricing.schema';
 
 const orderStatusEnum = z.enum([
   'pending',
@@ -37,6 +38,7 @@ export const createOrderSchema = z.object({
   total_weight: z.number().positive(),
   location_id: z.string(),
   package_id: z.string().optional(),
+  pricing: createPricingSchema,
   orderItems: z.array(createOrderItemSchema),
 });
 
@@ -72,6 +74,7 @@ export const updateOrderSchema = z.object({
   status: orderStatusEnum.optional(),
   location_id: z.string().optional(),
   package_id: z.string().optional(),
+  pricing: createPricingSchema.optional(),
   orderItems: z.array(updateOrderItemSchema).optional(),
 });
 

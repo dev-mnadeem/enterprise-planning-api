@@ -6,8 +6,8 @@ import { TCreateLocation, TUpdateLocation } from '../schemas/location.schema';
 export const createLocation = async (req: Request<unknown, unknown, TCreateLocation>, res: Response) => {
   try {
     const locationData = req.body;
-    const newArea = await locationService.createLocation(locationData);
-    res.status(201).json(newArea);
+    const newLocation = await locationService.createLocation(locationData);
+    res.status(201).json(newLocation);
   } catch (error) {
     sendErrorResponse(error as Error, res);
   }

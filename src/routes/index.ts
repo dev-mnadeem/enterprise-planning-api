@@ -14,6 +14,7 @@ import { permissionRouter } from './permission.router';
 import { stateRouter } from './state.router';
 import { orderRouter } from './order.router';
 import { packageRouter } from './package.router';
+import { pricingRouter } from './pricing.router';
 
 const router = express();
 
@@ -29,5 +30,6 @@ router.use('/location-types', locationTypeRouter);
 router.use('/permissions', permissionRouter);
 router.use('/orders', orderRouter);
 router.use('/packages', packageRouter);
+router.use('/pricings', pricingRouter);
 
 export { router };

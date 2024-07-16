@@ -104,11 +104,14 @@ export class Order {
   @Column()
   weight_type: string;
 
-  @Column()
+  @Column('decimal', { precision: 10, scale: 2 })
   total_weight: number;
 
   @Column({ type: 'json', nullable: true })
   package: object;
+
+  @Column({ type: 'json', nullable: true })
+  pricing: object;
 
   @OneToMany(() => OrderHistory, (history) => history.order)
   history: OrderHistory[];
