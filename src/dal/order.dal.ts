@@ -112,22 +112,22 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
     if (pricing) {
       const exitingPricing = await queryRunner.manager.findOne(Pricing, {
-        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id },
+        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id, package_id: pricing.package_id },
         select: {
+          id: true,
           price: true,
         },
         relations: {
           from_city: true,
           to_city: true,
           package: true,
-        }
+        },
       });
 
       if (exitingPricing) {
-        newPricing = exitingPricing
+        newPricing = exitingPricing;
       } else {
-
-        const from_city =  await getCityById(pricing.from_city_id);
+        const from_city = await getCityById(pricing.from_city_id);
         const to_city = await getCityById(pricing.to_city_id);
         const pkg = pricing.package_id ? await getPackageById(pricing.package_id) : undefined;
 
@@ -135,7 +135,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
           from_city,
           to_city,
           package: pkg,
-          price: pricing.price
+          price: pricing.price,
         });
         newPricing = await queryRunner.manager.save(Pricing, createdPricing);
       }
@@ -296,22 +296,22 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
 
     if (pricing) {
       const exitingPricing = await queryRunner.manager.findOne(Pricing, {
-        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id },
+        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id, package_id: pricing.package_id },
         select: {
+          id: true,
           price: true,
         },
         relations: {
           from_city: true,
           to_city: true,
           package: true,
-        }
+        },
       });
 
       if (exitingPricing) {
-        newPricing = exitingPricing
+        newPricing = exitingPricing;
       } else {
-
-        const from_city =  await getCityById(pricing.from_city_id);
+        const from_city = await getCityById(pricing.from_city_id);
         const to_city = await getCityById(pricing.to_city_id);
         const pkg = pricing.package_id ? await getPackageById(pricing.package_id) : undefined;
 
@@ -319,14 +319,19 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           from_city,
           to_city,
           package: pkg,
-          price: pricing.price
+          price: pricing.price,
         });
         newPricing = await queryRunner.manager.save(Pricing, createdPricing);
       }
     }
 
     // Update order details
-    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, package: orderPackage, pricing: newPricing });
+    const updatedOrder = orderRepository.merge(orderToUpdate, {
+      ...orderDetails,
+      user_id,
+      package: orderPackage,
+      pricing: newPricing,
+    });
     await queryRunner.manager.save(Order, updatedOrder);
 
     if (orderItems) {
