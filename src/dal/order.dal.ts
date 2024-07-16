@@ -263,7 +263,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
 
     const orderToUpdate = await orderRepository.findOne({
       where: { id },
-      relations: ['orderItems', 'history'],
+      relations: ['order_items', 'history'],
     });
 
     if (!orderToUpdate) {
