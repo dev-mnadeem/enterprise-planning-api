@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { City } from './city.entity';
@@ -29,6 +29,13 @@ export class Pricing {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  })
+  status: string;
+
   @ManyToOne(() => City, (city) => city.from_pricing)
   @JoinColumn({ name: 'from_city_id' })
   from_city: City;
@@ -39,7 +46,7 @@ export class Pricing {
 
   @ManyToOne(() => Package, (pkg) => pkg.pricing)
   @JoinColumn({ name: 'package_id' })
-  package: City;
+  package: Package;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;

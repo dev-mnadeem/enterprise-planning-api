@@ -1,4 +1,4 @@
-import { Location, Order, OrderHistory, OrderItem, Package, User } from '../entities';
+import { Location, Order, OrderHistory, OrderItem, Package, Pricing, User } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import * as userService from './user.dal';
 import * as userRoleService from './userRole.dal';
@@ -7,6 +7,8 @@ import { CustomError } from '../utils/customError';
 import { hashPassword } from '../utils/passwordUtils';
 import { generateOrderNumber } from '../utils/generateOrderNumber';
 import { getLocationById } from './location.dal';
+import { getCityById } from './city.dal';
+import { getPackageById } from './package.dal';
 
 const orderRepository = AppDataSource.getRepository(Order);
 
@@ -18,7 +20,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
   try {
     // Destructure orderData to separate orderItems from the main order details
-    const { orderItems, location_id, package_id, ...orderDetails } = orderData;
+    const { orderItems, pricing, location_id, package_id, ...orderDetails } = orderData;
 
     if (orderDetails.sender_id) {
       await userService.getUserById(orderDetails.sender_id);
@@ -106,6 +108,39 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
       orderPackage = pkg;
     }
 
+    let newPricing = {};
+
+    if (pricing) {
+      const exitingPricing = await queryRunner.manager.findOne(Pricing, {
+        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id },
+        select: {
+          price: true,
+        },
+        relations: {
+          from_city: true,
+          to_city: true,
+          package: true,
+        }
+      });
+
+      if (exitingPricing) {
+        newPricing = exitingPricing
+      } else {
+
+        const from_city =  await getCityById(pricing.from_city_id);
+        const to_city = await getCityById(pricing.to_city_id);
+        const pkg = pricing.package_id ? await getPackageById(pricing.package_id) : undefined;
+
+        const createdPricing = queryRunner.manager.create(Pricing, {
+          from_city,
+          to_city,
+          package: pkg,
+          price: pricing.price
+        });
+        newPricing = await queryRunner.manager.save(Pricing, createdPricing);
+      }
+    }
+
     const order_number = generateOrderNumber();
     // Create the main order entity
     const newOrder = queryRunner.manager.create(Order, {
@@ -113,6 +148,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
       user_id,
       order_number,
       package: orderPackage,
+      pricing: newPricing,
     });
     const savedOrder = await queryRunner.manager.save(Order, newOrder);
 
@@ -234,7 +270,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       throw new CustomError('Order Not Found!', 404);
     }
 
-    const { orderItems, location_id, package_id, ...orderDetails } = newData;
+    const { orderItems, pricing, location_id, package_id, ...orderDetails } = newData;
 
     let orderPackage: Partial<Package> | undefined = undefined;
 
@@ -246,7 +282,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           width: true,
           height: true,
           depth: true,
-          weight_limit: true
+          weight_limit: true,
         },
       });
 
@@ -256,8 +292,41 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
       orderPackage = pkg;
     }
 
+    let newPricing = {};
+
+    if (pricing) {
+      const exitingPricing = await queryRunner.manager.findOne(Pricing, {
+        where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id },
+        select: {
+          price: true,
+        },
+        relations: {
+          from_city: true,
+          to_city: true,
+          package: true,
+        }
+      });
+
+      if (exitingPricing) {
+        newPricing = exitingPricing
+      } else {
+
+        const from_city =  await getCityById(pricing.from_city_id);
+        const to_city = await getCityById(pricing.to_city_id);
+        const pkg = pricing.package_id ? await getPackageById(pricing.package_id) : undefined;
+
+        const createdPricing = queryRunner.manager.create(Pricing, {
+          from_city,
+          to_city,
+          package: pkg,
+          price: pricing.price
+        });
+        newPricing = await queryRunner.manager.save(Pricing, createdPricing);
+      }
+    }
+
     // Update order details
-    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, package: orderPackage });
+    const updatedOrder = orderRepository.merge(orderToUpdate, { ...orderDetails, user_id, package: orderPackage, pricing: newPricing });
     await queryRunner.manager.save(Order, updatedOrder);
 
     if (orderItems) {
