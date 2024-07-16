@@ -14,6 +14,7 @@ export const createPricing = async (pricingData: TCreatePricing): Promise<Pricin
   const existingPricing = await pricingRepository.findOne({
     where: { from_city_id: pricingData.from_city_id, to_city_id: pricingData.to_city_id, package_id: pricingData.package_id },
     select: {
+      id: true,
       price: true,
     },
     relations: {
@@ -43,7 +44,7 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
     .leftJoinAndSelect('pricing.from_city', 'from_city')
     .leftJoinAndSelect('pricing.to_city', 'to_city')
     .leftJoinAndSelect('pricing.package', 'package')
-    .where('pricing.status = approved');
+    .where('pricing.status = :status', { status: "approved" });
 
   if (fromCityId && toCityId) {
     query.andWhere('pricing.from_city_id = :fromCityId AND pricing.to_city_id = :toCityId', { fromCityId, toCityId });
