@@ -115,6 +115,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         where: { from_city_id: pricing.from_city_id, to_city_id: pricing.to_city_id, package_id: pricing.package_id },
         select: {
           id: true,
+          route: true,
           price: true,
         },
         relations: {
@@ -136,6 +137,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
           to_city,
           package: pkg,
           price: pricing.price,
+          route: pricing.route,
         });
         newPricing = await queryRunner.manager.save(Pricing, createdPricing);
       }

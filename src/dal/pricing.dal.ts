@@ -8,11 +8,14 @@ import { PricingQueryParams } from '../types/pricing.interface';
 const pricingRepository = AppDataSource.getRepository(Pricing);
 
 export const createPricing = async (pricingData: TCreatePricing): Promise<Pricing> => {
-
   let createdPricing;
 
   const existingPricing = await pricingRepository.findOne({
-    where: { from_city_id: pricingData.from_city_id, to_city_id: pricingData.to_city_id, package_id: pricingData.package_id },
+    where: {
+      from_city_id: pricingData.from_city_id,
+      to_city_id: pricingData.to_city_id,
+      package_id: pricingData.package_id,
+    },
     select: {
       id: true,
       price: true,
@@ -21,11 +24,11 @@ export const createPricing = async (pricingData: TCreatePricing): Promise<Pricin
       from_city: true,
       to_city: true,
       package: true,
-    }
+    },
   });
 
   if (existingPricing) {
-    const updatedPricing = {...existingPricing, price: pricingData.price };
+    const updatedPricing = { ...existingPricing, price: pricingData.price };
     createdPricing = await pricingRepository.save(updatedPricing);
   } else {
     const newPricing = pricingRepository.create(pricingData);
@@ -44,14 +47,13 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
     .leftJoinAndSelect('pricing.from_city', 'from_city')
     .leftJoinAndSelect('pricing.to_city', 'to_city')
     .leftJoinAndSelect('pricing.package', 'package')
-    .where('pricing.status = :status', { status: "approved" });
+    .where('pricing.status = :status', { status: 'approved' });
 
-  if (fromCityId && toCityId) {
-    query.andWhere('pricing.from_city_id = :fromCityId AND pricing.to_city_id = :toCityId', { fromCityId, toCityId });
-  }
-
-  if (packageId) {
-    query.andWhere('pricing.package_id = :packageId ', { packageId });
+  if (fromCityId && toCityId && packageId) {
+    query.andWhere(
+      'pricing.from_city_id = :fromCityId AND pricing.to_city_id = :toCityId AND pricing.package_id = :packageId',
+      { fromCityId, toCityId, packageId },
+    );
   }
 
   const pricings = await query.getMany();
@@ -59,7 +61,10 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
 };
 
 export const getPricingById = async (id: string): Promise<Pricing | undefined> => {
-  const pricing = await pricingRepository.findOne({ where: { id } });
+  const pricing = await pricingRepository.findOne({
+    where: { id },
+    relations: { from_city: true, to_city: true, package: true },
+  });
 
   if (!pricing) {
     throw new CustomError('Pricing Not Found!', 404);
