@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as packageService from '../dal/package.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreatePackage, TUpdatePackage } from '../schemas/package.schema';
+import { PackageQueryParams, queryParamToPackageParam } from '../types/package.interface';
 
 export const createPackage = async (req: Request<unknown, unknown, TCreatePackage>, res: Response) => {
   try {
@@ -16,7 +17,8 @@ export const createPackage = async (req: Request<unknown, unknown, TCreatePackag
 
 export const getAllPackages = async (req: Request, res: Response) => {
   try {
-    const packages = await packageService.getAllPackages();
+    const params: PackageQueryParams = queryParamToPackageParam(req);
+    const packages = await packageService.getAllPackages(params);
 
     res.json(packages);
   } catch (error) {

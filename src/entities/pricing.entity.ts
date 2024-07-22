@@ -7,14 +7,14 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  Unique,
+  Index,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { City } from './city.entity';
 import { Package } from './package.entity';
 
-@Unique("UQ_PRICE_FOR_ROUTE", ["from_city", "to_city", "package", "route"])
 @Entity()
+@Index(["from_city_id", "to_city_id", "package_id", "route"], { unique: true })
 export class Pricing {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
