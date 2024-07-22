@@ -98,6 +98,20 @@ export class Order {
   })
   status: string;
 
+  @Column({
+    type: 'enum',
+    enum: ['domestic', 'international'],
+    default: 'domestic',
+  })
+  type: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['road', 'air', 'sea'],
+    default: 'road',
+  })
+  route: string;
+
   @Column({ nullable: true })
   courier_type: string;
 

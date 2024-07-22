@@ -23,7 +23,7 @@ export class Pricing {
   @Column('varchar', { length: 26 })
   to_city_id: string;
 
-  @Column('varchar', { length: 26, nullable: true })
+  @Column('varchar', { length: 26 })
   package_id: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
@@ -35,6 +35,13 @@ export class Pricing {
     default: 'pending',
   })
   status: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['road', 'air', 'sea'],
+    default: 'road',
+  })
+  route: string;
 
   @ManyToOne(() => City, (city) => city.from_pricing)
   @JoinColumn({ name: 'from_city_id' })

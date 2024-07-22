@@ -2,14 +2,11 @@ import { z } from 'zod';
 import { createOrderItemSchema, updateOrderItemSchema } from './orderItem.schema'; // Adjust the import path as needed
 import { createPricingSchema } from './pricing.schema';
 
-const orderStatusEnum = z.enum([
-  'pending',
-  'in_process',
-  'in_route',
-  'delivered',
-  'cancelled',
-  'return_in_progress',
-]);
+const orderStatusEnum = z.enum(['pending', 'in_process', 'in_route', 'delivered', 'cancelled', 'return_in_progress']);
+
+const orderTypeEnum = z.enum(['domestix', 'international']);
+
+const orderRouteEnum = z.enum(['road', 'air', 'sea']);
 
 export const createOrderSchema = z.object({
   shipping_date: z.string().datetime().optional(),
@@ -36,6 +33,8 @@ export const createOrderSchema = z.object({
   courier_type: z.string().optional(),
   weight_type: z.string(),
   total_weight: z.number().positive(),
+  type: orderTypeEnum.optional(),
+  route: orderRouteEnum.optional(),
   location_id: z.string(),
   package_id: z.string().optional(),
   pricing: createPricingSchema,
@@ -72,6 +71,8 @@ export const updateOrderSchema = z.object({
   weight_type: z.string().optional(),
   total_weight: z.number().positive().optional(),
   status: orderStatusEnum.optional(),
+  type: orderTypeEnum.optional(),
+  route: orderRouteEnum.optional(),
   location_id: z.string().optional(),
   package_id: z.string().optional(),
   pricing: createPricingSchema.optional(),
