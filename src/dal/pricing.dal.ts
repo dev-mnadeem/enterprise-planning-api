@@ -41,7 +41,7 @@ export const createPricing = async (pricingData: TCreatePricing): Promise<Pricin
 };
 
 export const getAllPricings = async (params: PricingQueryParams): Promise<Pricing[] | null> => {
-  const { fromCityId, toCityId, packageId } = params;
+  const { fromCityId, toCityId, packageId, route } = params;
 
   const query = pricingRepository
     .createQueryBuilder('pricing')
@@ -56,6 +56,10 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
       'pricing.from_city_id = :fromCityId AND pricing.to_city_id = :toCityId AND pricing.package_id = :packageId',
       { fromCityId, toCityId, packageId },
     );
+  }
+
+  if (route) {
+    query.andWhere('pricing.route = :route', { route });
   }
 
   const pricings = await query.getMany();
