@@ -115,7 +115,10 @@ export class Order {
   @Column({ nullable: true })
   courier_type: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: ['lbs', 'kg', 'cbm'],
+  })
   weight_type: string;
 
   @Column('decimal', { precision: 10, scale: 2 })

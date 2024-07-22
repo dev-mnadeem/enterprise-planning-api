@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
+const orderWeightEnum = z.enum(['lbs', 'kg', 'cbm']);
+
 export const createPackageSchema = z.object({
   name: z.string(),
   width: z.number().positive(),
   height: z.number().positive(),
   depth: z.number().positive(),
+  weight_type: orderWeightEnum.optional(),
   weight_limit: z.number().positive().optional(),
-  price: z.number().positive(),
 });
 
 export type TCreatePackage = z.infer<typeof createPackageSchema>;
@@ -16,8 +18,8 @@ export const updatePackageSchema = z.object({
   width: z.number().positive().optional(),
   height: z.number().positive().optional(),
   depth: z.number().positive().optional(),
+  weight_type: orderWeightEnum.optional(),
   weight_limit: z.number().positive().optional(),
-  price: z.number().positive().optional(),
 });
 
 export type TUpdatePackage = z.infer<typeof updatePackageSchema>;
