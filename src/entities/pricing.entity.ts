@@ -7,11 +7,13 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { City } from './city.entity';
 import { Package } from './package.entity';
 
+@Unique("UQ_PRICE_FOR_ROUTE", ["from_city", "to_city", "package", "route"])
 @Entity()
 export class Pricing {
   @PrimaryColumn('varchar', { length: 26 })

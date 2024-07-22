@@ -15,10 +15,12 @@ export const createPricing = async (pricingData: TCreatePricing): Promise<Pricin
       from_city_id: pricingData.from_city_id,
       to_city_id: pricingData.to_city_id,
       package_id: pricingData.package_id,
+      route: pricingData.route,
     },
     select: {
       id: true,
       price: true,
+      route: true,
     },
     relations: {
       from_city: true,
