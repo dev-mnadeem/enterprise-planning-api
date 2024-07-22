@@ -8,6 +8,8 @@ const orderTypeEnum = z.enum(['domestix', 'international']);
 
 const orderRouteEnum = z.enum(['road', 'air', 'sea']);
 
+const orderWeightEnum = z.enum(['lbs', 'kg', 'cbm']);
+
 export const createOrderSchema = z.object({
   shipping_date: z.string().datetime().optional(),
   collection_time: z.string().datetime().optional(),
@@ -31,7 +33,7 @@ export const createOrderSchema = z.object({
   payment_status: z.string(),
   payment_date: z.string().datetime(),
   courier_type: z.string().optional(),
-  weight_type: z.string(),
+  weight_type: orderWeightEnum,
   total_weight: z.number().positive(),
   type: orderTypeEnum.optional(),
   route: orderRouteEnum.optional(),
@@ -68,7 +70,7 @@ export const updateOrderSchema = z.object({
   payment_status: z.string().optional(),
   payment_date: z.string().datetime().optional(),
   courier_type: z.string().optional(),
-  weight_type: z.string().optional(),
+  weight_type: orderWeightEnum.optional(),
   total_weight: z.number().positive().optional(),
   status: orderStatusEnum.optional(),
   type: orderTypeEnum.optional(),

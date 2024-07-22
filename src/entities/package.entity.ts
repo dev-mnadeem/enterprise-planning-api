@@ -26,6 +26,13 @@ export class Package {
   @Column('decimal', { precision: 10, scale: 2 })
   depth: number;
 
+  @Column({
+    type: 'enum',
+    enum: ['lbs', 'kg', 'cbm'],
+    default: 'kg',
+  })
+  weight_type: string;
+
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   weight_limit: number;
 
