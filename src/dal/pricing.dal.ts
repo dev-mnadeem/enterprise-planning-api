@@ -23,8 +23,16 @@ export const createPricing = async (pricingData: TCreatePricing): Promise<Pricin
       route: true,
     },
     relations: {
-      from_city: true,
-      to_city: true,
+      from_city: {
+        state: {
+          country: true,
+        },
+      },
+      to_city: {
+        state: {
+          country: true,
+        },
+      },
       package: true,
     },
   });
@@ -47,7 +55,11 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
     .createQueryBuilder('pricing')
     .select()
     .leftJoinAndSelect('pricing.from_city', 'from_city')
+    .leftJoinAndSelect('from_city.state', 'from_state')
+    .leftJoinAndSelect('from_state.country', 'from_country')
     .leftJoinAndSelect('pricing.to_city', 'to_city')
+    .leftJoinAndSelect('to_city.state', 'to_state')
+    .leftJoinAndSelect('to_state.country', 'to_country')
     .leftJoinAndSelect('pricing.package', 'package')
     .where('pricing.status = :status', { status: 'approved' });
 
