@@ -81,7 +81,19 @@ export const getAllPricings = async (params: PricingQueryParams): Promise<Pricin
 export const getPricingById = async (id: string): Promise<Pricing | undefined> => {
   const pricing = await pricingRepository.findOne({
     where: { id },
-    relations: { from_city: true, to_city: true, package: true },
+    relations: {
+      from_city: {
+        state: {
+          country: true,
+        },
+      },
+      to_city: {
+        state: {
+          country: true,
+        },
+      },
+      package: true,
+    },
   });
 
   if (!pricing) {
