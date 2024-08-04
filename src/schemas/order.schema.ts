@@ -4,7 +4,7 @@ import { createPricingSchema } from './pricing.schema';
 
 const orderStatusEnum = z.enum(['pending', 'in_process', 'in_route', 'delivered', 'cancelled', 'return_in_progress']);
 
-const orderTypeEnum = z.enum(['domestix', 'international']);
+const orderTypeEnum = z.enum(['domestic', 'international']);
 
 const orderRouteEnum = z.enum(['road', 'air', 'sea']);
 
