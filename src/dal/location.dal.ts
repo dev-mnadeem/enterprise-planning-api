@@ -12,12 +12,22 @@ export const createLocation = async (locationData: TCreateLocation): Promise<Loc
 };
 
 export const getAllLocations = async (): Promise<Location[] | null> => {
-  const locations = await locationRepository.find({ where: { deleted_at: undefined } });
+  const locations = await locationRepository.find({
+    where: { deleted_at: undefined },
+    relations: {
+      location_type: true,
+    },
+  });
   return locations;
 };
 
 export const getLocationById = async (id: string): Promise<Location | undefined> => {
-  const location = await locationRepository.findOne({ where: { id } });
+  const location = await locationRepository.findOne({
+    where: { id },
+    relations: {
+      location_type: true,
+    },
+  });
 
   if (!location) {
     throw new CustomError('Location Not Found!', 404);
@@ -53,5 +63,5 @@ export const deleteLocation = async (id: string): Promise<boolean> => {
     throw new CustomError('Location Not Found!', 404);
   }
 
-  return isDeleted
+  return isDeleted;
 };
