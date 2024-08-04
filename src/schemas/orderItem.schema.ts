@@ -5,7 +5,7 @@ export const createOrderItemSchema = z.object({
   description: z.string().optional(),
   price: z.number().positive().optional(),
   quantity: z.number(),
-  weight: z.number(),
+  weight: z.number().positive(),
 });
 
 export type TCreateOrderItem = z.infer<typeof createOrderItemSchema>;
