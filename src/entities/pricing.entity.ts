@@ -34,7 +34,7 @@ export class Pricing {
   @Column({
     type: 'enum',
     enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+    default: 'approved',
   })
   status: string;
 
