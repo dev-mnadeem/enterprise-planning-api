@@ -32,7 +32,7 @@ export class OrderItem {
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   price: number;
 
-  @Column()
+  @Column('decimal', { precision: 10, scale: 2 })
   weight: number;
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
