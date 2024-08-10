@@ -16,6 +16,7 @@ import { UserRole } from './userRole.entity';
 import { Location } from './location.entity';
 import { City } from './city.entity';
 import { Order } from './order.entity';
+import { Vehicle } from './vehicle.entity';
 
 @Entity()
 export class User {
@@ -81,6 +82,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.receiver)
   receiver_orders: Order[];
+
+  @OneToMany(() => Vehicle, vehicle => vehicle.driver)
+  vehicles: Vehicle[];
 
   @OneToMany(() => Location, location => location.deleted_by)
   deleted_locations: Location[];

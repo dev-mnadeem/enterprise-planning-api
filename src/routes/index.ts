@@ -15,6 +15,8 @@ import { stateRouter } from './state.router';
 import { orderRouter } from './order.router';
 import { packageRouter } from './package.router';
 import { pricingRouter } from './pricing.router';
+import { vehicleRouter } from './vehicle.router';
+import { vehicleTypeRouter } from './vehicleType.router';
 
 const router = express();
 
@@ -31,5 +33,7 @@ router.use('/permissions', permissionRouter);
 router.use('/orders', orderRouter);
 router.use('/packages', packageRouter);
 router.use('/pricings', pricingRouter);
+router.use('/vehicles', vehicleRouter);
+router.use('/vehicle-types', vehicleTypeRouter);
 
 export { router };

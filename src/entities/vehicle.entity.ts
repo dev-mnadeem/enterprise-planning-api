@@ -19,6 +19,9 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 26 })
   driver_id: string;
 
+  @Column('varchar', { length: 26 })
+  vehicle_type_id: string;
+
   @Column()
   name: string;
 
@@ -26,24 +29,21 @@ export class Vehicle {
   model: string;
 
   @Column()
-  type: number;
-
-  @Column()
   registration_number: string;
 
-  @Column()
+  @Column({ default: true })
   status: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
 
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user.vehicles)
   @JoinColumn({ name: 'driver_id' })
   driver: User;
 
-  @ManyToOne(() => VehicleType, vehicleType => vehicleType.id)
-  @JoinColumn({ name: 'type' })
-  vehicleType: VehicleType;
+  @ManyToOne(() => VehicleType, type => type.vehicles)
+  @JoinColumn({ name: 'vehicle_type_id' })
+  vehicle_type: VehicleType;
 
   @BeforeInsert()
   generateUlid() {

@@ -1,5 +1,6 @@
-import { Entity, Column, BeforeInsert, PrimaryColumn } from 'typeorm';
+import { Entity, Column, BeforeInsert, PrimaryColumn, OneToMany } from 'typeorm';
 import { ulid } from 'ulid';
+import { Vehicle } from './vehicle.entity';
 
 @Entity()
 export class VehicleType {
@@ -8,6 +9,9 @@ export class VehicleType {
 
   @Column()
   name: string;
+
+  @OneToMany(() => Vehicle, vehicle => vehicle.vehicle_type)
+  vehicles: Vehicle[];
 
   @BeforeInsert()
   generateUlid() {

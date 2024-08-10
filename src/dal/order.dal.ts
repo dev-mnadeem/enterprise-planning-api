@@ -172,8 +172,18 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
     if (location_id) {
       const location = await queryRunner.manager.findOne(Location, {
         where: { id: location_id },
-        relations: { city: true },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          address: true,
+          geo_location: true,
+        },
+        relations: { city: { state: { country: true } }, },
       });
+
+      console.log({ location });
+      
 
       if (!location) {
         throw new CustomError('Location Not Found!', 404);
@@ -193,7 +203,8 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         description,
         address,
         geo_location,
-        status: savedOrder.status,
+        status: "in",
+        from_location: location,
         order_id: savedOrder.id,
       };
       // Create order history
@@ -365,7 +376,13 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
     if (location_id) {
       const location = await queryRunner.manager.findOne(Location, {
         where: { id: location_id },
-        relations: { city: true },
+        select: {
+          name: true,
+          description: true,
+          address: true,
+          geo_location: true,
+        },
+        relations: { city: { state: { country: true } }, },
       });
 
       if (!location) {
@@ -391,7 +408,8 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           description,
           address,
           geo_location,
-          status: updatedOrder.status,
+          status: "in",
+          from_location: location,
           order_id: updatedOrder.id,
         };
         // Create order history
