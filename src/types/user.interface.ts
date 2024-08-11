@@ -8,17 +8,19 @@ export interface UserQueryParams {
   pageNumber: string | undefined;
   pageSize: string | undefined;
   search: string | undefined;
+  role: string | undefined;
   sortBy: string | undefined;
   orderBy: 'ASC' | 'DESC' | undefined;
   phoneNumber: string | undefined;
 }
 
 export const queryParamToUserParam = (req: Request): UserQueryParams => {
-  const { pageNumber, pageSize, q, sortBy, orderBy, phoneNumber } = req.query;
+  const { pageNumber, pageSize, q, role, sortBy, orderBy, phoneNumber } = req.query;
   return {
     pageNumber: pageNumber as string | undefined,
     pageSize: pageSize as string | undefined,
     search: q as string | undefined,
+    role: role as string | undefined,
     sortBy: sortBy as string | undefined,
     orderBy: orderBy as 'ASC' | 'DESC' | undefined,
     phoneNumber: phoneNumber as string | undefined,
