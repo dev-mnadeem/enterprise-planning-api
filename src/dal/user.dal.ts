@@ -25,7 +25,7 @@ export const createUser = async ({ location_ids, ...userData }: TCreateUser): Pr
 };
 
 export const getAllUsers = async (params: UserQueryParams): Promise<{ pageInfo: PageInfoResponse, results: User[] | null}> => {
-  const { search, pageNumber, pageSize, sortBy, orderBy, phoneNumber } = params;
+  const { search, role, pageNumber, pageSize, sortBy, orderBy, phoneNumber } = params;
 
   const query = userRepository
     .createQueryBuilder('user')
@@ -40,6 +40,10 @@ export const getAllUsers = async (params: UserQueryParams): Promise<{ pageInfo: 
 
   if (search) {
     addSearchToQuery(query, `user.name || ' ' || coalesce(user.email, '')`, search);
+  }
+
+  if (role) {
+    query.andWhere('user_role.name = :role', { role });
   }
 
   if (phoneNumber) {
