@@ -4,6 +4,7 @@ import { createOrder, deleteOrder, getAllOrders, getOrderById, updateOrder } fro
 import { validateZodMiddleware } from '../middlewares/validateMiddleware';
 import { createOrderSchema, updateOrderSchema } from '../schemas/order.schema';
 import { authenticateJWT } from '../middlewares/authenticateJWTMiddleware';
+import { orderHistoryRouter } from './orderHistory.router';
 
 const orderRouter: Router = express.Router();
 
@@ -12,5 +13,7 @@ orderRouter.post('/', authenticateJWT ,validateZodMiddleware(createOrderSchema),
 orderRouter.get('/:id', expressAsyncHandler(getOrderById));
 orderRouter.patch('/:id', authenticateJWT, validateZodMiddleware(updateOrderSchema), expressAsyncHandler(updateOrder));
 orderRouter.delete('/:id', expressAsyncHandler(deleteOrder));
+
+orderRouter.use('/:id', orderHistoryRouter);
 
 export { orderRouter };

@@ -7,8 +7,6 @@ import {
   ManyToOne,
   JoinColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
-  ManyToMany,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { Order } from './order.entity';
@@ -36,10 +34,19 @@ export class OrderHistory {
   @Column({ nullable: true })
   geo_location: string;
 
+  @Column('json')
+  from_location: object;
+
+  @Column('json', { nullable: true })
+  to_location: object;
+
+  @Column('json', { nullable: true })
+  vehicle: object;
+
   @Column({
     type: 'enum',
-    enum: ['pending', 'in_process', 'in_route', 'delivered', 'cancelled', 'return_in_progrss'],
-    default: 'pending',
+    enum: ['in', 'out'],
+    default: 'in',
   })
   status: string;
 
@@ -49,7 +56,7 @@ export class OrderHistory {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => Order ,(order) => order.history)
+  @ManyToOne(() => Order, (order) => order.history)
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

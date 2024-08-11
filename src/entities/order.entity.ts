@@ -82,6 +82,15 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2 })
   total_amount: number;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  vat: number;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  service_charges: number;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  other_taxes: number;
+
   @Column()
   payment_type: string;
 
