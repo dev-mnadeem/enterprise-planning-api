@@ -264,6 +264,25 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
   return order;
 };
 
+export const getOrderByNumber = async (number: string): Promise<Order> => {
+  const order = await orderRepository.findOne({
+    where: { order_number: number },
+    relations: {
+      user: true,
+      history: true,
+      order_items: true,
+      sender_city: { state: { country: true } },
+      receiver_city: { state: { country: true } },
+    },
+  });
+
+  if (!order) {
+    throw new CustomError('Order Not Found!', 404);
+  }
+
+  return order;
+};
+
 export const updateOrder = async (user_id: string, id: string, newData: TUpdateOrder): Promise<Order | undefined> => {
   const queryRunner = AppDataSource.createQueryRunner();
 
