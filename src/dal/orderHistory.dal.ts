@@ -1,5 +1,6 @@
 import { Location, OrderHistory, Vehicle } from '../entities';
 import { AppDataSource } from '../database/data-source';
+import { getOrderByNumber } from './order.dal';
 import { CustomError } from '../utils/customError';
 import { TOrderIn, TOrderOut } from '../schemas/orderHistory.schema';
 
@@ -7,9 +8,11 @@ const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 const locationRepository = AppDataSource.getRepository(Location);
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
 
-export const orderIn = async (id: string, newData: TOrderIn): Promise<OrderHistory | null> => {
+export const orderIn = async (number: string, newData: TOrderIn): Promise<OrderHistory | null> => {
+  const order = await getOrderByNumber(number);
+
   const orderHistory = await orderHistoryRepository.find({
-    where: { order_id: id },
+    where: { order_id: order.id },
   });
 
   if (!orderHistory.length) {
@@ -46,16 +49,18 @@ export const orderIn = async (id: string, newData: TOrderIn): Promise<OrderHisto
     geo_location: location.geo_location,
     status: 'in',
     from_location: location,
-    order_id: id,
+    order_id: order.id,
   };
 
   const newOrderHistory = orderHistoryRepository.create(orderHistoryData);
   return await orderHistoryRepository.save(newOrderHistory);
 };
 
-export const orderOut = async (id: string, newData: TOrderOut): Promise<OrderHistory | null> => {
+export const orderOut = async (number: string, newData: TOrderOut): Promise<OrderHistory | null> => {
+  const order = await getOrderByNumber(number);
+
   const orderHistory = await orderHistoryRepository.find({
-    where: { order_id: id },
+    where: { order_id: order.id },
   });
 
   if (!orderHistory.length) {
@@ -134,7 +139,7 @@ export const orderOut = async (id: string, newData: TOrderOut): Promise<OrderHis
     from_location: from_location,
     to_location: to_location,
     vehicle: vehicle,
-    order_id: id,
+    order_id: order.id,
   };
 
   const newOrderHistory = orderHistoryRepository.create(orderHistoryData);
