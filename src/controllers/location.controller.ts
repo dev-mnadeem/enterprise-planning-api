@@ -1,12 +1,22 @@
 import { Request, Response } from 'express';
 import * as locationService from '../dal/location.dal';
+import * as userService from '../dal/user.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateLocation, TUpdateLocation } from '../schemas/location.schema';
+import { UserQueryParams } from '../types/user.interface';
 
 export const createLocation = async (req: Request<unknown, unknown, TCreateLocation>, res: Response) => {
   try {
     const locationData = req.body;
     const newLocation = await locationService.createLocation(locationData);
+
+    const adminUsers = await userService.getAllUsersByRole('admin');
+
+    if (adminUsers) {
+      for (let user of adminUsers) {
+        await userService.updateUser(user.id, { location_ids: [newLocation.id] });
+      }
+    }
     res.status(201).json(newLocation);
   } catch (error) {
     sendErrorResponse(error as Error, res);
