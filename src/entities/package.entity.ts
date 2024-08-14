@@ -17,14 +17,12 @@ export class Package {
   @Column()
   name: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  width: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  height: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  depth: number;
+  @Column({
+    type: 'enum',
+    enum: ['road', 'air', 'sea'],
+    default: 'road',
+  })
+  route: string;
 
   @Column({
     type: 'enum',
@@ -32,6 +30,15 @@ export class Package {
     default: 'kg',
   })
   weight_type: string;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  width: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  height: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  depth: number;
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   weight_limit: number;
