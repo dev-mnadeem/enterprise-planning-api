@@ -24,6 +24,18 @@ export const createUser = async ({ location_ids, ...userData }: TCreateUser): Pr
   return await userRepository.save(newUser);
 };
 
+export const getAllUsersByRole = async (role: string) => {
+  const admins = await userRepository.find({
+    where: {
+      user_role: {
+        name: role
+      }
+    }
+  });
+
+  return admins;
+}
+
 export const getAllUsers = async (
   params: UserQueryParams,
 ): Promise<{ pageInfo: PageInfoResponse; results: User[] | null }> => {
@@ -82,7 +94,7 @@ export const getUserById = async (id: string): Promise<User | undefined> => {
 export const updateUser = async (id: string, { location_ids, ...newData }: TUpdateUser): Promise<User | null> => {
   const userToUpdate = await userRepository.findOne({
     where: { id },
-    relations: { user_role: true },
+    relations: { user_role: true, locations: true },
   });
 
   if (!userToUpdate) {
@@ -92,7 +104,8 @@ export const updateUser = async (id: string, { location_ids, ...newData }: TUpda
   let locations = userToUpdate.locations;
 
   if (location_ids?.length) {
-    locations = await getLocationByIds(location_ids);
+    const newLocations = await getLocationByIds(location_ids);
+    locations.push(...newLocations)
   }
 
   const updatedUser = { ...userToUpdate, ...newData, locations };
@@ -124,6 +137,7 @@ export const getUserByEmail = (email: string): Promise<User | null> => {
       password: true,
       refresh_token: true,
       locations: {
+        id: true,
         name: true,
         description: true,
         address: true,
@@ -163,6 +177,7 @@ export const getUserByPhone = (phone_number: string): Promise<User | null> => {
       password: true,
       refresh_token: true,
       locations: {
+        id: true,
         name: true,
         description: true,
         address: true,
