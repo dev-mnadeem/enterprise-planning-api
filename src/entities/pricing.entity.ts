@@ -31,6 +31,9 @@ export class Pricing {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
+  @Column({ default: true})
+  is_fixed: boolean;
+
   @Column({
     type: 'enum',
     enum: ['pending', 'approved', 'rejected'],
