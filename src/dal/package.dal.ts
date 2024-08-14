@@ -4,15 +4,14 @@ import { CustomError } from '../utils/customError';
 import { TCreatePackage, TUpdatePackage } from '../schemas/package.schema';
 import { PackageQueryParams } from '../types/package.interface';
 
-const ROUTES = {
-  road: ['kg', 'lbs'],
-  air: ['kg', 'lbs'],
-  sea: ['cbm'],
-}
-
 const packageRepository = AppDataSource.getRepository(Package);
 
 export const createPackage = async (packageData: TCreatePackage): Promise<Package> => {
+
+  if (packageData.route == "sea") {
+    packageData.weight_limit = (packageData?.depth || 1) * (packageData?.height || 1) *( packageData?.width || 1);
+  } 
+
   const newPackage = packageRepository.create(packageData);
   return await packageRepository.save(newPackage);
 };
@@ -25,8 +24,7 @@ export const getAllPackages = async (params: PackageQueryParams): Promise<Packag
   .select();
 
   if (route) {
-    const weightType = ROUTES[route];
-    query.andWhere('package.weight_type IN (:...weightType)', { weightType });
+    query.andWhere('package.route :route', { route });
   }
 
   const packages = await query.getMany();
