@@ -29,7 +29,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
       throw new CustomError('Invalid email!', 401);
     }
 
-    const { password: userPassword, refresh_token, ...user } = currentUser;
+    const { password: userPassword, refresh_token, permissions, ...user } = currentUser;
 
     const isPassordInValid = await verifyPassword(password, userPassword);
 
@@ -40,7 +40,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    await userService.updateUser(user.id, { refresh_token: refreshToken });
+    await userService.updateUser(user.id, { refresh_token: refreshToken });    
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
@@ -49,7 +49,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ token: accessToken });
+    res.status(200).json({ token: accessToken, permissions });
   } catch (error) {
     sendErrorResponse(error as Error, res);
   }
