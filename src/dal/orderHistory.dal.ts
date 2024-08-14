@@ -121,7 +121,7 @@ export const orderOut = async (id: string, newData: TOrderOut): Promise<OrderHis
   const lastOrderHistory = orderHistory[orderHistory.length - 1];
 
   if (lastOrderHistory.status === "out") {
-    throw new CustomError('Unable to add in inventory as order status is already out!', 404);
+    throw new CustomError('Unable to out from inventory as order status is already out!', 404);
   }
 
   const orderHistoryData = {

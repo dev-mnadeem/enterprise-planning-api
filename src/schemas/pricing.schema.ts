@@ -9,6 +9,7 @@ export const createPricingSchema = z.object({
   to_city_id: z.string(),
   package_id: z.string(),
   price: z.number().positive(),
+  is_fixed: z.boolean().optional(),
   route: pricingRouteEnum.optional(),
 });
 
@@ -19,6 +20,7 @@ export const updatePricingSchema = z.object({
   to_city_id: z.string().optional(),
   package_id: z.string().optional(),
   price: z.number().positive().optional(),
+  is_fixed: z.boolean().optional(),
   status: pricingStatusEnum.optional(),
   route: pricingRouteEnum.optional(),
 });
