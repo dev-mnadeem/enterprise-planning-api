@@ -16,7 +16,7 @@ export const createUser = async ({ location_ids, ...userData }: TCreateUser): Pr
   let locations = [] as Location[];
 
   if (location_ids?.length) {
-    locations = await getLocationByIds(location_ids); 
+    locations = await getLocationByIds(location_ids);
   }
 
   const newUser = userRepository.create({ ...userData, locations });
@@ -24,7 +24,9 @@ export const createUser = async ({ location_ids, ...userData }: TCreateUser): Pr
   return await userRepository.save(newUser);
 };
 
-export const getAllUsers = async (params: UserQueryParams): Promise<{ pageInfo: PageInfoResponse, results: User[] | null}> => {
+export const getAllUsers = async (
+  params: UserQueryParams,
+): Promise<{ pageInfo: PageInfoResponse; results: User[] | null }> => {
   const { search, role, pageNumber, pageSize, sortBy, orderBy, phoneNumber } = params;
 
   const query = userRepository
@@ -86,13 +88,13 @@ export const updateUser = async (id: string, { location_ids, ...newData }: TUpda
   if (!userToUpdate) {
     throw new CustomError('User Not Found!', 404);
   }
-  
+
   let locations = userToUpdate.locations;
 
   if (location_ids?.length) {
-    locations = await getLocationByIds(location_ids); 
+    locations = await getLocationByIds(location_ids);
   }
-  
+
   const updatedUser = { ...userToUpdate, ...newData, locations };
   return await userRepository.save(updatedUser);
 };
@@ -113,9 +115,78 @@ export const getUserByEmail = (email: string): Promise<User | null> => {
 };
 
 export const getUserByPhone = (phone_number: string): Promise<User | null> => {
-  return userRepository.findOne({ where: { phone_number }, relations: { user_role: true, locations: true } });
+  return userRepository.findOne({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone_number: true,
+      address: true,
+      geo_location: true,
+      status: true,
+      permissions: true,
+      password: true,
+      refresh_token: true,
+      locations: {
+        name: true,
+        description: true,
+        address: true,
+        city: {
+          id: true,
+          name: true,
+          state: {
+            id: true,
+            name: true,
+            country: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      user_role: {
+        name: true,
+      },
+    },
+    where: { phone_number },
+    relations: { user_role: true, locations: { city: { state: { country: true } } } },
+  });
 };
 
 export const getUserByRefreshToken = (refreshToken: string): Promise<User | null> => {
-  return userRepository.findOne({ where: { refresh_token: refreshToken } });
+  return userRepository.findOne({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone_number: true,
+      address: true,
+      geo_location: true,
+      status: true,
+      permissions: true,
+      password: true,
+      refresh_token: true,
+      locations: {
+        name: true,
+        description: true,
+        address: true,
+        city: {
+          id: true,
+          name: true,
+          state: {
+            id: true,
+            name: true,
+            country: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      user_role: {
+        name: true,
+      },
+    },
+    where: { refresh_token: refreshToken },
+  });
 };
