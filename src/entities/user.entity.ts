@@ -10,6 +10,7 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  BeforeUpdate,
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { UserRole } from './userRole.entity';
@@ -92,5 +93,11 @@ export class User {
   @BeforeInsert()
   generateUlid() {
     this.id = ulid();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  normalizeEmail() {
+    this.email = this.email.toLowerCase();
   }
 }
