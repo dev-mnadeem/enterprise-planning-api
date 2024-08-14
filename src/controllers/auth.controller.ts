@@ -28,7 +28,6 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
     if (!currentUser) {
       throw new CustomError('Invalid email!', 401);
     }
-
     const { password: userPassword, refresh_token, permissions, ...user } = currentUser;
 
     const isPassordInValid = await verifyPassword(password, userPassword);

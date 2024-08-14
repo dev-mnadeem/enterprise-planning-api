@@ -111,7 +111,42 @@ export const deleteUser = async (id: string): Promise<boolean> => {
 };
 
 export const getUserByEmail = (email: string): Promise<User | null> => {
-  return userRepository.findOne({ where: { email }, relations: { user_role: true, locations: true } });
+  return userRepository.findOne({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone_number: true,
+      address: true,
+      geo_location: true,
+      status: true,
+      permissions: true,
+      password: true,
+      refresh_token: true,
+      locations: {
+        name: true,
+        description: true,
+        address: true,
+        city: {
+          id: true,
+          name: true,
+          state: {
+            id: true,
+            name: true,
+            country: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      user_role: {
+        name: true,
+      },
+    },
+    where: { email },
+    relations: { user_role: true, locations: { city: { state: { country: true } } } },
+  });
 };
 
 export const getUserByPhone = (phone_number: string): Promise<User | null> => {
@@ -154,39 +189,5 @@ export const getUserByPhone = (phone_number: string): Promise<User | null> => {
 };
 
 export const getUserByRefreshToken = (refreshToken: string): Promise<User | null> => {
-  return userRepository.findOne({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone_number: true,
-      address: true,
-      geo_location: true,
-      status: true,
-      permissions: true,
-      password: true,
-      refresh_token: true,
-      locations: {
-        name: true,
-        description: true,
-        address: true,
-        city: {
-          id: true,
-          name: true,
-          state: {
-            id: true,
-            name: true,
-            country: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-      user_role: {
-        name: true,
-      },
-    },
-    where: { refresh_token: refreshToken },
-  });
+  return userRepository.findOne({ where: { refresh_token: refreshToken } });
 };
