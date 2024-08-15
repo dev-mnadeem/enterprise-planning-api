@@ -24,7 +24,7 @@ export const getAllPackages = async (params: PackageQueryParams): Promise<Packag
   .select();
 
   if (route) {
-    query.andWhere('package.route :route', { route });
+    query.andWhere('package.route = :route', { route });
   }
 
   const packages = await query.getMany();
