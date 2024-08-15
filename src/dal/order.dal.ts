@@ -41,9 +41,9 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
         // Create the receiver entity
         const newSender = queryRunner.manager.create(User, {
-          email,
+          email: email,
           city_id,
-          phone_number,
+          phone_number: phone_number.trim().replaceAll(' ', ''),
           name,
           address,
           password: encryptedPassword,
@@ -74,9 +74,9 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
         // Create the receiver entity
         const newReceiver = queryRunner.manager.create(User, {
-          email,
+          email:  email,
           city_id,
-          phone_number,
+          phone_number: phone_number.trim().replaceAll(' ', ''),
           name,
           address,
           password: encryptedPassword,
@@ -241,6 +241,11 @@ export const getAllOrders = async (): Promise<Order[] | null> => {
       sender_city: { state: { country: true } },
       receiver_city: { state: { country: true } },
     },
+    order: {
+      history: {
+        created_at: "DESC"
+      }
+    }
   });
   return orders;
 };
@@ -255,6 +260,11 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
       sender_city: { state: { country: true } },
       receiver_city: { state: { country: true } },
     },
+    order: {
+      history: {
+        created_at: "DESC"
+      }
+    }
   });
 
   if (!order) {
