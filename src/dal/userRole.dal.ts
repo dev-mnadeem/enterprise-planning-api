@@ -40,7 +40,7 @@ export const getAllUserRoles = async (): Promise<UserRole[]> => {
   return await userRoleRepository.find({ where: { name: Not('admin') } });
 };
 
-export const updateUserRole = async (id: string, name: string): Promise<UserRole | null> => {
+export const updateUserRole = async (id: string, name: string, properties: object[]): Promise<UserRole | null> => {
   const userRoleToUpdate = await userRoleRepository.findOne({ where: { id } });
 
   if (!userRoleToUpdate) {
@@ -48,6 +48,7 @@ export const updateUserRole = async (id: string, name: string): Promise<UserRole
   }
 
   userRoleToUpdate.name = name;
+  userRoleToUpdate.permissions = properties;
   return await userRoleRepository.save(userRoleToUpdate);
 };
 
@@ -59,5 +60,5 @@ export const deleteUserRole = async (id: string): Promise<boolean> => {
     throw new CustomError('User Role Not Found!', 404);
   }
 
-  return isDeleted
+  return isDeleted;
 };

@@ -41,8 +41,9 @@ export const updateUserRole = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
+    const { permissions } = req.body;
 
-    const updatedUserRole = await userRoleService.updateUserRole(id, name);
+    const updatedUserRole = await userRoleService.updateUserRole(id, name, permissions);
 
     res.json(updatedUserRole);
   } catch (error) {
