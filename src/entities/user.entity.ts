@@ -34,7 +34,7 @@ export class User {
   name: string;
 
   @Column({ type: 'varchar', unique: true, nullable: true })
-  email: string;
+  email: string | null;
 
   @Column()
   password: string;
@@ -98,6 +98,10 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   normalizeEmail() {
-    this.email = this.email.toLowerCase();
+    if (this.email) {
+      this.email = this.email.toLowerCase();
+    } else {
+      this.email = null;
+    }
   }
 }

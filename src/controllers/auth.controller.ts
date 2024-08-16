@@ -22,7 +22,7 @@ export const login = async (req: Request<unknown, unknown, TLogin>, res: Respons
     } 
 
     if (email) {
-      currentUser = await userService.getUserByEmail(email);  
+      currentUser = await userService.getUserByEmail(email.toLowerCase());  
     }
 
     if (!currentUser) {
