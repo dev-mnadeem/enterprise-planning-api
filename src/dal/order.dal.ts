@@ -6,7 +6,6 @@ import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
 import { CustomError } from '../utils/customError';
 import { hashPassword } from '../utils/passwordUtils';
 import { generateOrderNumber } from '../utils/generateOrderNumber';
-import { getLocationById } from './location.dal';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
 
@@ -74,7 +73,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
 
         // Create the receiver entity
         const newReceiver = queryRunner.manager.create(User, {
-          email:  email,
+          email: email,
           city_id,
           phone_number: phone_number.trim().replaceAll(' ', ''),
           name,
@@ -179,11 +178,10 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
           address: true,
           geo_location: true,
         },
-        relations: { city: { state: { country: true } }, },
+        relations: { city: { state: { country: true } } },
       });
 
       console.log({ location });
-      
 
       if (!location) {
         throw new CustomError('Location Not Found!', 404);
@@ -203,7 +201,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         description,
         address,
         geo_location,
-        status: "in",
+        status: 'in',
         from_location: location,
         order_id: savedOrder.id,
       };
@@ -231,6 +229,18 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
   }
 };
 
+export const validateOrderNumber = async (order_number: string): Promise<{ is_valid: Boolean, message?: string}> => {
+  const order = await orderRepository.findOne({
+    where: { order_number },
+  });
+
+  if (!order) {
+    return { is_valid: false, message: "Given shipment number is not valid!"};
+  }
+
+  return { is_valid: true };
+};
+
 export const getAllOrders = async (): Promise<Order[] | null> => {
   const orders = await orderRepository.find({
     where: { deleted_at: undefined },
@@ -243,9 +253,9 @@ export const getAllOrders = async (): Promise<Order[] | null> => {
     },
     order: {
       history: {
-        created_at: "DESC"
-      }
-    }
+        created_at: 'DESC',
+      },
+    },
   });
   return orders;
 };
@@ -262,9 +272,9 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
     },
     order: {
       history: {
-        created_at: "DESC"
-      }
-    }
+        created_at: 'DESC',
+      },
+    },
   });
 
   if (!order) {
@@ -274,7 +284,7 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
   return order;
 };
 
-export const getOrderByNumber = async (number: string): Promise<Order> => {
+export const getOrderByNumber = async (number: string): Promise<Order | null> => {
   const order = await orderRepository.findOne({
     where: { order_number: number },
     relations: {
@@ -285,10 +295,6 @@ export const getOrderByNumber = async (number: string): Promise<Order> => {
       receiver_city: { state: { country: true } },
     },
   });
-
-  if (!order) {
-    throw new CustomError('Order Not Found!', 404);
-  }
 
   return order;
 };
@@ -411,7 +417,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           address: true,
           geo_location: true,
         },
-        relations: { city: { state: { country: true } }, },
+        relations: { city: { state: { country: true } } },
       });
 
       if (!location) {
@@ -437,7 +443,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           description,
           address,
           geo_location,
-          status: "in",
+          status: 'in',
           from_location: location,
           order_id: updatedOrder.id,
         };

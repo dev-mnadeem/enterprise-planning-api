@@ -8,6 +8,9 @@ export const createPackage = async (req: Request<unknown, unknown, TCreatePackag
   try {
     const packageData = req.body;
 
+    console.log({ packageData });
+    
+
     const newPackage = await packageService.createPackage(packageData);
     res.status(201).json(newPackage);
   } catch (error) {

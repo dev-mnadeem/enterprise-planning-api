@@ -2,7 +2,7 @@ import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { VehicleType } from '../../entities';
 
-const vehicleTypes = ['bike', 'van', 'ship', 'air-plane'];
+const vehicleTypes = ['bike', 'van', 'container'];
 
 export default class VehicleTypesSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {

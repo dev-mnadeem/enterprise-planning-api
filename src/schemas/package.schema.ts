@@ -6,10 +6,10 @@ const orderRouteEnum = z.enum(['road', 'air', 'sea']);
 export const createPackageSchema = z.object({
   name: z.string(),
   weight_type: orderWeightEnum,
-  width: z.number().positive().optional(),
-  height: z.number().positive().optional(),
-  depth: z.number().positive().optional(),
-  weight_limit: z.number().positive().optional(),
+  width: z.number().nonnegative().optional(),
+  height: z.number().nonnegative().optional(),
+  depth: z.number().nonnegative().optional(),
+  weight_limit: z.number().nonnegative().optional(),
   route: orderRouteEnum,
 }).superRefine((data, ctx) => {
   if (data.route === 'sea' && data.weight_type !== 'cbm') {

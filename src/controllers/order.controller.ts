@@ -16,6 +16,14 @@ export const createOrder = async (req: Request<unknown, unknown, TCreateOrder>, 
   }
 };
 
+export const validateOrderNumber = async (req: Request, res: Response) => {
+  const { number } = req.params;
+
+  const isValid = await orderService.validateOrderNumber(number)
+
+  res.json(isValid);
+};
+
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await orderService.getAllOrders();
