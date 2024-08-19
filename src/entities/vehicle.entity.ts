@@ -16,11 +16,14 @@ export class Vehicle {
   @PrimaryColumn('varchar', { length: 26 })
   id: string;
 
-  @Column({ type: 'varchar', length: 26 })
+  @Column({ type: 'varchar', length: 26, nullable: true })
   driver_id: string;
 
   @Column('varchar', { length: 26 })
   vehicle_type_id: string;
+
+  @Column()
+  tracking_number: string;
 
   @Column()
   name: string;

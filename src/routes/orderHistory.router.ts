@@ -7,7 +7,7 @@ import { orderInSchema, orderOutSchema } from '../schemas/orderHistory.schema';
 
 const orderHistoryRouter: Router = express.Router({ mergeParams: true });
 
-orderHistoryRouter.patch('/in', authenticateJWT ,validateZodMiddleware(orderInSchema), expressAsyncHandler(orderIn));
+orderHistoryRouter.post('/in', authenticateJWT ,validateZodMiddleware(orderInSchema), expressAsyncHandler(orderIn));
 orderHistoryRouter.patch('/out', authenticateJWT ,validateZodMiddleware(orderOutSchema), expressAsyncHandler(orderOut));
 
 export { orderHistoryRouter };

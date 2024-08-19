@@ -3,6 +3,7 @@ import { AppDataSource } from '../database/data-source';
 import { CustomError } from '../utils/customError';
 import { TCreateVehicle, TUpdateVehicle } from '../schemas/vehicle.schema';
 import { In } from 'typeorm';
+import { generateTrackingNumber } from '../utils/generateTrackingNumber';
 
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
 const userRepository = AppDataSource.getRepository(User);
@@ -20,6 +21,8 @@ export const createVehicle = async (vehicleData: TCreateVehicle): Promise<Vehicl
   if (!driver) {
     throw new CustomError('Driver Not Found!', 404);
   }
+
+  vehicleData.tracking_number = generateTrackingNumber();
 
   const newVehicle = vehicleRepository.create(vehicleData);
   return await vehicleRepository.save(newVehicle);
