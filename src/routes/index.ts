@@ -1,6 +1,5 @@
 import express from 'express';
 
-// import { authenticateJWT } from '../middlewares/authenticateJWTMiddleware';
 // import { authenticateRole } from '../middlewares/authenticateRoleMiddleware';
 import { userRouter } from './user.router';
 import userRoleRouter from './userRole.router';
@@ -17,23 +16,26 @@ import { packageRouter } from './package.router';
 import { pricingRouter } from './pricing.router';
 import { vehicleRouter } from './vehicle.router';
 import { vehicleTypeRouter } from './vehicleType.router';
+import { authenticateJWT } from '../middlewares/authenticateJWTMiddleware';
+import { containerRouter } from './container.router';
 
 const router = express();
 
-router.use('/user-roles', userRoleRouter);
-router.use('/users', userRouter);
+router.use('/user-roles', authenticateJWT, userRoleRouter);
+router.use('/users', authenticateJWT, userRouter);
 router.use('/auth', authRouter);
-router.use('/countries', countryRouter);
-router.use('/cities', cityRouter);
-router.use('/states', stateRouter);
-router.use('/areas', areaRouter);
-router.use('/locations', locationRouter);
-router.use('/location-types', locationTypeRouter);
-router.use('/permissions', permissionRouter);
-router.use('/orders', orderRouter);
-router.use('/packages', packageRouter);
-router.use('/pricings', pricingRouter);
-router.use('/vehicles', vehicleRouter);
-router.use('/vehicle-types', vehicleTypeRouter);
+router.use('/countries', authenticateJWT, countryRouter);
+router.use('/cities', authenticateJWT, cityRouter);
+router.use('/states', authenticateJWT, stateRouter);
+router.use('/areas', authenticateJWT, areaRouter);
+router.use('/locations', authenticateJWT, locationRouter);
+router.use('/location-types', authenticateJWT, locationTypeRouter);
+router.use('/permissions', authenticateJWT, permissionRouter);
+router.use('/orders', authenticateJWT, orderRouter);
+router.use('/packages', authenticateJWT, packageRouter);
+router.use('/pricings', authenticateJWT, pricingRouter);
+router.use('/vehicles', authenticateJWT, vehicleRouter);
+router.use('/vehicle-types', authenticateJWT, vehicleTypeRouter);
+router.use('/containers', authenticateJWT, containerRouter);
 
 export { router };

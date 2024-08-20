@@ -22,6 +22,15 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
 
           const options: FindOneOptions<User> = {
             where: { phone_number: JSON.parse(decoded.id).phone_number },
+            relations: {
+              locations: {
+                city: {
+                  state: {
+                    country: true
+                  }
+                }
+              }
+            }
           };
 
           const user = await userRepository.findOne(options);

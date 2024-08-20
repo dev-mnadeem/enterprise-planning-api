@@ -17,3 +17,4 @@ export * from './order.entity';
 export * from './orderItem.entity';
 export * from './orderHistory.entity';
 export * from './pricing.entity';
+export * from './container.entity';

@@ -8,8 +8,14 @@ import { hashPassword } from '../utils/passwordUtils';
 import { generateOrderNumber } from '../utils/generateOrderNumber';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
+import { Brackets, SelectQueryBuilder } from 'typeorm';
+import { OrderQueryParams } from '../types/order.interface';
+import { addSearchToQuery } from '../utils/searchUtils';
+import { buildPagination } from '../utils/paginationUtils';
+import { PageInfoResponse } from '../types/pagination.interface';
 
 const orderRepository = AppDataSource.getRepository(Order);
+const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 
 export const createOrder = async (user_id: string, orderData: TCreateOrder): Promise<Order | undefined> => {
   const queryRunner = AppDataSource.createQueryRunner();
@@ -28,9 +34,12 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         sender_name: name,
         sender_address: address,
         sender_city_id: city_id,
-        sender_phone: phone_number,
-        sender_email: email,
+        sender_email,
+        sender_phone,
       } = orderDetails;
+
+      const email = sender_email?.toLocaleLowerCase();
+      const phone_number = sender_phone.trim().replaceAll(' ', '');
 
       let sender = await userService.getUserByPhone(phone_number);
 
@@ -42,7 +51,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         const newSender = queryRunner.manager.create(User, {
           email: email,
           city_id,
-          phone_number: phone_number.trim().replaceAll(' ', ''),
+          phone_number: phone_number,
           name,
           address,
           password: encryptedPassword,
@@ -61,9 +70,12 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         receiver_name: name,
         receiver_address: address,
         receiver_city_id: city_id,
-        receiver_phone: phone_number,
-        receiver_email: email,
+        receiver_phone,
+        receiver_email,
       } = orderDetails;
+
+      const email = receiver_email?.toLocaleLowerCase();
+      const phone_number = receiver_phone.trim().replaceAll(' ', '');
 
       let receiver = await userService.getUserByPhone(phone_number);
 
@@ -75,7 +87,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
         const newReceiver = queryRunner.manager.create(User, {
           email: email,
           city_id,
-          phone_number: phone_number.trim().replaceAll(' ', ''),
+          phone_number: phone_number,
           name,
           address,
           password: encryptedPassword,
@@ -98,6 +110,8 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
           height: true,
           depth: true,
           weight_limit: true,
+          weight_type: true,
+          route: true,
         },
       });
 
@@ -229,35 +243,147 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
   }
 };
 
-export const validateOrderNumber = async (order_number: string): Promise<{ is_valid: Boolean, message?: string}> => {
+export const validateOrderNumber = async (
+  order_number: string,
+  status: string,
+): Promise<{ is_valid: Boolean; message?: string }> => {
   const order = await orderRepository.findOne({
     where: { order_number },
   });
 
   if (!order) {
-    return { is_valid: false, message: "Given shipment number is not valid!"};
+    return { is_valid: false, message: 'Given shipment number is not valid!' };
+  }
+
+  const lastOrderHistory = await orderHistoryRepository.findOne({
+    where: { order_id: order.id },
+    order: {
+      created_at: 'DESC',
+    },
+  });
+
+  if (!lastOrderHistory) {
+    return { is_valid: false, message: 'Given shipment number is not valid!' };
+  }
+
+  if (lastOrderHistory.status === status) {
+    return {
+      is_valid: false,
+      message:
+        lastOrderHistory.status === 'in'
+          ? 'Unable to add in inventory as order status is already in!'
+          : 'Unable to out from inventory as order status is already out!',
+    };
   }
 
   return { is_valid: true };
 };
 
-export const getAllOrders = async (): Promise<Order[] | null> => {
-  const orders = await orderRepository.find({
-    where: { deleted_at: undefined },
-    relations: {
-      user: true,
-      history: true,
-      order_items: true,
-      sender_city: { state: { country: true } },
-      receiver_city: { state: { country: true } },
+export const getAllOrders = async (
+  currentUser: User,
+  params: OrderQueryParams,
+): Promise<{ pageInfo: PageInfoResponse; results: Order[] | null }> => {
+  const { search, pageNumber, pageSize, sortBy, orderBy, locationId } = params;
+  const { locations } = currentUser;
+  const locationIds = locations.map((location) => location.id);
+  const query = await orderRepository
+    .createQueryBuilder('order')
+    .leftJoin('order.user', 'user')
+    .leftJoin('order.history', 'history')
+    .leftJoin('order.order_items', 'order_items')
+    .leftJoin('order.sender_city', 'sender_city')
+    .leftJoin('sender_city.state', 'sender_state')
+    .leftJoin('sender_state.country', 'sender_country')
+    .leftJoin('order.receiver_city', 'receiver_city')
+    .leftJoin('receiver_city.state', 'receiver_state')
+    .leftJoin('receiver_state.country', 'receiver_country')
+    .select([
+      'order.id',
+      'order.order_number',
+      'order.sender_name',
+      'order.sender_phone',
+      'order.receiver_name',
+      'order.receiver_phone',
+    ])
+    .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name'])
+    .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name'])
+    .addSelect([
+      'history.name',
+      'history.city',
+      'history.status',
+      // 'history.from_location',
+      // 'history.to_location',
+      'history.created_at',
+    ])
+    .where('order.deleted_at IS NULL');
+
+  // Subquery to get the latest history entry for each order
+  const subQuery = `SELECT "history"."order_id", MAX("history"."created_at") AS "max_created_at"
+                    FROM "order_history" "history"
+                    GROUP BY "history"."order_id"`;
+
+  if (locationId) {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where(
+          `history.created_at IN (
+            SELECT "max_created_at"
+            FROM (${subQuery}) AS "latest"
+            WHERE "latest"."order_id" = "order"."id"
+          )`,
+        ).andWhere(
+          new Brackets((innerQb) => {
+            innerQb
+              .where("history.from_location->>'id' = :locationId", { locationId })
+              .orWhere("history.to_location->>'id' = :locationId", { locationId });
+          }),
+        );
+      }),
+    );
+  } else {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where(
+          `history.created_at IN (
+            SELECT "max_created_at"
+            FROM (${subQuery}) AS "latest"
+            WHERE "latest"."order_id" = "order"."id"
+          )`,
+        ).andWhere(
+          new Brackets((innerQb) => {
+            innerQb
+              .where("history.from_location->>'id' IN (:...locationIds)", { locationIds })
+              .orWhere("history.to_location->>'id' IN (:...locationIds)", { locationIds });
+          }),
+        );
+      }),
+    );
+  }
+
+  if (sortBy && Object.keys(orderRepository.metadata.propertiesMap).includes(sortBy)) {
+    query.orderBy(`user.${sortBy}`, orderBy || 'DESC');
+  }
+
+  if (search) {
+    addSearchToQuery(query, `order.order_number`, search);
+  }
+
+  const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
+  // const orderList = await query.take(take).skip(skip).getMany();
+  const orderList = await query.getMany();
+
+  const total = await query.getCount();
+  const totalPages = Math.ceil(total / take);
+
+  return {
+    pageInfo: {
+      pageNumber: pageNo,
+      pageSize: take,
+      totalPages,
+      totalResults: total,
     },
-    order: {
-      history: {
-        created_at: 'DESC',
-      },
-    },
-  });
-  return orders;
+    results: orderList,
+  };
 };
 
 export const getOrderById = async (id: string): Promise<Order | undefined> => {
@@ -331,6 +457,8 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
           height: true,
           depth: true,
           weight_limit: true,
+          weight_type: true,
+          route: true,
         },
       });
 
