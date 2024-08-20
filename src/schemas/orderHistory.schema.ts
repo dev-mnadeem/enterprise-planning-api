@@ -18,7 +18,7 @@ export type TOrdersIn = z.infer<typeof ordersInSchema>;
 export const orderOutSchema = z.object({
   vehicle_id: z.string(),
   from_location_id: z.string(),
-  to_location_id: z.string(),
+  to_location_id: z.string().optional(),
 });
 
 export type TOrderOut = z.infer<typeof orderOutSchema>;
