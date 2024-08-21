@@ -3,6 +3,7 @@ import * as orderService from '../dal/order.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
 import { TCreateOrder, TUpdateOrder } from '../schemas/order.schema';
 import { RequestWithCurrentUser } from '../types/user.interface';
+import { OrderQueryParams, queryParamToOrderParam } from '../types/order.interface';
 
 export const createOrder = async (req: Request<unknown, unknown, TCreateOrder>, res: Response) => {
   try {
@@ -16,17 +17,27 @@ export const createOrder = async (req: Request<unknown, unknown, TCreateOrder>, 
   }
 };
 
-export const validateOrderNumber = async (req: Request, res: Response) => {
+export const validateInOrderNumber = async (req: Request, res: Response) => {
   const { number } = req.params;
 
-  const isValid = await orderService.validateOrderNumber(number)
+  const isValid = await orderService.validateOrderNumber(number, 'in');
+
+  res.json(isValid);
+};
+
+export const validateOutOrderNumber = async (req: Request, res: Response) => {
+  const { number } = req.params;
+
+  const isValid = await orderService.validateOrderNumber(number, 'out');
 
   res.json(isValid);
 };
 
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await orderService.getAllOrders();
+    const currentUser = (req as RequestWithCurrentUser).currentUser;
+    const params: OrderQueryParams = queryParamToOrderParam(req);
+    const orders = await orderService.getAllOrders(currentUser, params);
 
     res.json(orders);
   } catch (error) {
