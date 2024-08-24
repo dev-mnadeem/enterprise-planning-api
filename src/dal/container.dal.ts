@@ -16,47 +16,23 @@ export const createContainer = async (containerData: TCreateContainer): Promise<
   return await containerRepository.save(newContainer);
 };
 
-export const addItemsToContainer = async (id: string, order_numbers: string[]): Promise<Container> => {
-  const container = await getContainerById(id);
-  const addOrders: string[] = [];
-  const failedOrders: string[] = [];
-
-  for (let number of order_numbers) {
-    const order = await getOrderByNumber(number);
-
-    if (!order || !order.pricing) {
-      failedOrders.push(number);
-      continue;
-    }
-
-    const orderHistory = await orderHistoryRepository.find({
-      where: { order_id: order.id },
-    });
-
-    if (!orderHistory.length) {
-      failedOrders.push(number);
-      continue;
-    }
-
-    const orderPricing = order.pricing as Pricing;
-
-    console.log({ orderPackage: orderPricing.package });
-  }
-
-  // console.log({ orderItems });
-  // await containerRepository.update(id, { orderHistory:  })
-
-  return container;
-};
-
 export const getAllContainers = async (): Promise<Container[] | null> => {
-  const containers = await containerRepository.find();
+  const containers = await containerRepository.find({
+    relations: {
+      from_country: true,
+      to_country: true,
+    },
+  });
   return containers;
 };
 
 export const getContainerById = async (id: string): Promise<Container> => {
   const container = await containerRepository.findOne({
     where: { id },
+    relations: {
+      from_country: true,
+      to_country: true,
+    },
   });
 
   if (!container) {

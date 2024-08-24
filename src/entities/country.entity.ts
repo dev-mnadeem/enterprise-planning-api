@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ulid } from 'ulid';
 import { State } from './state.entity';
+import { Container } from './container.entity';
 
 @Entity()
 export class Country {
@@ -32,6 +33,12 @@ export class Country {
 
   @OneToMany(() => State, state => state.country)
   states: State[];
+
+  @OneToMany(() => Container, (container) => container.from_country)
+  from_containers: Container[];
+
+  @OneToMany(() => Container, (container) => container.to_country)
+  to_containers: Container[];
 
   @BeforeInsert()
   generateUlid() {
