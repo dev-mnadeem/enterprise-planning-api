@@ -42,11 +42,11 @@ export class OrderItem {
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @CreateDateColumn({ name: 'createdAt', type: 'timestamp', nullable: true })
-  createdAt: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
+  created_at: Date;
 
-  @UpdateDateColumn({ name: 'updatedAt', type: 'timestamp', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
 
   @BeforeInsert()
   generateUlid() {

@@ -304,6 +304,7 @@ export const getAllOrders = async (
       'order.sender_phone',
       'order.receiver_name',
       'order.receiver_phone',
+      'order.created_at',
     ])
     .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name'])
     .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name'])
@@ -315,7 +316,8 @@ export const getAllOrders = async (
       // 'history.to_location',
       'history.created_at',
     ])
-    .where('order.deleted_at IS NULL');
+    .where('order.deleted_at IS NULL')
+    .orderBy(`order.created_at`, 'DESC');
 
   // Subquery to get the latest history entry for each order
   const subQuery = `SELECT "history"."order_id", MAX("history"."created_at") AS "max_created_at"
@@ -361,7 +363,7 @@ export const getAllOrders = async (
   }
 
   if (sortBy && Object.keys(orderRepository.metadata.propertiesMap).includes(sortBy)) {
-    query.orderBy(`user.${sortBy}`, orderBy || 'DESC');
+    query.orderBy(`order.${sortBy}`, orderBy || 'DESC');
   }
 
   if (search) {
