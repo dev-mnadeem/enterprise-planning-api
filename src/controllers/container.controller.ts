@@ -13,20 +13,6 @@ export const createContainer = async (req: Request<unknown, unknown, TCreateCont
   }
 };
 
-export const addItemsToContainer = async (
-  req: Request<{ id: string }, unknown, TAddItemsToContainer>,
-  res: Response,
-) => {
-  try {
-    const { id } = req.params;
-    const { order_numbers } = req.body;
-    const container = await containerService.addItemsToContainer(id, order_numbers);
-    res.status(201).json(container);
-  } catch (error) {
-    sendErrorResponse(error as Error, res);
-  }
-};
-
 export const getAllContainers = async (req: Request, res: Response) => {
   try {
     const containers = await containerService.getAllContainers();

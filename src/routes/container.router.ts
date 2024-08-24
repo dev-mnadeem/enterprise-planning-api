@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import {
-  addItemsToContainer,
   createContainer,
   deleteContainer,
   getAllContainers,
@@ -18,7 +17,5 @@ containerRouter.post('/', validateZodMiddleware(createContainerSchema), expressA
 containerRouter.get('/:id', expressAsyncHandler(getContainerById));
 containerRouter.patch('/:id', validateZodMiddleware(updateContainerSchema), expressAsyncHandler(updateContainer));
 containerRouter.delete('/:id', expressAsyncHandler(deleteContainer));
-
-containerRouter.patch('/:id/add', validateZodMiddleware(addItemsToContainerSchema), expressAsyncHandler(addItemsToContainer));
 
 export { containerRouter };
