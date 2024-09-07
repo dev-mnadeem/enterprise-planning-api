@@ -8,7 +8,7 @@ import { hashPassword } from '../utils/passwordUtils';
 import { generateOrderNumber } from '../utils/generateOrderNumber';
 import { getCityById } from './city.dal';
 import { getPackageById } from './package.dal';
-import { Brackets, SelectQueryBuilder } from 'typeorm';
+import { Brackets } from 'typeorm';
 import { OrderQueryParams } from '../types/order.interface';
 import { addSearchToQuery } from '../utils/searchUtils';
 import { buildPagination } from '../utils/paginationUtils';

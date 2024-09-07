@@ -18,3 +18,6 @@ export * from './orderItem.entity';
 export * from './orderHistory.entity';
 export * from './pricing.entity';
 export * from './container.entity';
+export * from './parcel.entity';
+export * from './parcelItem.entity';
+export * from './parcelHistory.entity';

@@ -2,7 +2,7 @@ import { Location, OrderHistory, Vehicle } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { getOrderByNumber } from './order.dal';
 import { CustomError } from '../utils/customError';
-import { TOrderOut, TOrdersIn, TOrdersOut } from '../schemas/orderHistory.schema';
+import { TOrdersIn, TOrdersOut } from '../schemas/orderHistory.schema';
 
 const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
 const locationRepository = AppDataSource.getRepository(Location);
