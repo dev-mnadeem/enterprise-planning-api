@@ -55,7 +55,7 @@ export const createParcel = async (parcelData: TCreateParcel): Promise<Parcel[]>
       const numberOfParcel = Math.floor(orderItem.quantity / item.number_of_barcodes);
       const createdParcels: Parcel[] = [];
 
-      for (let i = 1; i <= item.number_of_barcodes; i++) {
+      for (let i = 1; i < item.number_of_barcodes; i++) {
         const parcel = await createCompleteParcel(numberOfParcel, orderItem, location, queryRunner);
         createdParcels.push(parcel);
       }
