@@ -18,6 +18,7 @@ import { vehicleRouter } from './vehicle.router';
 import { vehicleTypeRouter } from './vehicleType.router';
 import { authenticateJWT } from '../middlewares/authenticateJWTMiddleware';
 import { containerRouter } from './container.router';
+import { parcelRouter } from './parcel.router';
 
 const router = express();
 
@@ -37,5 +38,6 @@ router.use('/pricings', authenticateJWT, pricingRouter);
 router.use('/vehicles', authenticateJWT, vehicleRouter);
 router.use('/vehicle-types', authenticateJWT, vehicleTypeRouter);
 router.use('/containers', authenticateJWT, containerRouter);
+router.use('/parcels', authenticateJWT, parcelRouter);
 
 export { router };

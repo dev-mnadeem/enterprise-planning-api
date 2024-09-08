@@ -1,31 +1,31 @@
-import { Location, OrderHistory, Vehicle } from '../entities';
+import { Location, ParcelHistory, Vehicle } from '../entities';
 import { AppDataSource } from '../database/data-source';
-import { getOrderByNumber } from './order.dal';
+import { getParcelByNumber } from './parcel.dal';
 import { CustomError } from '../utils/customError';
-import { TOrdersIn, TOrdersOut } from '../schemas/orderHistory.schema';
+import { TParcelsIn, TParcelsOut } from '../schemas/parcelHistory.schema';
 
-const orderHistoryRepository = AppDataSource.getRepository(OrderHistory);
+const parcelHistoryRepository = AppDataSource.getRepository(ParcelHistory);
 const locationRepository = AppDataSource.getRepository(Location);
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
 
-export const orderIn = async (newData: TOrdersIn): Promise<{ success: string[]; failed: string[] }> => {
-  const { order_numbers, location_id } = newData;
+export const parcelIn = async (newData: TParcelsIn): Promise<{ success: string[]; failed: string[] }> => {
+  const { parcel_numbers, location_id } = newData;
   const success: string[] = [];
   const failed: string[] = [];
 
-  for (let number of order_numbers) {
-    const order = await getOrderByNumber(number);
+  for (let number of parcel_numbers) {
+    const parcel = await getParcelByNumber(number);
 
-    if (!order) {
+    if (!parcel) {
       failed.push(number);
       continue;
     }
 
-    const orderHistory = await orderHistoryRepository.find({
-      where: { order_id: order.id },
+    const parcelHistory = await parcelHistoryRepository.find({
+      where: { parcel_id: parcel.id },
     });
 
-    if (!orderHistory.length) {
+    if (!parcelHistory.length) {
       failed.push(number);
       continue;
     }
@@ -46,13 +46,13 @@ export const orderIn = async (newData: TOrdersIn): Promise<{ success: string[]; 
       throw new CustomError('Location Not Found!', 404);
     }
 
-    // const lastOrderHistory = orderHistory[orderHistory.length - 1];
+    // const lastParcelHistory = parcelHistory[parcelHistory.length - 1];
 
-    // if (lastOrderHistory.status === "in") {
-    //   throw new CustomError('Unable to add in inventory as order status is already in!', 404);
+    // if (lastParcelHistory.status === "in") {
+    //   throw new CustomError('Unable to add in inventory as parcel status is already in!', 404);
     // }
 
-    const orderHistoryData = {
+    const parcelHistoryData = {
       name: location.name,
       city: location.city.name,
       description: location.description,
@@ -60,11 +60,11 @@ export const orderIn = async (newData: TOrdersIn): Promise<{ success: string[]; 
       geo_location: location.geo_location,
       status: 'in',
       from_location: location,
-      order_id: order.id,
+      parcel_id: parcel.id,
     };
 
-    const newOrderHistory = orderHistoryRepository.create(orderHistoryData);
-    await orderHistoryRepository.save(newOrderHistory);
+    const newParcelHistory = parcelHistoryRepository.create(parcelHistoryData);
+    await parcelHistoryRepository.save(newParcelHistory);
 
     success.push(number);
   }
@@ -72,24 +72,24 @@ export const orderIn = async (newData: TOrdersIn): Promise<{ success: string[]; 
   return { success, failed };
 };
 
-export const orderOut = async (newData: TOrdersOut): Promise<{ success: string[]; failed: string[] }> => {
-  const { order_numbers } = newData;
+export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string[]; failed: string[] }> => {
+  const { parcel_numbers } = newData;
   const success: string[] = [];
   const failed: string[] = [];
 
-  for (let number of order_numbers) {
-    const order = await getOrderByNumber(number);
+  for (let number of parcel_numbers) {
+    const parcel = await getParcelByNumber(number);
 
-    if (!order) {
+    if (!parcel) {
       failed.push(number);
       continue;
     }
 
-    const orderHistory = await orderHistoryRepository.find({
-      where: { order_id: order.id },
+    const parcelHistory = await parcelHistoryRepository.find({
+      where: { parcel_id: parcel.id },
     });
 
-    if (!orderHistory.length) {
+    if (!parcelHistory.length) {
       failed.push(number);
       continue;
     }
@@ -149,13 +149,13 @@ export const orderOut = async (newData: TOrdersOut): Promise<{ success: string[]
       throw new CustomError('Vehicle Not Found!', 404);
     }
 
-    // const lastOrderHistory = orderHistory[orderHistory.length - 1];
+    // const lastParcelHistory = parcelHistory[parcelHistory.length - 1];
 
-    // if (lastOrderHistory.status === 'out') {
-    //   throw new CustomError('Unable to out from inventory as order status is already out!', 404);
+    // if (lastParcelHistory.status === 'out') {
+    //   throw new CustomError('Unable to out from inventory as parcel status is already out!', 404);
     // }
 
-    const orderHistoryData = {
+    const parcelHistoryData = {
       name: from_location.name,
       city: from_location.city.name,
       description: from_location.description,
@@ -165,11 +165,11 @@ export const orderOut = async (newData: TOrdersOut): Promise<{ success: string[]
       from_location: from_location,
       to_location: to_location,
       vehicle: vehicle,
-      order_id: order.id,
+      parcel_id: parcel.id,
     };
 
-    const newOrderHistory = orderHistoryRepository.create(orderHistoryData);
-    await orderHistoryRepository.save(newOrderHistory);
+    const newParcelHistory = parcelHistoryRepository.create(parcelHistoryData);
+    await parcelHistoryRepository.save(newParcelHistory);
 
     success.push(number);
   }
