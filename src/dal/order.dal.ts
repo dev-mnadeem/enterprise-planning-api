@@ -160,6 +160,7 @@ export const createOrder = async (user_id: string, orderData: TCreateOrder): Pro
     // Create the main order entity
     const newOrder = queryRunner.manager.create(Order, {
       ...orderDetails,
+      location_id,
       user_id,
       order_number,
       package: orderPackage,
@@ -506,6 +507,7 @@ export const updateOrder = async (user_id: string, id: string, newData: TUpdateO
     // Update order details
     const updatedOrder = orderRepository.merge(orderToUpdate, {
       ...orderDetails,
+      location_id,
       user_id,
       package: orderPackage,
       pricing: newPricing,
