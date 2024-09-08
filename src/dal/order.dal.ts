@@ -307,8 +307,8 @@ export const getAllOrders = async (
       'order.receiver_phone',
       'order.created_at',
     ])
-    .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name'])
-    .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name'])
+    .addSelect(['sender_city.name', 'sender_state.name', 'sender_country.name', 'sender_country.code'])
+    .addSelect(['receiver_city.name', 'receiver_state.name', 'receiver_country.name', 'receiver_country.code'])
     .addSelect([
       'history.name',
       'history.city',
