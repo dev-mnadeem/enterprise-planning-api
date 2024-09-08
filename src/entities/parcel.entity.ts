@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -14,6 +15,7 @@ import {
 import { ParcelItem } from './parcelItem.entity';
 import { ParcelHistory } from './parcelHistory.entity';
 import { Order } from './order.entity';
+import { ulid } from 'ulid';
 ParcelHistory
 
 @Entity()
@@ -45,4 +47,9 @@ export class Parcel {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @BeforeInsert()
+  generateUlid() {
+    this.id = ulid();
+  }
 }
