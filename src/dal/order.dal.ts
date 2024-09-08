@@ -398,6 +398,9 @@ export const getOrderById = async (id: string): Promise<Order | undefined> => {
       order_items: true,
       sender_city: { state: { country: true } },
       receiver_city: { state: { country: true } },
+      parcels: {
+        history: true,
+      },
     },
     order: {
       history: {
