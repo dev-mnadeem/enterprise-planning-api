@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ulid } from 'ulid';
 
 import { Order } from './order.entity';
+import { ParcelItem } from './parcelItem.entity';
 
 @Entity()
 export class OrderItem {
@@ -41,6 +43,9 @@ export class OrderItem {
   @ManyToOne(() => Order, (order) => order.order_items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
+
+  @OneToMany(() => ParcelItem, (item) => item.order_item, { onDelete: 'CASCADE' })
+  parcel_items: ParcelItem[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
   created_at: Date;

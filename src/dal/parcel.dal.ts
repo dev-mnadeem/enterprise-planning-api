@@ -106,6 +106,7 @@ const createCompleteParcel = async (
   const parcelItemData = {
     parcel_id: createdParcel.id,
     quantity,
+    item_id: orderItem.id,
   };
 
   const newParcelItem = queryRunner.manager.create(ParcelItem, parcelItemData);
@@ -273,7 +274,9 @@ export const getParcelById = async (id: string): Promise<Parcel | undefined> => 
     where: { id },
     relations: {
       history: true,
-      parcel_item: true,
+      parcel_item: {
+        order_item: true
+      },
       order: {
         sender_city: { state: { country: true } },
         receiver_city: { state: { country: true } },
