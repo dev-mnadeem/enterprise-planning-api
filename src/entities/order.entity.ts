@@ -37,6 +37,9 @@ export class Order {
   @Column('varchar', { length: 26 })
   sender_id: string;
 
+  @Column('varchar', { length: 26, nullable: true })
+  location_id: string;
+
   @Column()
   sender_name: string;
 
