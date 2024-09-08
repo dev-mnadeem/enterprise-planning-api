@@ -16,6 +16,7 @@ import { OrderItem } from './orderItem.entity';
 import { User } from './user.entity';
 import { City } from './city.entity';
 import { OrderHistory } from './orderHistory.entity';
+import { Parcel } from './parcel.entity';
 
 @Entity()
 export class Order {
@@ -147,6 +148,9 @@ export class Order {
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, onDelete: 'CASCADE' })
   order_items: OrderItem[];
+
+  @OneToMany(() => Parcel, (parcel) => parcel.order, { onDelete: 'CASCADE' })
+  parcels: Parcel[];
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
