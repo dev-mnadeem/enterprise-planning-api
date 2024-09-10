@@ -60,7 +60,7 @@ export const createParcel = async (parcelData: TCreateParcel): Promise<Parcel[]>
         createdParcels.push(parcel);
       }
 
-      const itemsQuantity = createdParcels.reduce((quantity, parcel) => quantity + parcel.parcel_item.quantity, 0);
+      const itemsQuantity = createdParcels.reduce((quantity, parcel) => quantity + parcel.parcel_items[0].quantity, 0);
 
       if (orderItem.quantity !== itemsQuantity) {
         const quantity = orderItem.quantity - itemsQuantity;
@@ -112,7 +112,7 @@ const createCompleteParcel = async (
   const newParcelItem = queryRunner.manager.create(ParcelItem, parcelItemData);
   const createdParcelItem = await queryRunner.manager.save(ParcelItem, newParcelItem);
 
-  createdParcel.parcel_item = createdParcelItem;
+  createdParcel.parcel_items = [createdParcelItem];
 
   const parcelHistoryData = {
     name,
@@ -134,7 +134,7 @@ const createCompleteParcel = async (
 export const validateParcelNumber = async (
   parcel_number: string,
   status: string,
-): Promise<{ is_valid: Boolean; message?: string }> => {
+): Promise<{ is_valid: Boolean; message?: string; parcel_data?: object }> => {
   const parcel = await parcelRepository.findOne({
     where: { parcel_number },
   });
@@ -144,7 +144,31 @@ export const validateParcelNumber = async (
   }
 
   const lastParcelHistory = await parcelHistoryRepository.findOne({
+    select: {
+      id: true,
+      parcel: {
+        parcel_items: {
+          quantity: true,
+          order_item: {
+            weight: true,
+          },
+        },
+        order: {
+          weight_type: true,
+          total_weight: true,
+        },
+      },
+    },
     where: { parcel_id: parcel.id },
+    relations: {
+      parcel: {
+        parcel_items: {
+          order_item: {
+            order: true,
+          },
+        },
+      },
+    },
     order: {
       created_at: 'DESC',
     },
@@ -164,7 +188,15 @@ export const validateParcelNumber = async (
     };
   }
 
-  return { is_valid: true };
+  const parcel_weight = lastParcelHistory.parcel.parcel_items.reduce(
+    (wieght, item) => wieght + item.quantity * item.order_item.weight,
+    0,
+  );
+
+  return {
+    is_valid: true,
+    parcel_data: { weight: parcel_weight, weight_type: lastParcelHistory.parcel.order.weight_type },
+  };
 };
 
 export const getAllParcels = async (
@@ -274,8 +306,8 @@ export const getParcelById = async (id: string): Promise<Parcel | undefined> => 
     where: { id },
     relations: {
       history: true,
-      parcel_item: {
-        order_item: true
+      parcel_items: {
+        order_item: true,
       },
       order: {
         sender_city: { state: { country: true } },
@@ -301,11 +333,11 @@ export const getParcelByNumber = async (number: string): Promise<Parcel | null> 
     where: { parcel_number: number },
     relations: {
       history: true,
-      parcel_item: true,
+      parcel_items: true,
       order: {
         sender_city: { state: { country: true } },
         receiver_city: { state: { country: true } },
-      }
+      },
     },
   });
 

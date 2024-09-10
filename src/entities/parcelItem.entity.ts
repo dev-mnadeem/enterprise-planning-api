@@ -29,7 +29,7 @@ export class ParcelItem {
   @Column()
   quantity: number;
 
-  @OneToOne(() => Parcel, (parcel) => parcel.parcel_item, { onDelete: 'CASCADE' })
+  @OneToOne(() => Parcel, (parcel) => parcel.parcel_items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'parcel_id' })
   parcel: Parcel;
 

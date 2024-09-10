@@ -1,4 +1,4 @@
-import { Location, ParcelHistory, Vehicle } from '../entities';
+import { Container, Location, ParcelHistory, Vehicle } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { getParcelByNumber } from './parcel.dal';
 import { CustomError } from '../utils/customError';
@@ -7,6 +7,7 @@ import { TParcelsIn, TParcelsOut } from '../schemas/parcelHistory.schema';
 const parcelHistoryRepository = AppDataSource.getRepository(ParcelHistory);
 const locationRepository = AppDataSource.getRepository(Location);
 const vehicleRepository = AppDataSource.getRepository(Vehicle);
+const containerRepository = AppDataSource.getRepository(Container);
 
 export const parcelIn = async (newData: TParcelsIn): Promise<{ success: string[]; failed: string[] }> => {
   const { parcel_numbers, location_id } = newData;
@@ -126,27 +127,56 @@ export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string
       throw new CustomError('To Location Not Found!', 404);
     }
 
-    const vehicle = await vehicleRepository.findOne({
-      where: { id: newData.vehicle_id },
-      select: {
-        id: true,
-        name: true,
-        model: true,
-        registration_number: true,
-        status: true,
-        driver: {
-          name: true,
-          email: true,
-          phone_number: true,
-          address: true,
-          geo_location: true,
-        },
-      },
-      relations: { driver: true, vehicle_type: true },
-    });
+    let containerVehicle = undefined;
 
-    if (!vehicle) {
-      throw new CustomError('Vehicle Not Found!', 404);
+    if (newData.vehicle_id) {
+      const vehicle = await vehicleRepository.findOne({
+        where: { id: newData.vehicle_id },
+        select: {
+          id: true,
+          name: true,
+          model: true,
+          registration_number: true,
+          status: true,
+          driver: {
+            name: true,
+            email: true,
+            phone_number: true,
+            address: true,
+            geo_location: true,
+          },
+        },
+        relations: { driver: true, vehicle_type: true },
+      });
+  
+      if (!vehicle) {
+        throw new CustomError('Vehicle Not Found!', 404);
+      }
+
+      containerVehicle = vehicle;
+    }
+
+    if (newData.container_id) {
+      const container = await containerRepository.findOne({
+        where: { id: newData.container_id },
+        select: {
+          id: true,
+          tracking_number: true,
+          universal_number: true,
+          width: true,
+          height: true,
+          depth: true,
+          volume: true,
+          volume_unit: true,
+        },
+        relations: { from_country: true, to_country: true, },
+      });
+  
+      if (!container) {
+        throw new CustomError('Vehicle Not Found!', 404);
+      }
+
+      containerVehicle = container;
     }
 
     // const lastParcelHistory = parcelHistory[parcelHistory.length - 1];
@@ -164,7 +194,7 @@ export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string
       status: 'out',
       from_location: from_location,
       to_location: to_location,
-      vehicle: vehicle,
+      vehicle: containerVehicle,
       parcel_id: parcel.id,
     };
 
