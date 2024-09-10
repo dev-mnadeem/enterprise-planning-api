@@ -48,3 +48,14 @@ export const parcelsOut = async (req: Request<unknown, unknown, TParcelsOut>, re
     sendErrorResponse(error as Error, res);
   }
 };
+
+export const getContainerParcelsByTrackingNumber = async (req: Request, res: Response) => {
+  try {
+    const { tracking_number } = req.params;
+    const parcels = await parcelHistoryService.getContainerParcelsByTrackingNumber(tracking_number);
+
+    res.json(parcels);
+  } catch (error) {
+    sendErrorResponse(error as Error, res);
+  }
+};

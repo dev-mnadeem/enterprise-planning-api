@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as containerService from '../dal/container.dal';
 import { sendErrorResponse } from '../utils/sendErrorResponse';
-import { TAddItemsToContainer, TCreateContainer, TUpdateContainer } from '../schemas/container.schema';
+import { TCreateContainer, TUpdateContainer } from '../schemas/container.schema';
 
 export const createContainer = async (req: Request<unknown, unknown, TCreateContainer>, res: Response) => {
   try {
