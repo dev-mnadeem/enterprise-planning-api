@@ -8,7 +8,8 @@ import {
   updateContainer,
 } from '../controllers/container.controller';
 import { validateZodMiddleware } from '../middlewares/validateMiddleware';
-import { addItemsToContainerSchema, createContainerSchema, updateContainerSchema } from '../schemas/container.schema';
+import { createContainerSchema, updateContainerSchema } from '../schemas/container.schema';
+import { getContainerParcelsByTrackingNumber } from '../controllers/parcelHistory.controller';
 
 const containerRouter: Router = express.Router();
 
@@ -17,5 +18,7 @@ containerRouter.post('/', validateZodMiddleware(createContainerSchema), expressA
 containerRouter.get('/:id', expressAsyncHandler(getContainerById));
 containerRouter.patch('/:id', validateZodMiddleware(updateContainerSchema), expressAsyncHandler(updateContainer));
 containerRouter.delete('/:id', expressAsyncHandler(deleteContainer));
+
+containerRouter.get('/track/:tracking_number', expressAsyncHandler(getContainerParcelsByTrackingNumber));
 
 export { containerRouter };

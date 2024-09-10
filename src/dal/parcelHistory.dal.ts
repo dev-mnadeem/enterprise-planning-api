@@ -1,4 +1,4 @@
-import { Container, Location, ParcelHistory, Vehicle } from '../entities';
+import { Container, Location, Parcel, ParcelHistory, Vehicle } from '../entities';
 import { AppDataSource } from '../database/data-source';
 import { getParcelByNumber } from './parcel.dal';
 import { CustomError } from '../utils/customError';
@@ -148,7 +148,7 @@ export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string
         },
         relations: { driver: true, vehicle_type: true },
       });
-  
+
       if (!vehicle) {
         throw new CustomError('Vehicle Not Found!', 404);
       }
@@ -169,9 +169,9 @@ export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string
           volume: true,
           volume_unit: true,
         },
-        relations: { from_country: true, to_country: true, },
+        relations: { from_country: true, to_country: true },
       });
-  
+
       if (!container) {
         throw new CustomError('Vehicle Not Found!', 404);
       }
@@ -205,4 +205,25 @@ export const parcelOut = async (newData: TParcelsOut): Promise<{ success: string
   }
 
   return { success, failed };
+};
+
+export const getContainerParcelsByTrackingNumber = async (tracking_number: string): Promise<Parcel[] | []> => {
+  const parcelHistory = await parcelHistoryRepository.find({
+    where: {
+      vehicle: {
+        tracking_number,
+      },
+    },
+    relations: {
+      parcel: true,
+    },
+  });
+
+  if (!parcelHistory.length) {
+    return [];
+  }
+
+  const parcels = parcelHistory.map((history) => history.parcel);
+
+  return parcels;
 };
