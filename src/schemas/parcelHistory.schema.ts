@@ -16,10 +16,17 @@ export const parcelsInSchema = z.intersection(
 export type TParcelsIn = z.infer<typeof parcelsInSchema>;
 
 export const parcelOutSchema = z.object({
-  vehicle_id: z.string(),
+  vehicle_id: z.string().optional(),
+  container_id: z.string().optional(),
   from_location_id: z.string(),
   to_location_id: z.string().optional(),
+}).refine((data) => {
+  return data.vehicle_id || data.container_id;
+}, {
+  message: 'Either vehicle_id or container_id is required',
+  path: ['vehicle_id', 'container_id'],
 });
+
 
 export type TParcelOut = z.infer<typeof parcelOutSchema>;
 

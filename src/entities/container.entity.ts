@@ -16,6 +16,9 @@ export class Container {
   @Column()
   tracking_number: string;
 
+  @Column({ nullable: true })
+  universal_number: string;
+
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   width: number;
 
