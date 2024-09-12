@@ -50,15 +50,15 @@ export class OrderHistory {
   })
   status: string;
 
+  @ManyToOne(() => Order, (order) => order.history)
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
-
-  @ManyToOne(() => Order, (order) => order.history)
-  @JoinColumn({ name: 'order_id' })
-  order: Order;
 
   @BeforeInsert()
   generateUlid() {

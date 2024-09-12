@@ -50,16 +50,16 @@ export class ParcelHistory {
   })
   status: string;
 
+  @ManyToOne(() => Parcel, (parcel) => parcel.history)
+  @JoinColumn({ name: 'parcel_id' })
+  parcel: Parcel;
+  
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   created_at: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
   updated_at: Date;
-
-  @ManyToOne(() => Parcel, (parcel) => parcel.history)
-  @JoinColumn({ name: 'parcel_id' })
-  parcel: Parcel;
-
+  
   @BeforeInsert()
   generateUlid() {
     this.id = ulid();

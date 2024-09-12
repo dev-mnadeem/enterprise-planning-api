@@ -36,7 +36,7 @@ export class Parcel {
   @OneToMany(() => ParcelHistory, (history) => history.parcel)
   history: ParcelHistory[];
 
-  @OneToOne(() => ParcelItem, (item) => item.parcel, { cascade: true, onDelete: 'CASCADE' })
+  @OneToMany(() => ParcelItem, (item) => item.parcel, { cascade: true, onDelete: 'CASCADE' })
   parcel_items: ParcelItem[];
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp' })

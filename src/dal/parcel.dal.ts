@@ -144,21 +144,6 @@ export const validateParcelNumber = async (
   }
 
   const lastParcelHistory = await parcelHistoryRepository.findOne({
-    select: {
-      id: true,
-      parcel: {
-        parcel_items: {
-          quantity: true,
-          order_item: {
-            weight: true,
-          },
-        },
-        order: {
-          weight_type: true,
-          total_weight: true,
-        },
-      },
-    },
     where: { parcel_id: parcel.id },
     relations: {
       parcel: {
@@ -167,6 +152,7 @@ export const validateParcelNumber = async (
             order: true,
           },
         },
+        order: true,
       },
     },
     order: {
@@ -187,6 +173,9 @@ export const validateParcelNumber = async (
           : 'Unable to out from inventory as parcel status is already out!',
     };
   }
+
+  console.log({ lastParcelHistory: lastParcelHistory.parcel.parcel_items  });
+  
 
   const parcel_weight = lastParcelHistory.parcel.parcel_items.reduce(
     (wieght, item) => wieght + item.quantity * item.order_item.weight,
@@ -209,7 +198,7 @@ export const getAllParcels = async (
   const query = await parcelRepository
     .createQueryBuilder('parcel')
     .leftJoin('parcel.history', 'history')
-    .leftJoin('parcel.parcel_item', 'parcel_item')
+    .leftJoin('parcel.parcel_items', 'parcel_items')
     .leftJoin('parcel.order', 'order')
     .leftJoin('order.sender_city', 'sender_city')
     .leftJoin('sender_city.state', 'sender_state')
