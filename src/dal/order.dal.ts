@@ -372,8 +372,7 @@ export const getAllOrders = async (
   }
 
   const { take, skip, pageNo } = buildPagination(pageNumber, pageSize);
-  // const orderList = await query.take(take).skip(skip).getMany();
-  const orderList = await query.getMany();
+  const orderList = await query.take(take).skip(skip).getMany();
 
   const total = await query.getCount();
   const totalPages = Math.ceil(total / take);
