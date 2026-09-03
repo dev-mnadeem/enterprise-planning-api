@@ -15,7 +15,8 @@
     "seed:admin": "ts-node src/seeding/admin-seed.ts",
     "seed:countries": "ts-node src/seeding/countries-seed.ts",
     "seed:states": "ts-node src/seeding/states-seed.ts",
-    "seed:cities": "ts-node src/seeding/cities-seed.ts"
+    "seed:cities": "ts-node src/seeding/cities-seed.ts",
+    "test:api": "vitest run"
   },
   "dependencies": {
     "@types/saml2-js": "^3.0.1",
@@ -55,6 +56,7 @@
     "@types/node": "20.4.0",
     "@types/pg": "^8.10.2",
     "jest-json-schema": "^6.1.0",
-    "ts-json-schema-generator": "^1.4.1"
+    "ts-json-schema-generator": "^1.4.1",
+    "vitest": "^1.6.1"
   }
 }

@@ -1,20 +1,19 @@
-# Use the official Node.js 16 image from Docker Hub
-FROM node:16
-
-# Create a new directory in our Docker image for our application's files
+# Node 16 went end-of-life in September 2023. TypeORM 0.3 and the ulid/zod
+# stack here are fine on 20 LTS.
+FROM node:20-bookworm-slim AS build
 WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json into the new directory
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of our application's source files into the new directory
+RUN npm ci
 COPY . .
+# The original image never ran this, so `npm start` looked for build/src/server.js
+# in an image where build/ had never been produced.
+RUN npm run build
 
-# Our application listens on port 8080, so let's expose it
+FROM node:20-bookworm-slim AS runtime
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /usr/src/app/build ./build
 EXPOSE 3006
-
-# The command to start our application
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]

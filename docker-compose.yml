@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: adinkra
+      POSTGRES_PASSWORD: adinkra
+      POSTGRES_DB: adinkra-db
+    ports: ["5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adinkra"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      ENVIRONMENT: local
+      PORT: 3006
+      DATABASE_HOST: db
+      DATABASE_USER: adinkra
+      DATABASE_PASSWORD: adinkra
+      DATABASE_NAME: adinkra-db
+      TEST_DATABASE_NAME: test-adinkra-db
+      FRONT_END_DOMAIN: http://localhost:3010,http://localhost:3000
+      JWT_SECRET_KEY: local-dev-only-not-a-real-secret
+      REFRESH_TOKEN_SECRET_KEY: local-dev-only-not-a-real-refresh-secret
+    ports: ["3006:3006"]
+
+  # Seeding needs ts-node and the TypeScript sources, which the slim runtime
+  # image deliberately does not carry. Run with:  docker compose run --rm seed
+  seed:
+    build:
+      context: .
+      target: build
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      ENVIRONMENT: local
+      DATABASE_HOST: db
+      DATABASE_USER: adinkra
+      DATABASE_PASSWORD: adinkra
+      DATABASE_NAME: adinkra-db
+      JWT_SECRET_KEY: local-dev-only-not-a-real-secret
+      REFRESH_TOKEN_SECRET_KEY: local-dev-only-not-a-real-refresh-secret
+    profiles: ["tools"]
+    command: >
+      sh -c "npm run seed:permissions &&
+             npm run seed:user-roles &&
+             npm run seed:location-types &&
+             npm run seed:vehicle-types &&
+             npm run seed:admin"
