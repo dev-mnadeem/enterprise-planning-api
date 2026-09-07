@@ -36,7 +36,10 @@ export class User {
   @Column({ type: 'varchar', unique: true, nullable: true })
   email: string | null;
 
-  @Column()
+  // select: false keeps the bcrypt hash out of every findOne/find that does not
+  // ask for it explicitly. GET /api/users was returning it to any caller.
+  // The login lookups in user.dal.ts name it in their select, so they still work.
+  @Column({ select: false })
   password: string;
 
   @Column({ type: 'varchar', unique: true })
@@ -54,7 +57,7 @@ export class User {
   @Column({ type: 'jsonb', nullable: true })
   permissions: object[];
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ select: false, type: 'varchar', nullable: true })
   refresh_token: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
