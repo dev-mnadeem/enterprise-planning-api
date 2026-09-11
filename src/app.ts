@@ -18,7 +18,21 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is healthy!' });
 });
 
-app.use(cors());
+// cors() with no arguments allows every origin. FRONT_END_DOMAIN was already
+// in the config and in .env.example, but nothing read it. The login route sets
+// an httpOnly refresh cookie, so credentials have to be allowed explicitly for
+// the origins we actually serve -- and only those.
+const allowedOrigins = (appConfig.frontEndDomain ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins.length ? allowedOrigins : false,
+    credentials: true,
+  }),
+);
 
 app.use('/api', router);
 
