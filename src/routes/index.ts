@@ -1,6 +1,6 @@
 import express from 'express';
 
-// import { authenticateRole } from '../middlewares/authenticateRoleMiddleware';
+import { authenticateRole } from '../middlewares/authenticateRoleMiddleware';
 import { userRouter } from './user.router';
 import userRoleRouter from './userRole.router';
 import { authRouter } from './auth.router';
@@ -22,7 +22,7 @@ import { parcelRouter } from './parcel.router';
 
 const router = express();
 
-router.use('/user-roles', authenticateJWT, userRoleRouter);
+router.use('/user-roles', authenticateJWT, authenticateRole('admin'), userRoleRouter);
 router.use('/users', authenticateJWT, userRouter);
 router.use('/auth', authRouter);
 router.use('/countries', authenticateJWT, countryRouter);
@@ -31,7 +31,7 @@ router.use('/states', authenticateJWT, stateRouter);
 router.use('/areas', authenticateJWT, areaRouter);
 router.use('/locations', authenticateJWT, locationRouter);
 router.use('/location-types', authenticateJWT, locationTypeRouter);
-router.use('/permissions', authenticateJWT, permissionRouter);
+router.use('/permissions', authenticateJWT, authenticateRole('admin'), permissionRouter);
 router.use('/orders', authenticateJWT, orderRouter);
 router.use('/packages', authenticateJWT, packageRouter);
 router.use('/pricings', authenticateJWT, pricingRouter);

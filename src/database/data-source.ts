@@ -8,8 +8,10 @@ import { Environment } from '../types/environments';
 const prodDataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   url: appConfig.isLocalOrTest ? '' : appConfig.database.url,
-  logging: true,
-  synchronize: true,
+  logging: false,
+  // TypeORM alters the live schema to match the entities on every boot when
+  // this is on, which can drop columns. Migrations belong here instead.
+  synchronize: false,
   entities,
   ssl: { rejectUnauthorized: false },
 };
@@ -33,13 +35,22 @@ const AppDataSource = new DataSource(
 const connectToDatabase = async () => {
   try {
     if (appConfig.isLocalOrTest) {
-      await createDatabase();
+      await createDatabase({
+        options: dataSourceOptions,
+        ifNotExist: true,
+        // Without this it connects to a database named after the user, which
+        // does not exist on a stock Postgres image.
+        initialDatabase: 'postgres',
+      });
     }
     await AppDataSource.initialize();
     await AppDataSource.synchronize();
     console.log('Connection Established with PostgreSQL Database.');
   } catch (err: unknown) {
-    console.log(`ERROR: Couldn't connect to database ${err as string}`);
+    console.error("ERROR: Couldn't connect to database", err);
+    // Rethrow. Starting an API that cannot reach its database means every
+    // request 500s while the process looks healthy to a load balancer.
+    throw err;
   }
 };
 

@@ -7,44 +7,64 @@ import { AppDataSource } from '../database/data-source';
 import { FindOneOptions } from 'typeorm';
 import { RequestWithCurrentUser } from '../types/user.interface';
 
-export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
+const UNAUTHORIZED = "You're not authorized to perform this action!";
+
+export const authenticateJWT = async (req: Request, res: Response, next: NextFunction) => {
   const { authorization: authToken } = req.headers;
 
-  if (authToken) {
+  if (!authToken) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
+  let decoded: JwtPayload;
+  try {
     const token = extractTokenWithBearerPrefix(authToken);
+    const verified = jwt.verify(token, appConfig.jwtSecretKey!);
+    if (typeof verified === 'string') {
+      return res.status(403).json({ message: UNAUTHORIZED });
+    }
+    decoded = verified;
+  } catch {
+    // Covers an expired token, a bad signature and a malformed header alike.
+    return res.status(403).json({ message: UNAUTHORIZED });
+  }
 
-    jwt.verify(token, appConfig.jwtSecretKey!, async (err: any, decoded: string | JwtPayload | undefined) => {      
-      if (err) {
-        return res.status(403).json({ message: "You're not authorized to perform this action!" });
-      } else {
-        if (decoded && typeof decoded !== 'string') {
-          const userRepository = AppDataSource.getRepository(User);
+  let phoneNumber: string;
+  try {
+    phoneNumber = JSON.parse(decoded.id).phone_number;
+  } catch {
+    // The previous version called JSON.parse inside an async callback with no
+    // handler, so a token whose payload was not JSON produced an unhandled
+    // rejection and the request hung until it timed out.
+    return res.status(403).json({ message: UNAUTHORIZED });
+  }
 
-          const options: FindOneOptions<User> = {
-            where: { phone_number: JSON.parse(decoded.id).phone_number },
-            relations: {
-              locations: {
-                city: {
-                  state: {
-                    country: true
-                  }
-                }
-              }
-            }
-          };
+  if (!phoneNumber) {
+    return res.status(403).json({ message: UNAUTHORIZED });
+  }
 
-          const user = await userRepository.findOne(options);
+  try {
+    const userRepository = AppDataSource.getRepository(User);
 
-          if (!user) {
-            return res.status(404).json({ message: 'User Not Found!' });
-          }
+    const options: FindOneOptions<User> = {
+      where: { phone_number: phoneNumber },
+      relations: {
+        // user_role is what authenticateRole reads. It was missing here, so the
+        // role check threw on `undefined.name` the moment it was switched on.
+        user_role: true,
+        locations: { city: { state: { country: true } } },
+      },
+    };
 
-          (req as RequestWithCurrentUser).currentUser = user;
-        }
-        next();
-      }
-    });
-  } else {
-    res.status(401).json({ message: "You're not authorized to perform this action!" });
+    const user = await userRepository.findOne(options);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User Not Found!' });
+    }
+
+    (req as RequestWithCurrentUser).currentUser = user;
+    return next();
+  } catch (error) {
+    return next(error);
   }
 };
