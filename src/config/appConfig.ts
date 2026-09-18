@@ -11,6 +11,7 @@ export default {
     url: process.env.DATABASE_URL,
     name: process.env.DATABASE_NAME,
     host: process.env.DATABASE_HOST,
+    port: Number(process.env.DATABASE_PORT || 5432),
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
   },

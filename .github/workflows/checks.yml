@@ -1,0 +1,37 @@
+name: API checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: local-ci-password
+          POSTGRES_DB: enterprise_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d enterprise_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ENVIRONMENT: local
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+      DATABASE_USER: portfolio
+      DATABASE_PASSWORD: local-ci-password
+      DATABASE_NAME: enterprise_test
+      PORT: "3006"
+      JWT_SECRET_KEY: local-ci-access-signing-key
+      REFRESH_TOKEN_SECRET_KEY: local-ci-refresh-signing-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/check-api.cjs

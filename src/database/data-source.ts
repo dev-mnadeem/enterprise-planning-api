@@ -19,11 +19,11 @@ const prodDataSourceOptions: DataSourceOptions = {
 const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   host: appConfig.database.host,
-  port: 5432,
+  port: appConfig.database.port,
   username: appConfig.database.user,
   password: appConfig.database.password,
   database: appConfig.environment === Environment.test ? appConfig.testDatabaseName : appConfig.database.name,
-  logging: true,
+  logging: false,
   synchronize: true,
   entities
 };
@@ -44,7 +44,6 @@ const connectToDatabase = async () => {
       });
     }
     await AppDataSource.initialize();
-    await AppDataSource.synchronize();
     console.log('Connection Established with PostgreSQL Database.');
   } catch (err: unknown) {
     console.error("ERROR: Couldn't connect to database", err);

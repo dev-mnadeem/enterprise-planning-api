@@ -65,3 +65,41 @@ tests/
 
 - CORS origins come from `FRONT_END_DOMAIN` (comma separated in `docker-compose.yml`).
 - The server won't start listening if it can't connect to the database.
+
+## Verified native authorization flow
+
+The current native run uses PostgreSQL 16 and Node 22. All 19 authorization
+contract tests pass against the real seeded API. The paired console also passes
+login, persisted login after reload, and the role-list browser flow.
+
+`DATABASE_PORT` defaults to 5432 and permits an isolated local database port.
+Password hashing now uses the existing pure-JavaScript bcrypt implementation,
+which retains compatibility with stored bcrypt hashes. Production startup no
+longer calls schema synchronization after initialization: the production
+configuration's `synchronize: false` is respected. Production schema migrations
+are still a deployment prerequisite, not supplied by this change. Failed
+database startup returns a nonzero exit status.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Console
+    participant Auth as JWT middleware
+    participant Roles as Role/permission check
+    participant DB as PostgreSQL
+    User->>Console: Sign in
+    Console->>DB: Login through API, verify password hash
+    DB-->>Console: Access token and persisted session
+    Console->>Auth: Authorized role-list request
+    Auth->>Roles: Verified account
+    Roles->>DB: Read permitted records
+    DB-->>Console: Roles
+```
+
+CI builds, seeds a disposable local database, starts the compiled API, and runs
+`scripts/check-api.cjs`. This script is for local/test databases only and creates
+demo fixtures. Container execution remains unverified here.
+
+## Author
+
+[**Muhammad Nadeem**](https://github.com/dev-mnadeem)

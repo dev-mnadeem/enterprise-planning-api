@@ -1,6 +1,6 @@
 # Node 16 went end-of-life in September 2023. TypeORM 0.3 and the ulid/zod
 # stack here are fine on 20 LTS.
-FROM node:20-bookworm-slim AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
@@ -9,7 +9,7 @@ COPY . .
 # in an image where build/ had never been produced.
 RUN npm run build
 
-FROM node:20-bookworm-slim AS runtime
+FROM node:22-bookworm-slim AS runtime
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY package*.json ./
